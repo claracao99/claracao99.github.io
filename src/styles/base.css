@@ -149,6 +149,31 @@ ol {
   transform: translateY(0);
 }
 
+/*
+ * Link styled as a button. Used for primary actions (the hero CTA), where an
+ * inline text link is too small a tap target on touch.
+ */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: var(--space-3) var(--space-5);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  letter-spacing: var(--tracking-wide);
+  text-decoration: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.button:hover {
+  background-color: var(--link);
+  color: var(--ink-on-accent);
+}
+
 /* The standard content column. --measure-wide for grids, --measure for prose. */
 .wrap {
   width: 100%;

@@ -43,9 +43,19 @@ const links = [
   .links li {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: var(--space-2) var(--space-4);
-    padding-block: var(--space-4);
     border-bottom: 1px solid var(--rule);
+  }
+
+  /* The anchor, not the row, carries the vertical padding — so the whole
+   * row height is tappable rather than just the text. */
+  .links li a {
+    flex: 1;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding-block: var(--space-3);
   }
 
   .links__label {
@@ -54,7 +64,5 @@ const links = [
     letter-spacing: var(--tracking-wider);
     text-transform: uppercase;
     color: var(--ink-muted);
-    /* Aligns the label with the link's first line rather than the row top. */
-    padding-top: 0.25em;
   }
 </style>
