@@ -1,0 +1,31 @@
+---
+import { SITE } from '../consts';
+
+// Build-time year: the site is static, so this updates on each deploy rather
+// than needing client JS.
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="wrap footer__inner">
+    <p>&copy; {year} {SITE.name}</p>
+    <p><a href="/contact/">Get in touch</a></p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: var(--space-section);
+    border-top: 1px solid var(--rule);
+    padding-block: var(--space-6);
+  }
+
+  .footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--ink-muted);
+  }
+</style>

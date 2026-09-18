@@ -37,6 +37,11 @@ infrastructure:
 - **Adding a case study:** drop one `.mdx` file into `src/content/work/` with a
   co-located cover image. No code changes needed. The filename is the slug.
   `draft: true` entries render in `astro dev` but are excluded from builds.
+- **`draft: true` hides the page, not the images.** Verified: a draft's cover
+  image is still emitted to `dist/_astro/` with a hashed filename, so it is
+  publicly fetchable even though nothing links to it. For anything genuinely
+  confidential (NDA work, unannounced projects), keep the images out of the
+  repo entirely — don't rely on the draft flag.
 - **Images:** put them in `src/assets/` or beside the MDX so `astro:assets`
   optimises them — never `public/`, which bypasses optimisation entirely.
   **Downsize before committing:** cap masters at ~2500px on the long edge, as

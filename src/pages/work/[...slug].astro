@@ -1,0 +1,22 @@
+---
+import { render } from 'astro:content';
+import CaseStudyLayout from '../../layouts/CaseStudyLayout.astro';
+import { getPublishedWork } from '../../lib/work';
+
+// Static paths come from the same helper as the index, so a draft is excluded
+// from both the listing and its own route in production.
+export async function getStaticPaths() {
+  const projects = await getPublishedWork();
+  return projects.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<CaseStudyLayout entry={entry}>
+  <Content />
+</CaseStudyLayout>

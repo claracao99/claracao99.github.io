@@ -1,0 +1,184 @@
+---
+/**
+ * Renders a case study: frontmatter header, cover image, then the MDX body
+ * via <slot />.
+ */
+import { Image } from 'astro:assets';
+import BaseLayout from './BaseLayout.astro';
+import type { WorkEntry } from '../lib/work';
+
+interface Props {
+  entry: WorkEntry;
+}
+
+const { entry } = Astro.props;
+const { title, summary, role, client, year, cover, coverAlt, tags, draft } =
+  entry.data;
+
+// Facts row: only render the pairs that are actually set.
+const meta = [
+  client && { label: 'Client', value: client },
+  { label: 'Role', value: role },
+  { label: 'Year', value: String(year) },
+].filter(Boolean) as { label: string; value: string }[];
+---
+
+<BaseLayout title={title} description={summary}>
+  <article class="case">
+    <div class="wrap wrap--prose">
+      {
+        draft && (
+          <p class="case__draft">
+            Draft — visible in development only, excluded from the published
+            site.
+          </p>
+        )
+      }
+      <header class="case__header">
+        <h1>{title}</h1>
+        <p class="case__summary">{summary}</p>
+        <dl class="case__meta">
+          {
+            meta.map((item) => (
+              <div>
+                <dt>{item.label}</dt>
+                <dd>{item.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        {
+          tags.length > 0 && (
+            <ul class="case__tags">
+              <li class="visually-hidden">Tags:</li>
+              {tags.map((tag) => (
+                <li>{tag}</li>
+              ))}
+            </ul>
+          )
+        }
+      </header>
+    </div>
+
+    <div class="wrap case__cover">
+      {/*
+        webp rather than the default: covers may have transparency, and a jpeg
+        fallback would flatten alpha onto black — invisible in dev, broken in
+        production. See AGENTS.md.
+      */}
+      <Image
+        src={cover}
+        alt={coverAlt}
+        widths={[480, 960, 1440, 1920]}
+        sizes="(max-width: 72rem) 100vw, 72rem"
+        format="webp"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
+
+    <div class="wrap wrap--prose case__body">
+      <slot />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .case {
+    padding-block: var(--space-section) 0;
+  }
+
+  .case__draft {
+    margin-bottom: var(--space-6);
+    padding: var(--space-3) var(--space-4);
+    border: 1px dashed var(--rule-strong);
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    color: var(--ink-secondary);
+  }
+
+  .case__summary {
+    max-width: var(--measure);
+    margin-top: var(--space-5);
+    font-size: var(--text-lg);
+    color: var(--ink-secondary);
+  }
+
+  .case__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-5);
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+  }
+
+  .case__meta dt {
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .case__meta dd {
+    margin: var(--space-1) 0 0;
+    font-size: var(--text-sm);
+  }
+
+  .case__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-5) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .case__tags li:not(.visually-hidden) {
+    padding: var(--space-1) var(--space-3);
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    font-size: var(--text-xs);
+    color: var(--ink-secondary);
+  }
+
+  .case__cover {
+    margin-block: var(--space-7);
+  }
+
+  .case__cover :global(img) {
+    width: 100%;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Vertical rhythm for the MDX body, scoped so authors don't style prose. */
+  .case__body :global(h2) {
+    margin-top: var(--space-8);
+    margin-bottom: var(--space-4);
+  }
+
+  .case__body :global(h3) {
+    margin-top: var(--space-6);
+    margin-bottom: var(--space-3);
+  }
+
+  .case__body :global(p),
+  .case__body :global(ul),
+  .case__body :global(ol) {
+    margin-bottom: var(--space-4);
+  }
+
+  .case__body :global(img) {
+    width: 100%;
+    margin-block: var(--space-6);
+    border-radius: var(--radius-md);
+  }
+
+  .case__body :global(blockquote) {
+    margin: var(--space-6) 0;
+    padding-left: var(--space-5);
+    border-left: 2px solid var(--rule-strong);
+    font-size: var(--text-lg);
+    color: var(--ink-secondary);
+  }
+</style>

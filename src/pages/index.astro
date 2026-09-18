@@ -1,17 +1,116 @@
 ---
+/**
+ * Landing page.
+ *
+ * Deliberately restrained: the art direction is still open, so this is a
+ * correct, accessible, responsive structure rather than a finished design.
+ * It consumes tokens only, so a visual direction can be applied without
+ * restructuring the markup.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import WorkCard from '../components/WorkCard.astro';
+import { getPublishedWork } from '../lib/work';
+import { SITE } from '../consts';
 
+const projects = await getPublishedWork();
+const featured = projects.slice(0, 3);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout hideNav>
+  <Nav />
+
+  <section class="hero">
+    <div class="wrap">
+      <p class="hero__eyebrow">{SITE.name}</p>
+      <h1 class="hero__title">
+        Product designer working on rider and driver experiences.
+      </h1>
+      <p class="hero__lede">
+        Placeholder headline — replace with your own positioning. One sentence
+        that says what you do and who for.
+      </p>
+      <p class="hero__cta">
+        <a href="/work/">See the work</a>
+      </p>
+    </div>
+  </section>
+
+  {
+    featured.length > 0 && (
+      <section class="featured">
+        <div class="wrap">
+          <h2 class="featured__heading">Selected work</h2>
+          <ul class="grid">
+            {featured.map((entry, i) => (
+              <li>
+                <WorkCard entry={entry} eager={i === 0} />
+              </li>
+            ))}
+          </ul>
+          {projects.length > featured.length && (
+            <p class="featured__more">
+              <a href="/work/">All projects</a>
+            </p>
+          )}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .hero {
+    padding-block: var(--space-section);
+  }
+
+  .hero__eyebrow {
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .hero__title {
+    max-width: 30ch;
+    margin-top: var(--space-4);
+  }
+
+  .hero__lede {
+    max-width: var(--measure);
+    margin-top: var(--space-5);
+    font-size: var(--text-lg);
+    color: var(--ink-secondary);
+  }
+
+  .hero__cta {
+    margin-top: var(--space-6);
+  }
+
+  .featured {
+    padding-bottom: var(--space-section);
+  }
+
+  .featured__heading {
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: var(--space-7);
+    font-size: var(--text-sm);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: var(--space-7) var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .featured__more {
+    margin-top: var(--space-7);
+  }
+</style>

@@ -1,0 +1,75 @@
+---
+/**
+ * The outermost layout: <head>, metadata, global styles, skip link.
+ * Every page goes through this, directly or via PageLayout.
+ */
+import { SITE } from '../consts';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+import '../styles/tokens.css';
+import '../styles/base.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Path to an OG image, relative to the site root. */
+  ogImage?: string;
+  /** Landing page hides the nav, which it renders itself. */
+  hideNav?: boolean;
+}
+
+const {
+  title,
+  description = SITE.description,
+  ogImage,
+  hideNav = false,
+} = Astro.props;
+
+// Landing page uses the bare site title; inner pages get a suffix.
+const pageTitle = title ? `${title} — ${SITE.name}` : SITE.title;
+
+// Astro.site comes from `site` in astro.config.mjs, so these are absolute in
+// production and still resolve during dev.
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+
+    <meta
+      name="twitter:card"
+      content={ogImageUrl ? 'summary_large_image' : 'summary'}
+    />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+
+    <meta name="generator" content={Astro.generator} />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    {!hideNav && <Nav />}
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

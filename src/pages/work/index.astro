@@ -1,0 +1,45 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import { getPublishedWork } from '../../lib/work';
+
+const projects = await getPublishedWork();
+---
+
+<PageLayout
+  title="Work"
+  eyebrow="Selected projects"
+  description="Selected product design work and case studies."
+  wide
+>
+  {
+    projects.length === 0 ? (
+      <p class="empty">No case studies published yet.</p>
+    ) : (
+      <ul class="grid">
+        {projects.map((entry, i) => (
+          <li>
+            <WorkCard entry={entry} eager={i === 0} />
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</PageLayout>
+
+<style>
+  /* auto-fit + minmax gives a responsive grid with no breakpoints: one column
+   * on a phone, two or three as space allows. */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: var(--space-7) var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .empty {
+    color: var(--ink-muted);
+  }
+</style>

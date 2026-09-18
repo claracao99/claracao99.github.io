@@ -1,0 +1,56 @@
+---
+/**
+ * Standard content page: a titled, single-column reading layout.
+ * Used by /about, /contact, /404 and the work index.
+ */
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Small label above the title, e.g. "About". Omit to hide. */
+  eyebrow?: string;
+  /** Intro line under the title, set larger than body copy. */
+  lede?: string;
+  /** Use the wide column (for grids) instead of the prose measure. */
+  wide?: boolean;
+}
+
+const { title, description, eyebrow, lede, wide = false } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <div class:list={['wrap', !wide && 'wrap--prose', 'page']}>
+    <header class="page__header">
+      {eyebrow && <p class="page__eyebrow">{eyebrow}</p>}
+      <h1>{title}</h1>
+      {lede && <p class="page__lede">{lede}</p>}
+    </header>
+    <slot />
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    padding-block: var(--space-section);
+  }
+
+  .page__header {
+    margin-bottom: var(--space-7);
+  }
+
+  .page__eyebrow {
+    margin-bottom: var(--space-3);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .page__lede {
+    max-width: var(--measure);
+    margin-top: var(--space-5);
+    font-size: var(--text-lg);
+    color: var(--ink-secondary);
+  }
+</style>

@@ -1,0 +1,60 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+
+/**
+ * Static links only — no form. A form needs a server or a third-party
+ * endpoint, and a third-party endpoint is exactly the kind of dependency this
+ * site is meant to avoid (see AGENTS.md).
+ *
+ * TODO (Clara): replace with the addresses you actually want public.
+ */
+const links = [
+  { label: 'Email', href: 'mailto:hello@example.com', text: 'hello@example.com' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/', text: 'LinkedIn' },
+  { label: 'GitHub', href: 'https://github.com/claracao99', text: 'github.com/claracao99' },
+];
+---
+
+<PageLayout
+  title="Contact"
+  eyebrow="Contact"
+  lede="Placeholder — replace these with the addresses you want public."
+  description="Get in touch with Clara Cao."
+>
+  <ul class="links">
+    {
+      links.map((link) => (
+        <li>
+          <span class="links__label">{link.label}</span>
+          <a href={link.href}>{link.text}</a>
+        </li>
+      ))
+    }
+  </ul>
+</PageLayout>
+
+<style>
+  .links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .links li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    padding-block: var(--space-4);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .links__label {
+    flex: 0 0 6rem;
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wider);
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    /* Aligns the label with the link's first line rather than the row top. */
+    padding-top: 0.25em;
+  }
+</style>
