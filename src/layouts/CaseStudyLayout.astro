@@ -24,15 +24,15 @@ const meta = [client, String(year)].filter(Boolean).join(' · ');
       <p class="case__draft caps">Draft — visible in development only</p>
     )
   }
-  <header class="case__caption">
-    <div>
+  <header class="case__caption grid">
+    <div class="col-1">
       <h1 class="case__title" id={`case-${entry.id}`}>{title}</h1>
       <p class="case__meta caps">{meta}</p>
     </div>
-    <p class="case__summary">{summary}</p>
+    <p class="case__summary col-2-3">{summary}</p>
   </header>
 
-  <div class="case__body">
+  <div class="case__body grid">
     <slot />
   </div>
 </article>

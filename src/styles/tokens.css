@@ -88,8 +88,9 @@
   --gutter: clamp(1.25rem, 1rem + 1.6vw, 2.5rem);
   --page-max: 120rem;
   --measure: 37.5rem; /* 600 */
+  --measure-wide: 42em; /* cap for prose spanning two grid columns */
   --media-height: clamp(15rem, 12rem + 12vw, 22.5rem); /* 360 at desktop */
-  --media-gap: var(--space-5);
+  --grid-gap: var(--space-5); /* 24 — one gap for images and text columns */
   --column-gap: var(--space-7);
 
   --radius-sm: 6px;

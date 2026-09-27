@@ -8,19 +8,18 @@
 
 /* ── Media rows ─────────────────────────────────────────────────────────────── */
 
+/* A media row is the page grid: one well per column. A single well spans all
+ * three; with two, the first takes two columns. */
 .media-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--media-gap);
   width: 100%;
 }
 
 @media (min-width: 48rem) {
-  .media-row[data-count='2'] {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .media-row[data-count='1'] > .media {
+    grid-column: 1 / -1;
   }
-  .media-row[data-count='3'] {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .media-row[data-count='2'] > .media:first-child {
+    grid-column: span 2;
   }
 }
 
@@ -107,10 +106,6 @@
 }
 
 .case__caption {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--space-5) var(--column-gap);
   padding-bottom: var(--space-6);
 }
 
@@ -126,25 +121,22 @@
 }
 
 .case__summary {
-  max-width: var(--measure);
+  max-width: var(--measure-wide);
   color: var(--ink-body);
 }
 
 /*
- * The body is a two-column grid. Prose sits in the right column, aligned with
- * the summary above; media rows break out to the full width. Authors write
- * plain MDX and never touch layout.
+ * The body sits on the page grid. Prose takes columns 2–3, under the summary;
+ * media rows span all three. Authors write plain MDX and never touch layout.
  */
 .case__body {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  column-gap: var(--column-gap);
+  row-gap: 0;
   color: var(--ink-body);
 }
 
 .case__body > * {
   min-width: 0;
-  max-width: var(--measure);
+  max-width: var(--measure-wide);
 }
 
 .case__body > p + p,
@@ -163,18 +155,12 @@
   margin-bottom: var(--space-9);
 }
 
-@media (min-width: 64rem) {
-  .case__body {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+@media (min-width: 48rem) {
   .case__body > * {
-    grid-column: 2;
+    grid-column: 2 / -1;
   }
   .case__body > .media-row {
     grid-column: 1 / -1;
-  }
-  .case__summary {
-    flex: 0 1 var(--measure);
   }
 }
 

@@ -23,15 +23,15 @@ const headingId = `project-${entry.id}`;
 
 <article class="project" aria-labelledby={headingId}>
   <MediaRow items={media} eager={eager} />
-  <div class="project__caption">
-    <div class="project__title">
+  <div class="project__caption grid">
+    <div class="project__title col-1">
       <h3 id={headingId}>
         {title}
         {draft && <span class="project__draft">Draft</span>}
       </h3>
       <p class="caps">{date}</p>
     </div>
-    <div class="project__description">
+    <div class="project__description col-2-3">
       <p>{summary}</p>
       {
         externalUrl ? (
@@ -55,12 +55,6 @@ const headingId = `project-${entry.id}`;
     padding-block: var(--space-5) var(--space-8);
   }
 
-  .project__caption {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: var(--space-5) var(--column-gap);
-  }
 
   .project__title {
     display: grid;
@@ -91,13 +85,7 @@ const headingId = `project-${entry.id}`;
     display: grid;
     gap: var(--space-5);
     justify-items: start;
-    max-width: var(--measure);
+    max-width: var(--measure-wide);
     font-size: var(--text-md);
-  }
-
-  @media (min-width: 64rem) {
-    .project__description {
-      flex: 0 1 var(--measure);
-    }
   }
 </style>

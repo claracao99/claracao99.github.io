@@ -176,6 +176,32 @@ ol {
   background: var(--surface-chip-hover);
 }
 
+/*
+ * The page grid: three equal columns, one gap. Media wells take a column
+ * each; text sits on the same tracks (title in 1, prose in 2–3) so edges line
+ * up down the page. Collapses to one column on phones.
+ */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--grid-gap);
+}
+
+@media (min-width: 48rem) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .grid > .col-1 {
+    grid-column: 1;
+  }
+  .grid > .col-2-3 {
+    grid-column: 2 / -1;
+  }
+  .grid > .col-all {
+    grid-column: 1 / -1;
+  }
+}
+
 /* Hairline between stacked entries. */
 .rule {
   border: 0;

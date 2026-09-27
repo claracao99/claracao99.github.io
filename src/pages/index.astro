@@ -30,7 +30,7 @@ const fun = await getPublishedFun();
     fun.length > 0 && (
       <section class="wrap fun" aria-labelledby="fun-stuff">
         <SectionHead italic="Fun" rest="stuff" id="fun-stuff" />
-        <div class="fun__grid">
+        <div class="fun__grid grid">
           {fun.map((entry) => (
             <SmallCard entry={entry} />
           ))}
@@ -58,9 +58,7 @@ const fun = await getPublishedFun();
   }
 
   .fun__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
-    gap: var(--space-9) var(--column-gap);
+    row-gap: var(--space-9);
     margin-top: var(--space-6);
   }
 

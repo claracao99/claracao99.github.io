@@ -58,8 +58,11 @@ externalUrl: https://...  # optional: "Read more" links out, no page built
 ---
 ```
 
-The body is plain MDX. Paragraphs land in the right-hand reading column
-automatically; media rows break out to full width. Two components:
+Everything sits on one three-column grid (`.grid` in `base.css`): media wells
+take a column each (a single well spans all three; with two, the first spans
+two), titles sit in column 1, descriptions and case-study prose span columns
+2–3. The body is plain MDX. Paragraphs land in columns 2–3 automatically;
+media rows span the full width. Two components:
 
 ```mdx
 import MediaRow from '../../components/MediaRow.astro';
