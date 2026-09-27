@@ -25,64 +25,66 @@ const experience = [
 
 <BaseLayout title="About me" description="About Clara Cao, product designer at Bolt.">
   <div class="wrap about">
-    <SectionHead as="h1" lead="About" italic="me">
+    <div class="grid about__head">
+      <div class="col-1-2">
+        <SectionHead as="h1" lead="About" italic="me" />
+      </div>
       <Image
-        class="about__portrait"
+        class="about__portrait col-3"
         src={portrait}
         alt="Clara Cao"
-        width={164}
-        height={164}
-        densities={[1, 2]}
+        width={600}
+        height={600}
+        widths={[300, 600]}
+        sizes="(max-width: 48rem) 12rem, 33vw"
         format="webp"
         loading="eager"
       />
-    </SectionHead>
+    </div>
 
-    <div class="about__columns">
-      <section class="about__bio" aria-label="Bio">
+    <div class="grid about__columns">
+      <section class="about__bio col-1" aria-label="Bio">
         {bio.map((p) => <p>{p}</p>)}
       </section>
 
-      <div class="about__aside">
-        <section class="block" aria-labelledby="experience">
-          <h2 class="title" id="experience">Experience</h2>
-          <ul class="entries">
-            {
-              experience.map((e) => (
-                <li class="entry">
-                  <p class="entry__role">{e.role}</p>
-                  <p class="entry__org">
-                    <a href={e.href} target="_blank" rel="noopener noreferrer">
-                      {e.org}<span class="visually-hidden"> (opens in a new tab)</span>
-                    </a>
-                    <span class="caps entry__dates">{e.dates}</span>
-                  </p>
-                </li>
-              ))
-            }
-          </ul>
-        </section>
-
-        <section class="block" aria-labelledby="contact">
-          <h2 class="title" id="contact">Contact</h2>
-          <ul class="entries">
-            {
-              CONTACT.map((c) => (
-                <li class="entry">
-                  <a
-                    class="entry__link"
-                    href={c.href}
-                    target={'external' in c && c.external ? '_blank' : undefined}
-                    rel={'external' in c && c.external ? 'noopener noreferrer' : undefined}
-                  >
-                    {c.label}
+      <section class="block col-2" aria-labelledby="experience">
+        <h2 class="title" id="experience">Experience</h2>
+        <ul class="entries">
+          {
+            experience.map((e) => (
+              <li class="entry">
+                <p class="entry__role">{e.role}</p>
+                <p class="entry__org">
+                  <a href={e.href} target="_blank" rel="noopener noreferrer">
+                    {e.org}<span class="visually-hidden"> (opens in a new tab)</span>
                   </a>
-                </li>
-              ))
-            }
-          </ul>
-        </section>
-      </div>
+                  <span class="caps entry__dates">{e.dates}</span>
+                </p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section class="block col-3" aria-labelledby="contact">
+        <h2 class="title" id="contact">Contact</h2>
+        <ul class="entries">
+          {
+            CONTACT.map((c) => (
+              <li class="entry">
+                <a
+                  class="entry__link"
+                  href={c.href}
+                  target={'external' in c && c.external ? '_blank' : undefined}
+                  rel={'external' in c && c.external ? 'noopener noreferrer' : undefined}
+                >
+                  {c.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
     </div>
   </div>
 </BaseLayout>
@@ -93,43 +95,35 @@ const experience = [
     padding-bottom: var(--space-12);
   }
 
-  /* Portrait sits top-right of the heading row, level with the header rule. */
+  /* Heading spans columns 1–2; the portrait fills column 3 as a square. */
+  .about__head {
+    align-items: end;
+  }
+
   .about :global(.about__portrait) {
-    flex: none;
-    width: clamp(6rem, 5rem + 4vw, 10.25rem);
+    width: 100%;
     height: auto;
     aspect-ratio: 1;
     object-fit: cover;
-    object-position: center bottom;
-    margin-top: calc(-1 * var(--space-5));
+    border-radius: var(--radius-sm);
+  }
+
+  @media (max-width: 48rem) {
+    .about :global(.about__portrait) {
+      width: 12rem;
+    }
   }
 
   .about__columns {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-10) var(--space-11);
-    padding-top: var(--space-6);
-  }
-
-  @media (min-width: 64rem) {
-    .about__columns {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    row-gap: var(--space-10);
+    padding-top: var(--space-8);
   }
 
   .about__bio {
     display: grid;
     gap: var(--space-5);
     align-content: start;
-    max-width: 34em;
   }
-
-  .about__aside {
-    display: grid;
-    gap: var(--space-11);
-    align-content: start;
-  }
-
 
   .entries {
     display: grid;
