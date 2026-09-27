@@ -59,6 +59,7 @@
   --leading-body: 1.5;
 
   --tracking-display: -0.015em;
+  --tracking-body: -0.011em; /* Inter runs a touch wide at 17–20px */
   --tracking-label: 0.08em;
 
   --weight-normal: 400;
