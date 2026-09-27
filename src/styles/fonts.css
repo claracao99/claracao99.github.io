@@ -1,19 +1,20 @@
 /*
  * Self-hosted typefaces. woff2 only, font-display: swap — see AGENTS.md.
  *
- * Inter — Rasmus Andersson, SIL Open Font Licence.
+ * ABC Diatype — Dinamo. TRIAL licence: testing only, not for published work.
+ *   Replace with licensed files before this site is shared publicly (TODO.md).
  * Instrument Serif — Rodrigo Fuenzalida & Jordan Egstad, SIL Open Font Licence.
  */
 @font-face {
-  font-family: 'Inter';
-  src: url('../fonts/Inter-Regular.woff2') format('woff2');
+  font-family: 'ABC Diatype';
+  src: url('../fonts/ABCDiatypeTrial-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Inter';
-  src: url('../fonts/Inter-Medium.woff2') format('woff2');
+  font-family: 'ABC Diatype';
+  src: url('../fonts/ABCDiatypeTrial-Medium.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;

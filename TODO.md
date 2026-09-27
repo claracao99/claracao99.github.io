@@ -3,6 +3,14 @@
 State as of 2026-09-27. The Figma structure (landing + about + case-study
 sheet) is implemented with the Figma's placeholder copy and grey media wells.
 
+## Before sharing the site
+
+- [ ] **Font licence.** `src/fonts/ABCDiatypeTrial-*.woff2` are Dinamo trial
+      files, licensed for testing only — not for a published site. Buy a web
+      licence for ABC Diatype Regular + Medium and swap the files (same names,
+      or update `src/styles/fonts.css`). Until then, treat the live site as a
+      preview. Fallback if not buying: revert to Inter (git history has the Inter setup, OFL).
+
 ## Content — the actual bottleneck
 
 - [ ] **Media.** Every well is a placeholder `shape`. Replace with real exports:

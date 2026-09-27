@@ -103,9 +103,10 @@ Tokens are two-tier: a **ramp** (`--grey-10`) and a **semantic layer**
 (`--ink`, `--surface`, `--rule`) that components actually use. The site is
 light-only by design; a dark mode would be a semantic-layer block.
 
-Type is self-hosted (`src/fonts/`, declared in `src/styles/fonts.css`), all
-SIL OFL: **Inter** 400/500 (body, titles, labels) and
-**Instrument Serif** roman + italic (display headings). Four roles — display,
+Type is self-hosted (`src/fonts/`, declared in `src/styles/fonts.css`):
+**ABC Diatype** 400/500 (body, titles, labels — currently the Dinamo *trial*
+files, see TODO) and **Instrument Serif** roman + italic (display headings,
+SIL OFL). Four roles — display,
 title, body, label — are documented at the top of the type section in
 `tokens.css`; `.title` and `.caps` in `base.css` apply the last two.
 

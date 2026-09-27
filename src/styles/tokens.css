@@ -41,12 +41,12 @@
   /* ── Type ──────────────────────────────────────────────────────────────────
    * Four roles, from the type spec:
    *   Display — Instrument Serif, 96 desktop / 64 phone, lh ~1, tracking -1.5%
-   *   Title   — Inter Medium 20, lh 1.2
-   *   Body    — Inter Regular 17, lh 1.5
-   *   Label   — Inter 12, uppercase, tracking +8%, tabular figures
+   *   Title   — ABC Diatype Medium 20, lh 1.2
+   *   Body    — ABC Diatype Regular 17, lh 1.5
+   *   Label   — ABC Diatype 12, uppercase, tracking +8%, tabular figures
    * Self-hosted, see fonts.css.
    */
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
+  --font-sans: 'ABC Diatype', system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
   --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
   /* Labels share the sans; kept as a token so a mono can be swapped in. */
@@ -63,7 +63,7 @@
   --leading-body: 1.5;
 
   --tracking-display: -0.015em;
-  --tracking-body: -0.011em; /* Inter runs a touch wide at 17–20px */
+  --tracking-body: -0.005em; /* Diatype is already fairly tight */
   --tracking-title: -0.025em;
   --tracking-label: 0.08em;
 
