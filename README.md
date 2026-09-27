@@ -96,7 +96,7 @@ confidential work, **keep the images out of the repo**.
 ## Styling
 
 Every colour, type step and spacing value lives in `src/styles/tokens.css`,
-taken from the Figma file ("light editorial v3"). Components reference tokens
+a pure-neutral palette on white (originally the Figma's tinted greys). Components reference tokens
 only; there is no literal hex anywhere else.
 
 Tokens are two-tier: a **ramp** (`--grey-10`) and a **semantic layer**

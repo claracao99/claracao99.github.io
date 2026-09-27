@@ -6,13 +6,15 @@
  */
 
 :root {
-  /* ── Palette ─────────────────────────────────────────────────────────────── */
-  --grey-00: #f7f7f8; /* page */
-  --grey-10: #ecedef; /* media wells, hover fills */
-  --grey-20: #dddfe2; /* placeholder shapes */
-  --grey-30: #d6d7db; /* hairlines */
-  --grey-60: #6b6b70; /* muted labels — 5.1:1 on --grey-00 */
-  --grey-90: #1a1a1a; /* body copy */
+  /* ── Palette ───────────────────────────────────────────────────────────────
+   * Pure neutrals, no tint: white page, cool greys, near-black ink.
+   */
+  --grey-00: #ffffff; /* page */
+  --grey-10: #f2f2f2; /* media wells, hover fills */
+  --grey-20: #e3e3e3; /* placeholder shapes */
+  --grey-30: #e0e0e0; /* hairlines */
+  --grey-60: #6f6f6f; /* muted labels — 5.3:1 on white */
+  --grey-90: #171717; /* body copy */
   --grey-100: #0a0a0a; /* titles, nav */
 
   /* ── Semantic colour ───────────────────────────────────────────────────────
@@ -29,10 +31,12 @@
   --ink-muted: var(--grey-60);
 
   --rule: var(--grey-30);
+  /* Hairlines: 1 device pixel wherever the screen can draw one. */
+  --rule-width: 1px;
 
   --link: var(--ink);
   --focus-ring: var(--ink);
-  --scrim: rgb(10 10 10 / 0.55);
+  --scrim: rgb(10 10 10 / 0.5);
 
   /* ── Type ──────────────────────────────────────────────────────────────────
    * Four roles, from the type spec:
@@ -107,4 +111,10 @@
 
   --z-nav: 100;
   --z-overlay: 200;
+}
+
+@media (min-resolution: 2dppx) {
+  :root {
+    --rule-width: 0.5px;
+  }
 }

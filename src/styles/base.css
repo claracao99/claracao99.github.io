@@ -96,7 +96,7 @@ a {
 
 hr {
   border: none;
-  border-top: 1px solid var(--rule);
+  border-top: var(--rule-width) solid var(--rule);
 }
 
 ul,
@@ -126,7 +126,7 @@ ol {
   padding: var(--space-2) var(--space-4);
   background: var(--surface);
   color: var(--ink);
-  border: 1px solid var(--rule);
+  border: var(--rule-width) solid var(--rule);
   border-radius: var(--radius-sm);
   text-decoration: none;
   transform: translateY(-200%);
@@ -199,7 +199,7 @@ ol {
 /* Hairline between stacked entries. */
 .rule {
   border: 0;
-  border-top: 1px solid var(--rule);
+  border-top: var(--rule-width) solid var(--rule);
 }
 
 /* ── Reduced motion ────────────────────────────────────────────────────────── */
