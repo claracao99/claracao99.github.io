@@ -8,7 +8,7 @@
 :root {
   /* ── Palette ─────────────────────────────────────────────────────────────── */
   --grey-00: #f7f7f8; /* page */
-  --grey-10: #ecedef; /* media wells, chip buttons */
+  --grey-10: #ecedef; /* media wells, hover fills */
   --grey-20: #dddfe2; /* placeholder shapes */
   --grey-30: #d6d7db; /* hairlines */
   --grey-60: #6b6b70; /* muted labels — 5.1:1 on --grey-00 */
@@ -22,8 +22,7 @@
   --surface: var(--grey-00);
   --surface-sunken: var(--grey-10);
   --surface-placeholder: var(--grey-20);
-  --surface-chip: var(--grey-10);
-  --surface-chip-hover: var(--grey-20);
+  --surface-hover: var(--grey-10); /* close button hover */
 
   --ink: var(--grey-100);
   --ink-body: var(--grey-90);

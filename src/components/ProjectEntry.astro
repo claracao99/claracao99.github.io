@@ -35,11 +35,11 @@ const headingId = `project-${entry.id}`;
       <p>{summary}</p>
       {
         externalUrl ? (
-          <a class="chip" href={href} target="_blank" rel="noopener noreferrer">
+          <a class="more" href={href} target="_blank" rel="noopener noreferrer">
             Read more<span class="visually-hidden"> about {title} (opens in a new tab)</span>
           </a>
         ) : (
-          <a class="chip" href={href} data-sheet data-sheet-title={title}>
+          <a class="more" href={href} data-sheet data-sheet-title={title}>
             Read more<span class="visually-hidden"> about {title}</span>
           </a>
         )
@@ -83,9 +83,26 @@ const headingId = `project-${entry.id}`;
 
   .project__description {
     display: grid;
-    gap: var(--space-5);
+    gap: var(--space-2);
     justify-items: start;
     max-width: var(--measure-wide);
     font-size: var(--text-md);
+  }
+
+  /* Same treatment as the header link: medium weight, underline on hover.
+   * min-height keeps the tap target at 44px without a visible box. */
+  .more {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: var(--weight-medium);
+    letter-spacing: var(--tracking-nav);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .more:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
 </style>

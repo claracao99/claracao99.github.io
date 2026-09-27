@@ -108,7 +108,7 @@ Type is self-hosted (`src/fonts/`, declared in `src/styles/fonts.css`):
 roman + italic (SIL OFL) for the display headings.
 
 `src/styles/base.css` holds element defaults and utilities (`.wrap`, `.caps`,
-`.chip`, `.rule`, `.visually-hidden`, `.skip-link`). `src/styles/case.css` is
+`.rule`, `.visually-hidden`, `.skip-link`). `src/styles/case.css` is
 global on purpose: it styles the case-study article and media rows, which are
 fetched into the landing-page sheet and so must be styled on every page.
 
