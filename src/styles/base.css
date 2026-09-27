@@ -159,6 +159,7 @@ ol {
   font-size: var(--text-title);
   font-weight: var(--weight-medium);
   line-height: var(--leading-title);
+  letter-spacing: var(--tracking-title);
 }
 
 /*
