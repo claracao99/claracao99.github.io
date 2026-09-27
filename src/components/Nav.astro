@@ -23,6 +23,15 @@ const link = onAbout
 </header>
 
 <style>
+  /* Sticky so the name and the one nav link stay reachable while scrolling.
+   * Opaque background because content passes underneath. */
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-nav);
+    background: var(--surface);
+  }
+
   .nav__inner {
     display: flex;
     align-items: center;
