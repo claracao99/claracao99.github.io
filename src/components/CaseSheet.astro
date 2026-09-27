@@ -21,9 +21,7 @@
       </svg>
     </button>
   </div>
-  <div class="sheet__scroll">
-    <div class="sheet__body" id="case-sheet-body" aria-live="polite"></div>
-  </div>
+  <div class="sheet__body" id="case-sheet-body" aria-live="polite"></div>
 </dialog>
 
 <script>
@@ -57,7 +55,7 @@
       body.replaceChildren();
       if (!dialog.open) dialog.showModal();
       document.documentElement.classList.add('sheet-open');
-      dialog.querySelector('.sheet__scroll')!.scrollTop = 0;
+      dialog.scrollTop = 0;
 
       const article = await load(url);
       if (article) {
@@ -126,13 +124,15 @@
     border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
     background: var(--surface);
     color: var(--ink);
-    overflow: hidden;
+    /* The dialog itself scrolls; the bar below sticks to its top. */
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     display: none;
-    flex-direction: column;
   }
 
   .sheet[open] {
-    display: flex;
+    display: block;
     animation: sheet-in var(--duration-slow) var(--ease-out);
   }
 
@@ -164,13 +164,16 @@
 
   /* Pinned top bar: title + close, hairline below. */
   .sheet__bar {
-    flex: none;
+    position: sticky;
+    top: 0;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-4);
     min-height: 3.5rem;
     padding-inline: var(--gutter);
+    background: var(--surface);
     border-bottom: var(--rule-width) solid var(--rule);
   }
 
@@ -198,11 +201,9 @@
     background: var(--surface-hover);
   }
 
-  .sheet__scroll {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
+  /* Room after the last block so nothing ends flush with the sheet edge. */
+  .sheet__body {
+    padding-bottom: var(--space-12);
   }
 </style>
 
