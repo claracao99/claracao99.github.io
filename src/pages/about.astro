@@ -48,7 +48,7 @@ const experience = [
       </section>
 
       <section class="block col-2" aria-labelledby="experience">
-        <h2 class="title" id="experience">Experience</h2>
+        <h2 class="visually-hidden" id="experience">Experience</h2>
         <ul class="entries">
           {
             experience.map((e) => (
@@ -67,7 +67,7 @@ const experience = [
       </section>
 
       <section class="block col-3" aria-labelledby="contact">
-        <h2 class="title" id="contact">Contact</h2>
+        <h2 class="visually-hidden" id="contact">Contact</h2>
         <ol class="entries entries--numbered">
           {
             CONTACT.map((c, i) => (
@@ -128,7 +128,6 @@ const experience = [
 
   .entries {
     display: grid;
-    margin-top: var(--space-5);
   }
 
   .entry {
