@@ -1,0 +1,36 @@
+---
+title: Cash payment flows
+summary: >-
+  Paying in cash inside a web view, where the pill, the inline row and the
+  confirmation all had to fit one narrow strip. Three states of one flow, side
+  by side.
+client: Bolt
+date: Aug 2026
+year: 2026
+order: 4
+media:
+  - shape: phone
+    label: State 01 · pill
+  - shape: phone
+    label: State 02 · inline row
+  - shape: phone
+    label: State 03 · confirm
+---
+
+import MediaRow from '../../components/MediaRow.astro';
+import Shipped from '../../components/Shipped.astro';
+
+{/* TODO (Clara): case study body. The landing block above is complete. */}
+
+Placeholder body. The constraint of one narrow strip in a web view, and how
+the three states were sequenced rather than stacked.
+
+<MediaRow
+  items={[
+    { shape: 'phone', label: 'Pill' },
+    { shape: 'phone', label: 'Inline row' },
+    { shape: 'phone', label: 'Confirm' },
+  ]}
+/>
+
+<Shipped items={['Cash pill', 'Inline payment row', 'Confirmation state']} />

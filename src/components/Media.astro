@@ -1,0 +1,52 @@
+---
+/**
+ * One visual in a media row: a real image, or a placeholder shape until the
+ * export exists. Styles live in styles/case.css (global — see the note there).
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+type Shape = 'phone' | 'card' | 'pill' | 'bar' | 'tag' | 'panel' | 'sheet' | 'row' | 'none';
+
+interface Props {
+  src?: ImageMetadata;
+  alt?: string;
+  label?: string;
+  shape?: Shape;
+  /** Landing hero loads eagerly; everything else lazily. */
+  eager?: boolean;
+  /** Passed to <img sizes>; defaults to a third of the viewport. */
+  sizes?: string;
+}
+
+const {
+  src,
+  alt = '',
+  label,
+  shape = 'none',
+  eager = false,
+  sizes = '(max-width: 48rem) 100vw, 33vw',
+} = Astro.props;
+---
+
+{
+  src ? (
+    <figure class="media media--image">
+      <Image
+        src={src}
+        alt={alt}
+        widths={[480, 960, 1440]}
+        sizes={sizes}
+        format="webp"
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : undefined}
+      />
+      {label && <figcaption class="visually-hidden">{label}</figcaption>}
+    </figure>
+  ) : (
+    <div class="media" role="img" aria-label={label ?? 'Placeholder'}>
+      {shape !== 'none' && <div class:list={['media__shape', `media__shape--${shape}`]} />}
+      {label && <p class="media__label caps caps--xs">{label}</p>}
+    </div>
+  )
+}

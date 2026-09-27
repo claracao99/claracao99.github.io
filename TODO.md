@@ -1,58 +1,40 @@
 # Open items
 
-State as of 2026-09-20. The site is live and the plumbing is done; what's left
-is mostly content and design direction.
+State as of 2026-09-27. The Figma structure (landing + about + case-study
+sheet) is implemented with the Figma's placeholder copy and grey media wells.
 
-## Needs a decision from Clara
+## Content — the actual bottleneck
 
-- [ ] **Landing page art direction.** `src/pages/index.astro` is deliberately
-      restrained — a correct, accessible, responsive structure rather than a
-      finished design. It consumes tokens only, so a visual direction can be
-      applied without restructuring the markup. This is the one page that
-      shouldn't read as a template default.
-- [ ] **Palette.** `src/styles/tokens.css` ships a neutral ramp with a green
-      accent as a placeholder, plus a dark mode. Decide whether the site is
-      light, dark, or both. Contrast ratios for the ramp are documented in
-      comments at the top of the file.
-- [ ] **Type.** Currently a system stack. If a display face is wanted, it must
-      be self-hosted woff2 in `src/fonts/` — no CDN, no employer-licensed
-      typeface.
-
-## Placeholder copy that is currently public
-
-All marked `TODO (Clara)` in the source.
-
-- [ ] `src/consts.ts` — `SITE.title` and `SITE.description`. These feed
-      `<title>`, OG tags and search results, so they're the most visible
-      placeholder text on the site.
-- [ ] `src/pages/index.astro` — hero headline and lede.
-- [ ] `src/pages/about.astro` — entire body.
-- [ ] `src/pages/contact.astro` — the `links` array still points at
-      `hello@example.com` and a generic LinkedIn URL.
-
-## Content
-
-- [ ] **Real case studies.** This is the actual bottleneck — the site took a
-      few hours; the portfolio doesn't exist until the projects do.
-      `src/content/work/example-project-{one,two}.mdx` are worked examples
-      (both `draft: true`); copy one to start. See README for the frontmatter.
-- [ ] Delete the two example entries once real work replaces them.
+- [ ] **Media.** Every well is a placeholder `shape`. Replace with real exports:
+      swap `shape:` for `src: ./file.png` in the frontmatter / MDX. Cap masters
+      at ~2500px on the long edge.
+- [ ] **Case-study bodies** for Rider prototype library, Activity – London and
+      Cash payment flows are marked `TODO (Clara)` in the MDX — only Order for
+      someone else has real prose.
+- [ ] `src/pages/about.astro` — bio still says "[Company] and [Company]".
+- [ ] `src/consts.ts` — confirm the LinkedIn URL; drop a CV at `public/cv.pdf`
+      (the About page already links to it, so it 404s until then).
+- [ ] Experience links point at company homepages — change or remove.
 - [ ] Replace `public/favicon.svg` (still the Astro default).
-- [ ] Add an OG share image. `BaseLayout` already supports one via the
-      `ogImage` prop; nothing sets it yet, so link previews are text-only.
+- [ ] OG share image. `BaseLayout` supports one via `ogImage`; nothing sets it.
+
+## Design follow-ups
+
+- [ ] The Figma has no phone layouts. The implementation stacks media rows
+      and columns below 48rem/64rem — review on a real phone.
+- [ ] Sheet open/close motion is a simple slide + fade; tune if wanted
+      (CaseSheet.astro keyframes; durations are tokens).
+- [ ] No footer, per the design. Add one if a copyright line is wanted.
 
 ## Nice to have
 
 - [ ] Custom domain — see README. One CNAME file plus DNS.
-- [ ] A real 404 illustration or something with more personality.
-- [ ] Reduced-motion is handled globally, but re-check any bespoke animation
-      added later.
 
 ## Verified working (don't re-litigate)
 
 - Deploy: push to `main` → live in ~1 minute.
-- Responsive: zero horizontal overflow across 7 viewports × 6 pages.
-- Tap targets: ≥ 44px everywhere except inline prose links (correct).
-- Dark mode reassigns only the semantic token layer.
-- Durability audit clean: no work email in history, no `.npmrc`, no internal
-  packages, SSH-only remote.
+- Redirects: `/work/` → `/`, `/contact/` → `/about/`.
+- Sheet: opens via fetch + pushState, closes on ✕ / Esc / scrim / back,
+  falls through to the real page for modifier-clicks and no-JS.
+- Durability audit: no work email in history, no `.npmrc`, no internal
+  packages, SSH-only remote, fonts self-hosted.

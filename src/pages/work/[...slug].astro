@@ -1,22 +1,26 @@
 ---
+/**
+ * A case study as a full page. The landing-page sheet fetches these same
+ * pages, so anything here must render without client JS.
+ */
 import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseStudyLayout from '../../layouts/CaseStudyLayout.astro';
-import { getPublishedWork } from '../../lib/work';
+import { getCaseStudies } from '../../lib/work';
 
-// Static paths come from the same helper as the index, so a draft is excluded
-// from both the listing and its own route in production.
+// Static paths come from the same helper as the landing page, so a draft is
+// excluded from both the listing and its own route in production.
 export async function getStaticPaths() {
-  const projects = await getPublishedWork();
-  return projects.map((entry) => ({
-    params: { slug: entry.id },
-    props: { entry },
-  }));
+  const projects = await getCaseStudies();
+  return projects.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 ---
 
-<CaseStudyLayout entry={entry}>
-  <Content />
-</CaseStudyLayout>
+<BaseLayout title={entry.data.title} description={entry.data.summary}>
+  <CaseStudyLayout entry={entry}>
+    <Content />
+  </CaseStudyLayout>
+</BaseLayout>

@@ -21,66 +21,93 @@ npm run dev          # http://localhost:4321
 
 Node version is pinned in `.nvmrc` (24). Any Node ≥ 22.12 works locally.
 
+## Structure of the site
+
+Three routes:
+
+- `/` — landing page: header, **Selected works** (one block per case study),
+  **Fun stuff** grid. "Read more" opens the case study in a bottom sheet.
+- `/about/` — bio, experience, contact.
+- `/work/<slug>/` — a case study as a full page. The sheet on the landing page
+  fetches this exact page and lifts its `<article class="case">` into a
+  `<dialog>`, so the page must render without client JS (it does). Direct
+  links, new-tab clicks, refresh and no-JS all land here.
+
+`/work/` and `/contact/` from the previous structure redirect (see
+`astro.config.mjs`).
+
 ## Adding a case study
 
-Drop one file into `src/content/work/`, with its cover image beside it. No code
-changes.
-
-```
-src/content/work/
-  redesigning-checkout.mdx
-  redesigning-checkout.cover.png
-```
+Drop one `.mdx` file into `src/content/work/`. No code changes.
 
 ```yaml
 ---
-title: Redesigning checkout
-summary: One or two sentences. Shows on the work index and in link previews.
-role: Product design, prototyping
-client: Example Co.        # optional
-year: 2026
-cover: ./redesigning-checkout.cover.png
-coverAlt: ''               # '' is correct for a purely decorative cover
-tags: [Mobile, Design systems]
-order: 1                   # lower sorts first; ties break by year, descending
-draft: true                # visible in dev, excluded from the built site
-externalUrl: https://...   # optional: index links out, no case-study page
+title: Order for someone else
+summary: One or two sentences. Landing description and meta description.
+client: Bolt              # optional; shown as "BOLT · 2026" in the case study
+date: Jun 2026            # display label, free text
+year: 2026                # sort tiebreaker
+order: 1                  # lower sorts first
+draft: true               # visible in dev, excluded from the built site
+media:                    # 1–3 items → 1-up / 2-up / 3-up landing row
+  - src: ./hero.png       # co-located image, optimised by astro:assets
+    alt: ''               # '' is correct for decorative images
+  - shape: phone          # …or a placeholder until the export exists
+    label: Pick a contact # small uppercase caption inside the well
+externalUrl: https://...  # optional: "Read more" links out, no page built
 ---
 ```
 
-The **filename is the URL slug** — `redesigning-checkout.mdx` becomes
-`/work/redesigning-checkout/`. There's no `slug` field to drift out of sync.
+The body is plain MDX. Paragraphs land in the right-hand reading column
+automatically; media rows break out to full width. Two components:
 
-The schema is enforced at build time (`src/content.config.ts`), so a typo in
-frontmatter fails the build with a useful message rather than shipping broken.
+```mdx
+import MediaRow from '../../components/MediaRow.astro';
+import Shipped from '../../components/Shipped.astro';
 
-`src/content/work/example-project-{one,two}.mdx` are worked examples, both
-`draft: true`. Copy one to start.
+<MediaRow items={[{ shape: 'phone', label: 'Pick a contact' }, { src: img, alt: '' }]} />
+
+Prose…
+
+<Shipped items={['Contact picker…', 'Rolled out in 12 countries']} />
+```
+
+Placeholder `shape`s: `phone`, `card`, `pill`, `bar`, `tag`, `panel`,
+`sheet`, `row`, `none` (label only). To swap one for a real screen, replace
+`shape:` with `src:` (import the image in MDX bodies).
+
+The **filename is the URL slug**. The schema is enforced at build time
+(`src/content.config.ts`).
+
+### Fun stuff
+
+Same idea, one file per tile in `src/content/fun/`, with a single `media`
+object instead of a list and no case-study body.
 
 ### `draft: true` hides the page, not the images
 
-A draft's cover image is still emitted to `dist/_astro/` with a hashed
-filename, so it's publicly fetchable even though nothing links to it. For
-genuinely confidential work, **keep the images out of the repo** — don't rely
-on the draft flag.
+A draft's images are still emitted to `dist/_astro/` with a hashed filename,
+so they're publicly fetchable even though nothing links to them. For genuinely
+confidential work, **keep the images out of the repo**.
 
 ## Styling
 
-Every colour, type step and spacing value lives in `src/styles/tokens.css`.
-Components reference tokens only; there is no literal hex anywhere else. The
-art direction is still open, so re-theming should stay a one-file change.
+Every colour, type step and spacing value lives in `src/styles/tokens.css`,
+taken from the Figma file ("light editorial v3"). Components reference tokens
+only; there is no literal hex anywhere else.
 
-Tokens are two-tier on purpose:
+Tokens are two-tier: a **ramp** (`--grey-10`) and a **semantic layer**
+(`--ink`, `--surface`, `--rule`) that components actually use. The site is
+light-only by design; a dark mode would be a semantic-layer block.
 
-- a **ramp** (`--neutral-40`, `--accent`) — raw values
-- a **semantic layer** (`--ink`, `--surface`, `--rule`, `--link`) — what
-  components actually use
+Type is self-hosted (`src/fonts/`, declared in `src/styles/fonts.css`):
+**General Sans** 400/500 (Fontshare free licence) and **Instrument Serif**
+roman + italic (SIL OFL) for the display headings.
 
-Dark mode reassigns only the semantic layer, which is why it's about 15 lines
-at the bottom of the file.
-
-`src/styles/base.css` holds element defaults and a few utilities (`.wrap`,
-`.button`, `.visually-hidden`, `.skip-link`).
+`src/styles/base.css` holds element defaults and utilities (`.wrap`, `.caps`,
+`.chip`, `.rule`, `.visually-hidden`, `.skip-link`). `src/styles/case.css` is
+global on purpose: it styles the case-study article and media rows, which are
+fetched into the landing-page sheet and so must be styled on every page.
 
 ### Responsive rules worth keeping
 
@@ -110,20 +137,21 @@ invisible in dev — it only shows up in `astro preview`.
 
 ```
 src/
-  consts.ts              site name, nav links
-  content.config.ts      case-study schema
+  consts.ts              site name, contact links
+  content.config.ts      work + fun schemas
   lib/work.ts            draft filtering + sort order (used everywhere)
   layouts/
-    BaseLayout.astro     <head>, meta/OG, skip link
-    PageLayout.astro     standard content page
-    CaseStudyLayout.astro
-  components/            Nav, Footer, WorkCard, Skeleton
-  pages/                 routes; [...slug].astro builds case studies
-  styles/                tokens.css, base.css
+    BaseLayout.astro     <head>, meta/OG, header, skip link
+    CaseStudyLayout.astro  the <article class="case"> (page + sheet)
+  components/
+    Nav, SectionHead, ProjectEntry, SmallCard
+    Media, MediaRow, Shipped   used in MDX bodies too
+    CaseSheet              <dialog> + fetch/history script
+  pages/                 index, about, 404, work/[...slug]
+  styles/                fonts, tokens, base, case
+  fonts/                 woff2
+  assets/                portrait
 ```
-
-`lib/work.ts` is the one place the draft rule and sort order are defined, so
-the index and the routes can't disagree about what's published.
 
 ## Deployment
 

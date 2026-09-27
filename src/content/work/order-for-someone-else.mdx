@@ -1,0 +1,58 @@
+---
+title: Order for someone else
+summary: >-
+  Booking a ride for a friend or family member without handing over your phone.
+  I led design from the first problem framing through to the shipped flow:
+  contact picker, live tracking and the hand-off moment.
+client: Bolt
+date: Jun 2026
+year: 2026
+order: 1
+media:
+  - shape: none
+    label: Hero · one wide image
+---
+
+import MediaRow from '../../components/MediaRow.astro';
+import Shipped from '../../components/Shipped.astro';
+
+{/*
+  Media: swap each `shape` for `src: ./file.png` (co-located) once the exports
+  exist. Everything else in this file is prose and stays where it is.
+*/}
+
+<MediaRow
+  items={[
+    { shape: 'phone', label: 'Pick a contact' },
+    { shape: 'phone', label: 'Confirm for them' },
+    { shape: 'phone', label: 'They track it' },
+  ]}
+/>
+
+The hard part was not the booking. It was the moment the car arrives and two
+people need to know what is happening. The booker sees the trip in their own
+app. The passenger gets a link, no install, with the driver, the plate and a
+live map. The driver sees the passenger name, not the booker, so the kerb-side
+conversation is right.
+
+I prototyped the three screens as one tappable flow on Clay rather than as a
+deck, and tested it with the rider support team first. Two rounds of that
+changed the order of the confirmation screen and killed a feature we had
+assumed was essential.
+
+<MediaRow
+  items={[
+    { shape: 'phone', label: 'Passenger link' },
+    { shape: 'card', label: 'Driver view' },
+  ]}
+/>
+
+<Shipped
+  items={[
+    'Contact picker with recent passengers and a manual number entry',
+    'Passenger web link: driver, plate, live map, no install',
+    'Driver app shows the passenger name and a "booked by" note',
+    'Payment stays with the booker, receipt goes to both',
+    'Rolled out in 12 countries, June 2026',
+  ]}
+/>

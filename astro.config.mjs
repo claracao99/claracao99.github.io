@@ -10,4 +10,10 @@ export default defineConfig({
   site: 'https://claracao99.github.io',
   integrations: [mdx(), sitemap()],
   build: { format: 'directory' },
+  // Routes from the previous structure. Work now lives on the landing page and
+  // contact details on /about, so old links and search results still land.
+  redirects: {
+    '/work/': '/',
+    '/contact/': '/about/',
+  },
 });

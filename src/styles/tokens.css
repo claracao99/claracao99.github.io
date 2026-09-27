@@ -1,88 +1,72 @@
 /*
  * Design tokens — the single source of truth for the site's look.
  *
- * Art direction is still being settled, so every colour, type step and spacing
- * value lives here and components consume tokens only. Changing the palette
- * should mean editing this file and nothing else. No literal hex outside it.
+ * Values come from the Figma file ("light editorial v3"). Components consume
+ * tokens only; no literal hex outside this file.
  */
 
 :root {
-  /* ── Palette ───────────────────────────────────────────────────────────────
-   * Neutral ramp, light end first. Deliberately plain for now — these are
-   * placeholders with correct *relationships*, not a chosen aesthetic.
-   * Contrast against --ink: 50 -> 17.9:1, 40 -> 11.6:1, 30 -> 6.1:1 (AA text),
-   * 20 -> 3.4:1 (AA large text / UI only), 10 -> 1.9:1 (decorative only).
-   */
-  --neutral-00: #ffffff;
-  --neutral-05: #f7f7f6;
-  --neutral-10: #e8e8e6;
-  --neutral-20: #c9c9c5;
-  --neutral-30: #8a8a85;
-  --neutral-40: #55554f;
-  --neutral-50: #2a2a26;
-  --neutral-60: #16161a;
-  --neutral-70: #080810;
-
-  --accent: #2f6f5e;
-  --accent-hover: #24584a;
+  /* ── Palette ─────────────────────────────────────────────────────────────── */
+  --grey-00: #f7f7f8; /* page */
+  --grey-10: #ecedef; /* media wells, chip buttons */
+  --grey-20: #dddfe2; /* placeholder shapes */
+  --grey-30: #d6d7db; /* hairlines */
+  --grey-60: #6b6b70; /* muted labels — 5.1:1 on --grey-00 */
+  --grey-90: #1a1a1a; /* body copy */
+  --grey-100: #0a0a0a; /* titles, nav */
 
   /* ── Semantic colour ───────────────────────────────────────────────────────
-   * Components reference *these*, never the ramp above, so a re-theme is a
-   * handful of edits rather than a find-and-replace across the codebase.
+   * Components reference these, never the ramp, so a re-theme is a handful of
+   * edits rather than a find-and-replace.
    */
-  --surface: var(--neutral-00);
-  --surface-sunken: var(--neutral-05);
-  --surface-raised: var(--neutral-00);
+  --surface: var(--grey-00);
+  --surface-sunken: var(--grey-10);
+  --surface-placeholder: var(--grey-20);
+  --surface-chip: var(--grey-10);
+  --surface-chip-hover: var(--grey-20);
 
-  --ink: var(--neutral-70);
-  --ink-secondary: var(--neutral-40);
-  --ink-muted: var(--neutral-30);
-  --ink-on-accent: var(--neutral-00);
+  --ink: var(--grey-100);
+  --ink-body: var(--grey-90);
+  --ink-muted: var(--grey-60);
 
-  --rule: var(--neutral-10);
-  --rule-strong: var(--neutral-20);
+  --rule: var(--grey-30);
 
-  --link: var(--accent);
-  --link-hover: var(--accent-hover);
-  --focus-ring: var(--accent);
+  --link: var(--ink);
+  --focus-ring: var(--ink);
+  --scrim: rgb(10 10 10 / 0.55);
 
   /* ── Type ──────────────────────────────────────────────────────────────────
-   * System stack for now. If a display face is added it must be self-hosted
-   * woff2 in src/fonts/ with font-display: swap — no CDN, no employer licence.
+   * Self-hosted, see fonts.css. Sizes are fixed where the design is fixed and
+   * fluid only for the display face.
    */
-  --font-sans:
-    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans: 'General Sans', system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
 
-  /* Fluid scale. Each step interpolates between a phone-width and a
-   * desktop-width value, so there are no typography breakpoints to maintain. */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: clamp(1.0625rem, 0.2vw + 1rem, 1.1875rem);
-  --text-xl: clamp(1.25rem, 0.5vw + 1.125rem, 1.5rem);
-  --text-2xl: clamp(1.5rem, 1.2vw + 1.2rem, 2rem);
-  --text-3xl: clamp(1.875rem, 2.4vw + 1.3rem, 2.75rem);
-  --text-4xl: clamp(2.25rem, 4vw + 1.3rem, 3.75rem);
+  --text-xs: 0.6875rem; /* 11 — media labels, experience dates */
+  --text-sm: 0.75rem; /* 12 — dates, section labels */
+  --text-base: 1.0625rem; /* 17 — body */
+  --text-md: 1.125rem; /* 18 — landing titles & descriptions */
+  --text-lg: 1.25rem; /* 20 — bio */
+  --text-xl: 1.375rem; /* 22 — column heads */
+  --text-2xl: 1.5rem; /* 24 — case study title */
+  --text-display: clamp(2.5rem, 1.5rem + 3.5vw, 4rem); /* 64 at desktop */
 
-  --leading-tight: 1.1;
-  --leading-snug: 1.3;
-  --leading-normal: 1.6;
+  --leading-none: 1;
+  --leading-tight: 0.96;
+  --leading-snug: 1.2;
+  --leading-body: 1.5;
+  --leading-bio: 1.45;
 
-  --tracking-tight: -0.02em;
-  --tracking-normal: 0;
-  --tracking-wide: 0.06em;
-  --tracking-wider: 0.18em;
+  --tracking-tight: -0.015em; /* display */
+  --tracking-nav: -0.01em;
+  --tracking-caps: 0.06em; /* uppercase labels */
 
   --weight-normal: 400;
   --weight-medium: 500;
-  --weight-bold: 700;
 
   /* ── Space ─────────────────────────────────────────────────────────────────
-   * A 4px-based ramp; --space-section is fluid so vertical rhythm tightens on
-   * phones without a breakpoint.
+   * 4px-based; named steps match the values used repeatedly in the design.
    */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -90,58 +74,36 @@
   --space-4: 1rem;
   --space-5: 1.5rem;
   --space-6: 2rem;
-  --space-7: 3rem;
-  --space-8: 4rem;
-  --space-9: 6rem;
-  --space-section: clamp(3rem, 8vw, 6rem);
+  --space-7: 2.5rem;
+  --space-8: 3rem;
+  --space-9: 3.5rem;
+  --space-10: 4rem;
+  --space-11: 5rem;
+  --space-12: 7.5rem;
 
   /* ── Layout ────────────────────────────────────────────────────────────────
-   * --measure is the reading column (~70ch of prose); --measure-wide is for
-   * project grids and full-bleed-ish content. --gutter never reaches zero, so
-   * text never touches a phone's screen edge.
+   * The layout runs edge to edge with a 40px gutter at desktop. --measure caps
+   * a reading column (descriptions, case study body).
    */
-  --measure: 40rem;
-  --measure-wide: 72rem;
-  --gutter: clamp(1.25rem, 5vw, 2.5rem);
+  --gutter: clamp(1.25rem, 1rem + 1.6vw, 2.5rem);
+  --page-max: 120rem;
+  --measure: 37.5rem; /* 600 */
+  --media-height: clamp(15rem, 12rem + 12vw, 22.5rem); /* 360 at desktop */
+  --media-gap: var(--space-5);
+  --column-gap: var(--space-7);
 
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-sheet: 28px;
 
   /* ── Motion ────────────────────────────────────────────────────────────────
-   * Durations are referenced (not hardcoded) so prefers-reduced-motion can
-   * zero them globally in base.css rather than per-component.
+   * Referenced, not hardcoded, so prefers-reduced-motion can zero them once.
    */
   --duration-fast: 120ms;
   --duration-base: 200ms;
-  --duration-slow: 400ms;
+  --duration-slow: 420ms;
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
 
   --z-nav: 100;
   --z-overlay: 200;
-}
-
-/*
- * Dark palette. Only the *semantic* layer is reassigned — the ramp is
- * unchanged, which is the whole point of the two-tier structure above.
- * Remove this block if the site settles on a single fixed palette.
- */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --surface: var(--neutral-70);
-    --surface-sunken: #05050b;
-    --surface-raised: var(--neutral-60);
-
-    --ink: #f4f4f2;
-    --ink-secondary: var(--neutral-20);
-    --ink-muted: var(--neutral-30);
-
-    --rule: #23232a;
-    --rule-strong: #34343c;
-
-    --accent: #6fbfa6;
-    --accent-hover: #8ed4bd;
-    --ink-on-accent: var(--neutral-70);
-  }
 }

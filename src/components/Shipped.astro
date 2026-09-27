@@ -1,0 +1,21 @@
+---
+/**
+ * "Shipped" outcome list for the end of a case study. Pass items as an array
+ * so MDX authors don't hand-write markup:
+ *
+ *   <Shipped items={['Contact picker…', 'Passenger web link…']} />
+ */
+interface Props {
+  label?: string;
+  items: string[];
+}
+
+const { label = 'Shipped', items } = Astro.props;
+---
+
+<section class="shipped" aria-labelledby="shipped-label">
+  <p class="shipped__label caps" id="shipped-label">{label}</p>
+  <ul class="shipped__list">
+    {items.map((item) => <li>{item}</li>)}
+  </ul>
+</section>

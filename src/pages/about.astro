@@ -1,25 +1,189 @@
 ---
-import PageLayout from '../layouts/PageLayout.astro';
+/**
+ * About: bio on the left; experience and contact on the right.
+ */
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SectionHead from '../components/SectionHead.astro';
+import { CONTACT } from '../consts';
+import portrait from '../assets/clara.png';
+
+// TODO (Clara): the bio still names "[Company]" twice — fill those in.
+const bio = [
+  'Currently @Bolt, raising the quality bar for the ride-hailing experience.',
+  'I thrive in spaces where I have high ownership and autonomy to create high quality experiences. I care more about shipping what matters than following stale processes. I would hand you a working prototype.',
+  'At Bolt I led design for Order for someone else, which lets riders book a trip for a friend or family member, from the first framing through to the shipped flow. I built the team’s library of tappable prototypes on Clay, our design system, so explorations ship as real flows instead of static frames, and I write the component specs other designers build from. Before Bolt, I worked on mobility and marketplace products at [Company] and [Company].',
+];
+
+const experience = [
+  { role: 'Product Designer', org: 'Bolt', href: 'https://bolt.eu', dates: '2025 — now' },
+  { role: 'Product Designer Intern', org: 'Method', href: 'https://method.com', dates: '2025' },
+  { role: 'MSc HCI', org: 'UCL', href: 'https://www.ucl.ac.uk', dates: '2024 — 2025' },
+  { role: 'Data Analyst', org: 'Intropic', href: 'https://intropic.io', dates: '2022 — 2024' },
+];
 ---
 
-<PageLayout
-  title="About"
-  eyebrow="About"
-  lede="Placeholder — replace this with your own introduction."
-  description="About Clara Cao, product designer."
->
-  <!--
-    TODO (Clara): replace everything below with real copy.
-    A short version of what you do, who you do it for, and what you care
-    about tends to work better here than a chronological CV.
-  -->
-  <p>
-    One or two paragraphs on what you work on and how you approach it. Keep it
-    in your own voice — this is the page people read after they've liked
-    something in your work.
-  </p>
-  <p>
-    Worth including somewhere: the kinds of problems you want more of, and how
-    to reach you. Linking out to a CV is optional.
-  </p>
-</PageLayout>
+<BaseLayout title="About me" description="About Clara Cao, product designer at Bolt.">
+  <div class="wrap about">
+    <SectionHead as="h1" italic="About" rest="me">
+      <Image
+        class="about__portrait"
+        src={portrait}
+        alt="Clara Cao"
+        width={164}
+        height={164}
+        densities={[1, 2]}
+        format="webp"
+        loading="eager"
+      />
+    </SectionHead>
+
+    <div class="about__columns">
+      <section class="about__bio" aria-label="Bio">
+        {bio.map((p) => <p>{p}</p>)}
+      </section>
+
+      <div class="about__aside">
+        <section class="block" aria-labelledby="experience">
+          <h2 class="block__title" id="experience">Experience</h2>
+          <ul class="entries">
+            {
+              experience.map((e) => (
+                <li class="entry">
+                  <p class="entry__role">{e.role}</p>
+                  <p class="entry__org">
+                    <a href={e.href} target="_blank" rel="noopener noreferrer">
+                      {e.org}<span class="visually-hidden"> (opens in a new tab)</span>
+                    </a>
+                    <span class="caps caps--xs entry__dates">{e.dates}</span>
+                  </p>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+
+        <section class="block" aria-labelledby="contact">
+          <h2 class="block__title" id="contact">Contact</h2>
+          <ul class="entries">
+            {
+              CONTACT.map((c) => (
+                <li class="entry">
+                  <a
+                    class="entry__link"
+                    href={c.href}
+                    target={'external' in c && c.external ? '_blank' : undefined}
+                    rel={'external' in c && c.external ? 'noopener noreferrer' : undefined}
+                  >
+                    {c.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .about {
+    padding-top: var(--space-7);
+    padding-bottom: var(--space-12);
+  }
+
+  /* Portrait sits top-right of the heading row, level with the header rule. */
+  .about :global(.about__portrait) {
+    flex: none;
+    width: clamp(6rem, 5rem + 4vw, 10.25rem);
+    height: auto;
+    aspect-ratio: 1;
+    object-fit: cover;
+    object-position: center bottom;
+    margin-top: calc(-1 * var(--space-5));
+  }
+
+  .about__columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-10) var(--space-11);
+    padding-top: var(--space-6);
+  }
+
+  @media (min-width: 64rem) {
+    .about__columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .about__bio {
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+    max-width: 30em;
+    font-size: var(--text-lg);
+    line-height: var(--leading-bio);
+  }
+
+  .about__aside {
+    display: grid;
+    gap: var(--space-11);
+    align-content: start;
+  }
+
+  .block__title {
+    font-size: var(--text-xl);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-snug);
+  }
+
+  .entries {
+    display: grid;
+    margin-top: var(--space-5);
+  }
+
+  .entry {
+    display: grid;
+    gap: var(--space-1);
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--rule);
+  }
+
+  .entry:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .entry:last-child {
+    padding-bottom: 0;
+  }
+
+  .entry__role {
+    line-height: 1.3;
+  }
+
+  .entry__org {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    line-height: 1.3;
+  }
+
+  .entry__org a {
+    font-weight: var(--weight-medium);
+  }
+
+  .entry__dates {
+    color: var(--ink-muted);
+  }
+
+  /* Contact rows: the link carries the padding so the whole row is tappable. */
+  .entry__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-block: calc(-1 * (44px - 1.3em) / 2);
+    font-weight: var(--weight-medium);
+  }
+</style>

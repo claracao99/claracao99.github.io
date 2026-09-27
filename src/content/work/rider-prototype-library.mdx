@@ -1,0 +1,34 @@
+---
+title: Rider prototype library
+summary: >-
+  A living hub of tappable rider-app prototypes built on Clay. I set up the
+  shared phone frame, the variant control panel and the 60fps recording
+  pipeline so explorations ship as real flows, not static frames.
+client: Bolt
+date: Sep 2026
+year: 2026
+order: 2
+media:
+  - shape: phone
+    label: Phone · 2-up
+  - shape: phone
+    label: Phone · 2-up
+---
+
+import MediaRow from '../../components/MediaRow.astro';
+import Shipped from '../../components/Shipped.astro';
+
+{/* TODO (Clara): case study body. The landing block above is complete. */}
+
+Placeholder body. Open with why a library of tappable prototypes was needed,
+then what the shared phone frame and variant panel actually do for the people
+using them.
+
+<MediaRow
+  items={[
+    { shape: 'phone', label: 'Shared frame' },
+    { shape: 'card', label: 'Variant panel' },
+  ]}
+/>
+
+<Shipped items={['Shared phone frame', 'Variant control panel', '60fps recording pipeline']} />

@@ -1,0 +1,25 @@
+---
+/**
+ * 1–3 media wells side by side (stacked on phones). Used on the landing page
+ * and inside case-study MDX:
+ *
+ *   <MediaRow items={[{ shape: 'phone', label: 'Pick a contact' }, ...]} />
+ */
+import Media from './Media.astro';
+import type { ComponentProps } from 'astro/types';
+
+type Item = ComponentProps<typeof Media>;
+
+interface Props {
+  items: Item[];
+  eager?: boolean;
+}
+
+const { items, eager = false } = Astro.props;
+const count = Math.min(Math.max(items.length, 1), 3);
+const sizes = count === 1 ? '100vw' : `(max-width: 48rem) 100vw, ${Math.round(100 / count)}vw`;
+---
+
+<div class="media-row" data-count={count}>
+  {items.slice(0, 3).map((item, i) => <Media {...item} eager={eager && i === 0} sizes={sizes} />)}
+</div>

@@ -1,0 +1,203 @@
+/*
+ * Case study and media styles.
+ *
+ * Global on purpose: a case study's HTML is fetched and injected into the
+ * sheet on the landing page, so its styles have to be present on every page
+ * rather than scoped to the case-study route. Everything else stays scoped.
+ */
+
+/* ── Media rows ─────────────────────────────────────────────────────────────── */
+
+.media-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--media-gap);
+  width: 100%;
+}
+
+@media (min-width: 48rem) {
+  .media-row[data-count='2'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .media-row[data-count='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.media {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  height: var(--media-height);
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+
+.media--image {
+  display: block;
+}
+
+.media--image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media__label {
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+/* Placeholder shapes for media that isn't exported yet. Sized like the design
+ * so the page reads correctly before real screens exist. */
+.media__shape {
+  flex: none;
+  max-width: 80%;
+  max-height: calc(100% - 3rem);
+  background: var(--surface-placeholder);
+}
+.media__shape--phone {
+  width: 150px;
+  height: 300px;
+  border-radius: 22px;
+}
+.media__shape--card {
+  width: 300px;
+  height: 200px;
+  border-radius: 8px;
+}
+.media__shape--pill {
+  width: 300px;
+  height: 52px;
+  border-radius: 26px;
+}
+.media__shape--bar {
+  width: 280px;
+  height: 40px;
+  border-radius: 20px;
+}
+.media__shape--tag {
+  width: 180px;
+  height: 36px;
+  border-radius: 18px;
+}
+.media__shape--panel {
+  width: 260px;
+  height: 160px;
+  border-radius: 8px;
+}
+.media__shape--sheet {
+  width: 220px;
+  height: 180px;
+  border-radius: 16px;
+}
+.media__shape--row {
+  width: 320px;
+  height: 56px;
+  border-radius: 8px;
+}
+
+/* ── Case study article ─────────────────────────────────────────────────────── */
+
+.case {
+  padding-block: var(--space-10) var(--space-12);
+}
+
+.case__caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-5) var(--column-gap);
+  padding-bottom: var(--space-6);
+}
+
+.case__title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-snug);
+}
+
+.case__meta {
+  margin-top: var(--space-3);
+  color: var(--ink-muted);
+}
+
+.case__summary {
+  max-width: var(--measure);
+  color: var(--ink-body);
+}
+
+/*
+ * The body is a two-column grid. Prose sits in the right column, aligned with
+ * the summary above; media rows break out to the full width. Authors write
+ * plain MDX and never touch layout.
+ */
+.case__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--column-gap);
+  color: var(--ink-body);
+}
+
+.case__body > * {
+  min-width: 0;
+  max-width: var(--measure);
+}
+
+.case__body > p + p,
+.case__body > p + ul,
+.case__body > ul + p {
+  margin-top: var(--space-5);
+}
+
+.case__body > .media-row {
+  max-width: none;
+  margin-block: var(--space-8);
+}
+
+.case__body > .media-row:first-child {
+  margin-top: 0;
+  margin-bottom: var(--space-9);
+}
+
+@media (min-width: 64rem) {
+  .case__body {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .case__body > * {
+    grid-column: 2;
+  }
+  .case__body > .media-row {
+    grid-column: 1 / -1;
+  }
+  .case__summary {
+    flex: 0 1 var(--measure);
+  }
+}
+
+/* "Shipped" list */
+.shipped__label {
+  padding-bottom: var(--space-3);
+  color: var(--ink);
+}
+
+.shipped__list {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--rule);
+}
+
+.shipped__list li {
+  display: grid;
+  grid-template-columns: 1rem 1fr;
+  gap: var(--space-3);
+}
+
+.shipped__list li::before {
+  content: '—';
+  color: var(--ink-muted);
+}

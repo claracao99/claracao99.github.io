@@ -1,0 +1,47 @@
+---
+/**
+ * Display heading in the serif face: first word italic, the rest roman.
+ * e.g. <SectionHead italic="Selected" rest="works" />
+ */
+interface Props {
+  italic: string;
+  rest: string;
+  as?: 'h1' | 'h2';
+  id?: string;
+}
+
+const { italic, rest, as: Tag = 'h2', id } = Astro.props;
+---
+
+<div class="section-head">
+  <Tag class="section-head__title" id={id}>
+    <em>{italic}</em>
+    {' '}{rest}
+  </Tag>
+  <slot />
+</div>
+
+<style>
+  .section-head {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-5);
+    padding-block: var(--space-7) calc(var(--space-6) - var(--space-1));
+  }
+
+  .section-head__title {
+    font-family: var(--font-serif);
+    font-size: var(--text-display);
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--ink-body);
+    text-wrap: balance;
+  }
+
+  .section-head__title em {
+    font-style: italic;
+  }
+</style>

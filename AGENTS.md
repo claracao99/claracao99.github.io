@@ -26,7 +26,8 @@ infrastructure:
   remote pushes as whichever `gh` account is currently active, which can
   silently be the work one.
 - **Self-host fonts** as woff2 in `src/fonts/` with `font-display: swap`. No
-  Google Fonts CDN, and no typeface licensed through an employer.
+  Google Fonts CDN, and no typeface licensed through an employer. Current
+  faces: General Sans (Fontshare free licence) and Instrument Serif (OFL).
 
 ## Conventions
 
@@ -34,9 +35,17 @@ infrastructure:
   `src/styles/tokens.css` as a custom property. Components consume tokens only
   — no literal hex outside that file. Art direction is still being settled, so
   the palette must remain a one-file change.
-- **Adding a case study:** drop one `.mdx` file into `src/content/work/` with a
-  co-located cover image. No code changes needed. The filename is the slug.
-  `draft: true` entries render in `astro dev` but are excluded from builds.
+- **Adding a case study:** drop one `.mdx` file into `src/content/work/`
+  (fun tiles: `src/content/fun/`). No code changes needed. The filename is the
+  slug. `draft: true` entries render in `astro dev` but are excluded from
+  builds. Frontmatter is documented in README.
+- **The case study is one article, used twice.** `/work/<slug>/` renders it as
+  a page; the landing-page sheet fetches that page and injects
+  `<article class="case">`. So: keep everything the article needs in
+  `src/styles/case.css` (global), never in a scoped `<style>`; and never make
+  the article depend on client JS or on being inside a particular layout.
+- **Light-only palette** from the Figma file. Tokens are `--grey-*` ramp plus a
+  semantic layer. Don't reintroduce `prefers-color-scheme` without a design.
 - **`draft: true` hides the page, not the images.** Verified: a draft's cover
   image is still emitted to `dist/_astro/` with a hashed filename, so it is
   publicly fetchable even though nothing links to it. For anything genuinely

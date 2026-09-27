@@ -1,97 +1,51 @@
 ---
 /**
- * Site navigation. No JS: three links fit comfortably on a phone, so there's
- * no burger menu to hydrate. If the nav ever outgrows one row, use a
- * <details> disclosure rather than reaching for a framework.
+ * Site header: name on the left, one link on the right that swaps between
+ * "About me" and "Work" depending on where you are. No JS.
  */
-import { SITE, NAV_LINKS } from '../consts';
+import { SITE } from '../consts';
 
-// Normalise both sides so `/work` and `/work/` compare equal, and mark parents
-// of nested routes (a case study should light up "Work").
 const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
-
-function isCurrent(href: string) {
-  const target = href.replace(/\/+$/, '') || '/';
-  if (target === '/') return path === '/';
-  return path === target || path.startsWith(`${target}/`);
-}
+const onAbout = path === '/about';
+const link = onAbout
+  ? { href: '/', label: 'Work' }
+  : { href: '/about/', label: 'About me' };
 ---
 
 <header class="nav">
   <div class="wrap nav__inner">
-    <a class="nav__home" href="/">{SITE.name}</a>
+    <a class="nav__link nav__home" href="/">{SITE.name}</a>
     <nav aria-label="Main">
-      <ul class="nav__list">
-        {
-          NAV_LINKS.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                aria-current={isCurrent(link.href) ? 'page' : undefined}
-              >
-                {link.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+      <a class="nav__link" href={link.href}>{link.label}</a>
     </nav>
   </div>
+  <div class="wrap"><hr class="rule" /></div>
 </header>
 
 <style>
-  .nav {
-    border-bottom: 1px solid var(--rule);
-    background: var(--surface);
-  }
-
   .nav__inner {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-3) var(--space-5);
-    padding-block: var(--space-3);
-  }
-
-  /* inline-flex + min-height rather than padding: guarantees the 44px tap
-   * target regardless of how the fluid font size resolves. */
-  .nav__home {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    font-size: var(--text-lg);
-    font-weight: var(--weight-medium);
-    letter-spacing: var(--tracking-tight);
-    color: var(--ink);
-    text-decoration: none;
-  }
-
-  .nav__list {
-    display: flex;
     gap: var(--space-5);
-    margin: 0;
-    padding: 0;
-    list-style: none;
+    padding-block: var(--space-4);
   }
 
-  .nav__list a {
+  /* inline-flex + min-height guarantees the 44px tap target. */
+  .nav__link {
     display: inline-flex;
     align-items: center;
-    /* 44px minimum tap target, without visually padding the row. */
     min-height: 44px;
-    font-size: var(--text-sm);
-    color: var(--ink-secondary);
+    font-size: var(--text-md);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-none);
+    letter-spacing: var(--tracking-nav);
+    color: var(--ink);
     text-decoration: none;
-    letter-spacing: var(--tracking-wide);
   }
 
-  .nav__list a:hover {
-    color: var(--ink);
-  }
-
-  .nav__list a[aria-current='page'] {
-    color: var(--ink);
+  .nav__link:hover {
     text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
 </style>

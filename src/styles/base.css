@@ -23,14 +23,13 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: var(--text-base);
-  line-height: var(--leading-normal);
+  line-height: var(--leading-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Media defaults to block + fluid so nothing can overflow a phone viewport.
- * The old site's core mobile bug was a hardcoded pixel width on an image. */
+/* Media defaults to block + fluid so nothing can overflow a phone viewport. */
 img,
 picture,
 video,
@@ -49,14 +48,18 @@ select {
   color: inherit;
 }
 
+button {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
 /* Long words (URLs, project names) must not force horizontal scroll. */
 p,
 h1,
 h2,
 h3,
-h4,
-h5,
-h6,
 li,
 dd,
 dt {
@@ -65,25 +68,12 @@ dt {
 
 h1,
 h2,
-h3,
-h4 {
-  font-weight: var(--weight-normal);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-tight);
-  text-wrap: balance;
-}
-
-h1 {
-  font-size: var(--text-4xl);
-}
-h2 {
-  font-size: var(--text-2xl);
-}
 h3 {
-  font-size: var(--text-xl);
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
 
-/* Prose paragraphs read better with a slightly shorter last line. */
 p {
   text-wrap: pretty;
 }
@@ -91,12 +81,7 @@ p {
 a {
   color: var(--link);
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.2em;
-  transition: color var(--duration-fast) var(--ease-out);
-}
-
-a:hover {
-  color: var(--link-hover);
+  text-underline-offset: 0.15em;
 }
 
 /* :focus-visible only — keyboard users get a ring, mouse users don't. */
@@ -113,12 +98,12 @@ hr {
 
 ul,
 ol {
-  padding-inline-start: var(--space-5);
+  padding: 0;
+  list-style: none;
 }
 
 /* ── Utilities ─────────────────────────────────────────────────────────────── */
 
-/* Visible only to assistive tech. Used by the skip link and section labels. */
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -130,16 +115,15 @@ ol {
   border: 0;
 }
 
-/* Skip link: off-screen until focused, then pinned top-left. */
 .skip-link {
   position: absolute;
   top: var(--space-2);
   left: var(--space-2);
   z-index: var(--z-overlay);
   padding: var(--space-2) var(--space-4);
-  background: var(--surface-raised);
+  background: var(--surface);
   color: var(--ink);
-  border: 1px solid var(--rule-strong);
+  border: 1px solid var(--rule);
   border-radius: var(--radius-sm);
   text-decoration: none;
   transform: translateY(-200%);
@@ -149,49 +133,54 @@ ol {
   transform: translateY(0);
 }
 
-/*
- * Link styled as a button. Used for primary actions (the hero CTA), where an
- * inline text link is too small a tap target on touch.
- */
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: var(--space-3) var(--space-5);
-  border: 1px solid currentColor;
-  border-radius: var(--radius-sm);
-  font-size: var(--text-sm);
-  letter-spacing: var(--tracking-wide);
-  text-decoration: none;
-  transition:
-    background-color var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out);
-}
-
-.button:hover {
-  background-color: var(--link);
-  color: var(--ink-on-accent);
-}
-
-/* The standard content column. --measure-wide for grids, --measure for prose. */
+/* The page column: edge to edge with a gutter, capped only on huge screens. */
 .wrap {
   width: 100%;
-  max-width: var(--measure-wide);
+  max-width: var(--page-max);
   margin-inline: auto;
   padding-inline: var(--gutter);
 }
 
-.wrap--prose {
-  max-width: var(--measure);
+/* Small uppercase label: dates, media captions, section labels. */
+.caps {
+  font-size: var(--text-sm);
+  line-height: var(--leading-none);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+}
+
+.caps--xs {
+  font-size: var(--text-xs);
+}
+
+/* Grey chip button ("Read more"). min-height keeps the tap target ≥ 44px. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-chip);
+  color: var(--ink);
+  font-size: 1rem;
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-none);
+  text-decoration: none;
+  transition: background-color var(--duration-fast) var(--ease-out);
+}
+
+.chip:hover {
+  background: var(--surface-chip-hover);
+}
+
+/* Hairline between stacked entries. */
+.rule {
+  border: 0;
+  border-top: 1px solid var(--rule);
 }
 
 /* ── Reduced motion ────────────────────────────────────────────────────────── */
-
-/*
- * Zeroing the duration tokens turns off every token-driven transition at once,
- * so individual components don't each need their own media query.
- */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --duration-fast: 0ms;
