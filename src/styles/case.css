@@ -110,9 +110,9 @@
 }
 
 .case__title {
-  font-size: var(--text-2xl);
+  font-size: var(--text-title);
   font-weight: var(--weight-medium);
-  line-height: var(--leading-snug);
+  line-height: var(--leading-title);
 }
 
 .case__meta {

@@ -16,7 +16,7 @@ const fun = await getPublishedFun();
 
 <BaseLayout>
   <section class="wrap works" aria-labelledby="selected-works">
-    <SectionHead italic="Selected" rest="works" id="selected-works" />
+    <SectionHead lead="Selected" italic="works" id="selected-works" />
     {
       work.length === 0 ? (
         <p class="empty">Nothing published yet.</p>
@@ -29,7 +29,7 @@ const fun = await getPublishedFun();
   {
     fun.length > 0 && (
       <section class="wrap fun" aria-labelledby="fun-stuff">
-        <SectionHead italic="Fun" rest="stuff" id="fun-stuff" />
+        <SectionHead lead="Fun" italic="stuff" id="fun-stuff" />
         <div class="fun__grid grid">
           {fun.map((entry) => (
             <SmallCard entry={entry} />

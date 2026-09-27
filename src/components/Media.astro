@@ -46,7 +46,7 @@ const {
   ) : (
     <div class="media" role="img" aria-label={label ?? 'Placeholder'}>
       {shape !== 'none' && <div class:list={['media__shape', `media__shape--${shape}`]} />}
-      {label && <p class="media__label caps caps--xs">{label}</p>}
+      {label && <p class="media__label caps">{label}</p>}
     </div>
   )
 }

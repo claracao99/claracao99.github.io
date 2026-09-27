@@ -25,7 +25,7 @@ const experience = [
 
 <BaseLayout title="About me" description="About Clara Cao, product designer at Bolt.">
   <div class="wrap about">
-    <SectionHead as="h1" italic="About" rest="me">
+    <SectionHead as="h1" lead="About" italic="me">
       <Image
         class="about__portrait"
         src={portrait}
@@ -45,7 +45,7 @@ const experience = [
 
       <div class="about__aside">
         <section class="block" aria-labelledby="experience">
-          <h2 class="block__title" id="experience">Experience</h2>
+          <h2 class="title" id="experience">Experience</h2>
           <ul class="entries">
             {
               experience.map((e) => (
@@ -55,7 +55,7 @@ const experience = [
                     <a href={e.href} target="_blank" rel="noopener noreferrer">
                       {e.org}<span class="visually-hidden"> (opens in a new tab)</span>
                     </a>
-                    <span class="caps caps--xs entry__dates">{e.dates}</span>
+                    <span class="caps entry__dates">{e.dates}</span>
                   </p>
                 </li>
               ))
@@ -64,7 +64,7 @@ const experience = [
         </section>
 
         <section class="block" aria-labelledby="contact">
-          <h2 class="block__title" id="contact">Contact</h2>
+          <h2 class="title" id="contact">Contact</h2>
           <ul class="entries">
             {
               CONTACT.map((c) => (
@@ -121,9 +121,7 @@ const experience = [
     display: grid;
     gap: var(--space-5);
     align-content: start;
-    max-width: 30em;
-    font-size: var(--text-lg);
-    line-height: var(--leading-bio);
+    max-width: 34em;
   }
 
   .about__aside {
@@ -132,11 +130,6 @@ const experience = [
     align-content: start;
   }
 
-  .block__title {
-    font-size: var(--text-xl);
-    font-weight: var(--weight-medium);
-    line-height: var(--leading-snug);
-  }
 
   .entries {
     display: grid;

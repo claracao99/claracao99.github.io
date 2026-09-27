@@ -24,7 +24,7 @@ body {
   background-color: var(--surface);
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: var(--text-base);
+  font-size: var(--text-body);
   line-height: var(--leading-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -143,16 +143,20 @@ ol {
   padding-inline: var(--gutter);
 }
 
-/* Small uppercase label: dates, media captions, section labels. */
+/* Label: dates, media captions, section labels, "Read more". */
 .caps {
-  font-size: var(--text-sm);
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
   line-height: var(--leading-none);
-  letter-spacing: var(--tracking-caps);
+  letter-spacing: var(--tracking-label);
   text-transform: uppercase;
 }
 
-.caps--xs {
-  font-size: var(--text-xs);
+/* Title: project and column headings. */
+.title {
+  font-size: var(--text-title);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-title);
 }
 
 /*
