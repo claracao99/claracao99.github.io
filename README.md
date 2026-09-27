@@ -104,7 +104,7 @@ Tokens are two-tier: a **ramp** (`--grey-10`) and a **semantic layer**
 light-only by design; a dark mode would be a semantic-layer block.
 
 Type is self-hosted (`src/fonts/`, declared in `src/styles/fonts.css`), all
-SIL OFL: **Geist** 400/500 (body, titles), **Geist Mono** 400 (labels) and
+SIL OFL: **Inter** 400/500 (body, titles, labels) and
 **Instrument Serif** roman + italic (display headings). Four roles — display,
 title, body, label — are documented at the top of the type section in
 `tokens.css`; `.title` and `.caps` in `base.css` apply the last two.

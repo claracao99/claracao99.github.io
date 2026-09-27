@@ -37,15 +37,16 @@
   /* ── Type ──────────────────────────────────────────────────────────────────
    * Four roles, from the type spec:
    *   Display — Instrument Serif, 96 desktop / 64 phone, lh ~1, tracking -1.5%
-   *   Title   — Geist Medium 20, lh 1.2
-   *   Body    — Geist Regular 17, lh 1.5
-   *   Label   — Geist Mono 12, uppercase, tracking +8%
+   *   Title   — Inter Medium 20, lh 1.2
+   *   Body    — Inter Regular 17, lh 1.5
+   *   Label   — Inter 12, uppercase, tracking +8%, tabular figures
    * Self-hosted, see fonts.css.
    */
-  --font-sans: 'Geist', system-ui, -apple-system, 'Segoe UI', Roboto,
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
   --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
-  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Labels share the sans; kept as a token so a mono can be swapped in. */
+  --font-mono: var(--font-sans);
 
   --text-label: 0.75rem; /* 12 */
   --text-body: 1.0625rem; /* 17 */

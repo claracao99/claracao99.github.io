@@ -27,7 +27,7 @@ infrastructure:
   silently be the work one.
 - **Self-host fonts** as woff2 in `src/fonts/` with `font-display: swap`. No
   Google Fonts CDN, and no typeface licensed through an employer. Current
-  faces: Geist, Geist Mono and Instrument Serif (all SIL OFL).
+  faces: Inter and Instrument Serif (both SIL OFL).
 
 ## Conventions
 

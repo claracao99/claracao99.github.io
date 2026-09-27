@@ -150,6 +150,7 @@ ol {
   line-height: var(--leading-none);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Title: project and column headings. */

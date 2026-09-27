@@ -1,27 +1,20 @@
 /*
  * Self-hosted typefaces. woff2 only, font-display: swap — see AGENTS.md.
  *
- * Geist & Geist Mono — Vercel, SIL Open Font Licence.
+ * Inter — Rasmus Andersson, SIL Open Font Licence.
  * Instrument Serif — Rodrigo Fuenzalida & Jordan Egstad, SIL Open Font Licence.
  */
 @font-face {
-  font-family: 'Geist';
-  src: url('../fonts/Geist-Regular.woff2') format('woff2');
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Geist';
-  src: url('../fonts/Geist-Medium.woff2') format('woff2');
+  font-family: 'Inter';
+  src: url('../fonts/Inter-Medium.woff2') format('woff2');
   font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Geist Mono';
-  src: url('../fonts/GeistMono-Regular.woff2') format('woff2');
-  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
