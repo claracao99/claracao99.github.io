@@ -146,10 +146,10 @@ src/
   content.config.ts      work + fun schemas
   lib/work.ts            draft filtering + sort order (used everywhere)
   layouts/
-    BaseLayout.astro     <head>, meta/OG, header, skip link
+    BaseLayout.astro     <head>, meta/OG, header, footer
     CaseStudyLayout.astro  the <article class="case"> (page + sheet)
   components/
-    Nav, SectionHead, ProjectEntry, SmallCard
+    Nav, Footer, SectionHead, ProjectEntry, SmallCard
     Media, MediaRow, Shipped   used in MDX bodies too
     CaseSheet              <dialog> + fetch/history script
   pages/                 index, about, 404, work/[...slug]

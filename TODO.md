@@ -24,7 +24,6 @@ sheet) is implemented with the Figma's placeholder copy and grey media wells.
       and columns below 48rem/64rem — review on a real phone.
 - [ ] Sheet open/close motion is a simple slide + fade; tune if wanted
       (CaseSheet.astro keyframes; durations are tokens).
-- [ ] No footer, per the design. Add one if a copyright line is wanted.
 
 ## Nice to have
 
