@@ -14,8 +14,8 @@
   --grey-20: #e3e3e3; /* placeholder shapes */
   --grey-30: #e0e0e0; /* hairlines */
   --grey-60: #6f6f6f; /* muted labels — 5.3:1 on white */
-  --grey-90: #171717; /* body copy */
-  --grey-100: #0a0a0a; /* titles, nav */
+  --grey-90: #000000; /* body copy — pure black, matched to andmade.jp */
+  --grey-100: #000000; /* titles, nav */
 
   /* ── Semantic colour ───────────────────────────────────────────────────────
    * Components reference these, never the ramp, so a re-theme is a handful of

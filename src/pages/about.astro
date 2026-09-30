@@ -2,9 +2,9 @@
 /**
  * About: bio on the left; experience and contact on the right.
  */
-import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHead from '../components/SectionHead.astro';
+import PixelImage from '../components/PixelImage.astro';
 import { CONTACT } from '../consts';
 import portrait from '../assets/clara.png';
 
@@ -25,18 +25,16 @@ const experience = [
 
 <BaseLayout title="About me" description="About Clara Cao, product designer at Bolt.">
   <div class="wrap about">
-    <div class="grid about__head">
-      <div class="col-1-2">
-        <SectionHead as="h1" italic="About" lead="me" />
-      </div>
-      <Image
-        class="about__portrait col-3"
+    <div class="about__head">
+      <SectionHead as="h1" italic="About" lead="me" />
+      <PixelImage
+        class="about__portrait"
         src={portrait}
         alt="Clara Cao"
         width={600}
         height={600}
         widths={[300, 600]}
-        sizes="(max-width: 48rem) 12rem, 33vw"
+        sizes="(max-width: 48rem) 7rem, 9rem"
         format="webp"
         loading="eager"
       />
@@ -96,22 +94,25 @@ const experience = [
     padding-bottom: var(--space-6);
   }
 
-  /* Heading spans columns 1–2; the portrait fills column 3 as a square. */
+  /* Heading with a small square portrait tucked in right after it, sitting on
+   * the heading's baseline. */
   .about__head {
-    align-items: end;
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-6);
   }
 
   .about :global(.about__portrait) {
-    width: 100%;
-    height: auto;
+    flex: none;
+    width: 9rem;
     aspect-ratio: 1;
-    object-fit: cover;
+    margin-bottom: var(--space-11); /* match SectionHead's block padding */
     border-radius: var(--radius-sm);
   }
 
   @media (max-width: 48rem) {
     .about :global(.about__portrait) {
-      width: 12rem;
+      width: 7rem;
     }
   }
 
