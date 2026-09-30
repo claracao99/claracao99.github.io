@@ -39,11 +39,19 @@
   --scrim: rgb(10 10 10 / 0.5);
 
   /* ── Type ──────────────────────────────────────────────────────────────────
-   * Four roles, from the type spec:
-   *   Display — Instrument Serif, 72 desktop / 48 phone, lh ~1, tracking -1.5%
-   *   Title   — ABC Diatype Bold 18, lh 1.2
-   *   Body    — ABC Diatype Regular 17, lh 1.35
-   *   Label   — ABC Diatype Mono 12, uppercase, tracking +6%, tabular figures
+   * Five roles. Two weights only: Regular reads, Bold names or navigates.
+   *   Display    — Instrument Serif, 72 desktop / 48 phone, lh 1, tracking -1.5%
+   *   Case title — ABC Diatype Bold 28, lh 1.2, tracking -3%
+   *   Title      — ABC Diatype Bold 22, lh 1.2, tracking -3%
+   *                (project titles, fun tiles; About bio uses it in Regular)
+   *   Body       — ABC Diatype Regular 17, lh 1.35, tracking -1.5%
+   *                (header and footer links: Body size, Bold)
+   *   Label      — ABC Diatype Mono 12, uppercase, tracking +6%, tabular figures
+   *
+   * Links, by intent:
+   *   navigate  (header, footer, titles, fun tiles) — no underline, fade to muted
+   *   act       ("Read more", "Next project")       — sweep underline + arrow
+   *   prose     (About page)                        — static 1px underline
    * Self-hosted, see fonts.css.
    */
   --font-sans: 'ABC Diatype', system-ui, -apple-system, 'Segoe UI', Roboto,
@@ -54,7 +62,8 @@
 
   --text-label: 0.75rem; /* 12 */
   --text-body: 1.0625rem; /* 17 */
-  --text-title: 1.125rem; /* 18 */
+  --text-title: 1.375rem; /* 22 — project titles */
+  --text-case-title: 1.75rem; /* 28 — case-study page title */
   --text-display: clamp(3rem, 1.5rem + 3.4vw, 4.5rem); /* 48 → 72 */
 
   --leading-none: 1;
@@ -68,7 +77,6 @@
   --tracking-label: 0.06em; /* 0.72px at 12 */
 
   --weight-normal: 400;
-  --weight-medium: 500;
   --weight-bold: 700;
 
   /* ── Space ─────────────────────────────────────────────────────────────────

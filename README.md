@@ -102,11 +102,12 @@ Tokens are two-tier: a **ramp** (`--grey-10`) and a **semantic layer**
 light-only by design; a dark mode would be a semantic-layer block.
 
 Type is self-hosted (`src/fonts/`, declared in `src/styles/fonts.css`):
-**ABC Diatype** 400/500 (body, titles, labels — currently the Dinamo *trial*
-files, see TODO) and **Instrument Serif** roman + italic (display headings,
-SIL OFL). Four roles — display,
-title, body, label — are documented at the top of the type section in
-`tokens.css`; `.title` and `.caps` in `base.css` apply the last two.
+**ABC Diatype** 400/700 (body, titles), **ABC Diatype Mono** 400 (labels) —
+both currently the Dinamo *trial* files, see TODO — and **Instrument Serif**
+roman + italic (display headings, SIL OFL). The roles (display, case title,
+title, body, label) and the three link treatments are documented at the top of
+the type section in `tokens.css`; `.title` and `.caps` in `base.css` apply
+title and label.
 
 `src/styles/base.css` holds element defaults and utilities (`.wrap`, `.caps`,
 `.rule`, `.visually-hidden`, `.skip-link`). `src/styles/case.css` is

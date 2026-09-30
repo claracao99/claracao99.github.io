@@ -48,14 +48,16 @@ const linkedin = CONTACT.find((c) => c.label === 'LinkedIn')!;
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    font-weight: var(--weight-medium);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-title);
     color: var(--ink);
     text-decoration: none;
+    transition: color var(--duration-base) var(--ease-out);
   }
 
-  .footer__link:hover {
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
+  .footer__link:hover,
+  .footer__link:focus-visible {
+    color: var(--ink-muted);
   }
 
   .footer__icon {

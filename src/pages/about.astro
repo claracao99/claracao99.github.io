@@ -6,7 +6,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHead from '../components/SectionHead.astro';
 import PixelImage from '../components/PixelImage.astro';
 import { CONTACT } from '../consts';
-import portrait from '../assets/clara.png';
+import portrait from '../assets/clara.jpg';
 
 // TODO (Clara): the bio still names "[Company]" twice — fill those in.
 const bio = [
@@ -33,7 +33,7 @@ const experience = [
         alt="Clara Cao"
         width={600}
         height={600}
-        widths={[300, 600]}
+        widths={[300, 450, 600]}
         sizes="(max-width: 48rem) 7rem, 9rem"
         format="webp"
         loading="eager"
@@ -116,19 +116,23 @@ const experience = [
     }
   }
 
+  /* Same column gap as the project captions on the landing page, so the three
+   * text columns start on the same tracks across both pages. */
   .about__columns {
+    column-gap: var(--column-gap);
     row-gap: var(--space-10);
     padding-top: var(--space-8);
   }
 
-  /* Bio reads as a statement: title size, medium weight. */
+  /* Bio is a lede: Title size and tracking, Regular weight, body leading. */
   .about__bio {
     display: grid;
     gap: var(--space-5);
     align-content: start;
     font-size: var(--text-title);
-    font-weight: var(--weight-medium);
-    line-height: 1.4;
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-body);
+    letter-spacing: var(--tracking-title);
   }
 
   .entries {
@@ -152,18 +156,20 @@ const experience = [
   }
 
   .entry__role {
-    line-height: 1.3;
+    line-height: var(--leading-title);
   }
 
   .entry__org {
     display: flex;
     align-items: baseline;
     gap: var(--space-2);
-    line-height: 1.3;
+    line-height: var(--leading-title);
   }
 
-  .entry__org a {
-    font-weight: var(--weight-medium);
+  /* Prose links: static 1px underline (base.css sets thickness and offset). */
+  .entry__org a,
+  .entry__link {
+    text-decoration-line: underline;
   }
 
   .entry__dates {
@@ -190,6 +196,5 @@ const experience = [
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    font-weight: var(--weight-medium);
   }
 </style>

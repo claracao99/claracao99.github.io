@@ -168,7 +168,7 @@
 }
 
 .case__title {
-  font-size: var(--text-title);
+  font-size: var(--text-case-title);
   font-weight: var(--weight-bold);
   line-height: var(--leading-title);
   letter-spacing: var(--tracking-title);
