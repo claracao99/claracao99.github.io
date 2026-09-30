@@ -1,6 +1,7 @@
 ---
 /**
- * About: bio on the left; experience and contact on the right.
+ * About: heading with a small portrait tucked in right after it, then two
+ * columns — bio on the left; experience and contact on the right.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHead from '../components/SectionHead.astro';
@@ -31,97 +32,112 @@ const experience = [
         class="about__portrait"
         src={portrait}
         alt="Clara Cao"
-        width={600}
-        height={600}
-        widths={[300, 450, 600]}
-        sizes="(max-width: 48rem) 7rem, 9rem"
+        width={874}
+        height={720}
+        widths={[218, 437]}
+        sizes="7rem"
         format="webp"
         loading="eager"
       />
     </div>
 
-    <div class="grid about__columns">
-      <section class="about__bio col-1" aria-label="Bio">
+    <div class="about__columns">
+      <section class="about__bio" aria-label="Bio">
         {bio.map((p) => <p>{p}</p>)}
       </section>
 
-      <section class="block col-2" aria-labelledby="experience">
-        <h2 class="visually-hidden" id="experience">Experience</h2>
-        <ul class="entries">
-          {
-            experience.map((e) => (
-              <li class="entry">
-                <p class="entry__role">{e.role}</p>
-                <p class="entry__org">
-                  <a href={e.href} target="_blank" rel="noopener noreferrer">
-                    {e.org}<span class="visually-hidden"> (opens in a new tab)</span>
-                  </a>
-                  <span class="caps entry__dates">{e.dates}</span>
-                </p>
-              </li>
-            ))
-          }
-        </ul>
-      </section>
+      <div class="about__aside">
+        <section class="block" aria-labelledby="experience">
+          <h2 class="visually-hidden" id="experience">Experience</h2>
+          <ul class="entries">
+            {
+              experience.map((e) => (
+                <li class="entry">
+                  <p class="entry__role">{e.role}</p>
+                  <p class="entry__org">
+                    <a href={e.href} target="_blank" rel="noopener noreferrer">
+                      {e.org}<span class="visually-hidden"> (opens in a new tab)</span>
+                    </a>
+                    <span class="caps entry__dates">{e.dates}</span>
+                  </p>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
 
-      <section class="block col-3" aria-labelledby="contact">
-        <h2 class="visually-hidden" id="contact">Contact</h2>
-        <ol class="entries entries--numbered">
-          {
-            CONTACT.map((c, i) => (
-              <li class="contact">
-                <span class="caps contact__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-                <a
-                  class="entry__link"
-                  href={c.href}
-                  target={'external' in c && c.external ? '_blank' : undefined}
-                  rel={'external' in c && c.external ? 'noopener noreferrer' : undefined}
-                >
-                  {c.label}
-                </a>
-              </li>
-            ))
-          }
-        </ol>
-      </section>
+        <section class="block" aria-labelledby="contact">
+          <h2 class="visually-hidden" id="contact">Contact</h2>
+          <ol class="entries entries--numbered">
+            {
+              CONTACT.map((c, i) => (
+                <li class="contact">
+                  <span class="caps contact__num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                  <a
+                    class="entry__link"
+                    href={c.href}
+                    target={'external' in c && c.external ? '_blank' : undefined}
+                    rel={'external' in c && c.external ? 'noopener noreferrer' : undefined}
+                  >
+                    {c.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </section>
+      </div>
     </div>
   </div>
 </BaseLayout>
 
 <style>
+  /* Heading sits where "Selected works" does on the landing page: directly
+   * under the nav, spaced by SectionHead's own block padding. */
   .about {
-    padding-top: var(--space-7);
+    padding-top: 0;
     padding-bottom: var(--space-6);
   }
 
-  /* Heading with a small square portrait tucked in right after it, sitting on
-   * the heading's baseline. */
+  /* Small portrait sits right after the heading, vertically centred on the
+   * type. Its height is a touch over the heading's line box (--text-display
+   * × leading 1), so it scales with the title; the width follows from the media-tile ratio
+   * (--media-ratio, --radius-sm) so it matches the landing-page tiles. */
   .about__head {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: var(--space-6);
   }
 
   .about :global(.about__portrait) {
     flex: none;
-    width: 9rem;
-    aspect-ratio: 1;
-    margin-bottom: var(--space-11); /* match SectionHead's block padding */
+    height: calc(var(--text-display) * var(--leading-display) * 1.2);
+    aspect-ratio: var(--media-ratio);
     border-radius: var(--radius-sm);
   }
 
-  @media (max-width: 48rem) {
-    .about :global(.about__portrait) {
-      width: 7rem;
+  /* Two columns, like the case study page: bio left, experience and contact
+   * stacked on the right. Collapses to one column on phones. No top padding:
+   * the row starts right after the heading, like the first project on the
+   * landing page. */
+  .about__columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: var(--column-gap);
+    row-gap: var(--space-10);
+  }
+
+  @media (min-width: 48rem) {
+    .about__columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: start;
     }
   }
 
-  /* Same column gap as the project captions on the landing page, so the three
-   * text columns start on the same tracks across both pages. */
-  .about__columns {
-    column-gap: var(--column-gap);
-    row-gap: var(--space-10);
-    padding-top: var(--space-8);
+  .about__aside {
+    display: grid;
+    gap: var(--space-10);
+    align-content: start;
   }
 
   /* Bio is a lede: Title size and tracking, Regular weight, body leading. */

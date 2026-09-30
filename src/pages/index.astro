@@ -1,16 +1,14 @@
 ---
 /**
- * Landing page: header, "Selected works" (one block per case study), then the
- * "Fun stuff" grid. "Read more" links to the case-study page.
+ * Landing page: header, then "Selected works" (one block per case study).
+ * "Read more" links to the case-study page.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHead from '../components/SectionHead.astro';
 import ProjectEntry from '../components/ProjectEntry.astro';
-import SmallCard from '../components/SmallCard.astro';
-import { getPublishedWork, getPublishedFun } from '../lib/work';
+import { getPublishedWork } from '../lib/work';
 
 const work = await getPublishedWork();
-const fun = await getPublishedFun();
 ---
 
 <BaseLayout>
@@ -25,19 +23,6 @@ const fun = await getPublishedFun();
     }
   </section>
 
-  {
-    fun.length > 0 && (
-      <section class="wrap fun" aria-labelledby="fun-stuff">
-        <SectionHead italic="Fun" lead="stuff" id="fun-stuff" />
-        <div class="fun__grid grid">
-          {fun.map((entry) => (
-            <SmallCard entry={entry} />
-          ))}
-        </div>
-      </section>
-    )
-  }
-
 </BaseLayout>
 
 <style>
@@ -49,15 +34,6 @@ const fun = await getPublishedFun();
    * tighter top padding from ProjectEntry. */
   .works > :global(.project:first-of-type) {
     padding-top: 0;
-  }
-
-  .fun {
-    padding-bottom: var(--space-6);
-  }
-
-  .fun__grid {
-    row-gap: var(--space-9);
-    margin-top: var(--space-6);
   }
 
   .empty {

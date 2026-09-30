@@ -1,7 +1,7 @@
 ---
 /**
  * Site header: name on the left, one link on the right that swaps between
- * "Info" and "Work" depending on where you are. No JS.
+ * "About" and "Work" depending on where you are. No JS.
  */
 import { SITE } from '../consts';
 
@@ -9,7 +9,7 @@ const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const onAbout = path === '/about';
 const link = onAbout
   ? { href: '/', label: 'Work' }
-  : { href: '/about/', label: 'Info' };
+  : { href: '/about/', label: 'About' };
 ---
 
 <header class="nav">
