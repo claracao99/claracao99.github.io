@@ -1,9 +1,8 @@
 /*
  * Case study and media styles.
  *
- * Global on purpose: a case study's HTML is fetched and injected into the
- * sheet on the landing page, so its styles have to be present on every page
- * rather than scoped to the case-study route. Everything else stays scoped.
+ * Global on purpose: MDX output has no component scope, and media rows are
+ * used by the landing page, the case pages and MDX bodies alike.
  */
 
 /* ── Media rows ─────────────────────────────────────────────────────────────── */
@@ -12,14 +11,17 @@
  * three; with two, the first takes two columns. */
 .media-row {
   width: 100%;
+  gap: var(--media-gap);
 }
 
 @media (min-width: 48rem) {
   .media-row[data-count='1'] > .media {
     grid-column: 1 / -1;
+    aspect-ratio: var(--media-ratio-full);
   }
   .media-row[data-count='2'] > .media:first-child {
     grid-column: span 2;
+    aspect-ratio: var(--media-ratio-wide);
   }
 }
 
@@ -29,7 +31,9 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
-  height: var(--media-height);
+  /* Width comes from the column; height follows the ratio, so the tile keeps
+   * its proportions at every viewport (and full-width when stacked on phones). */
+  aspect-ratio: var(--media-ratio);
   overflow: hidden;
   border-radius: var(--radius-sm);
   background: var(--surface-sunken);
@@ -50,94 +54,143 @@
   text-align: center;
 }
 
-/* Placeholder shapes for media that isn't exported yet. Sized like the design
- * so the page reads correctly before real screens exist. */
+/* Placeholder shapes for media that isn't exported yet. Sized as a share of
+ * the tile width (Figma sizes ÷ 437) so they scale with the fixed-ratio tile. */
 .media__shape {
   flex: none;
-  max-width: 80%;
   max-height: calc(100% - 3rem);
   background: var(--surface-placeholder);
 }
 .media__shape--phone {
-  width: 150px;
-  height: 300px;
+  width: 34%;
+  aspect-ratio: 1 / 2;
   border-radius: 22px;
 }
 .media__shape--card {
-  width: 300px;
-  height: 200px;
+  width: 69%;
+  aspect-ratio: 3 / 2;
   border-radius: 8px;
 }
 .media__shape--pill {
-  width: 300px;
-  height: 52px;
-  border-radius: 26px;
+  width: 69%;
+  aspect-ratio: 300 / 52;
+  border-radius: 999px;
 }
 .media__shape--bar {
-  width: 280px;
-  height: 40px;
-  border-radius: 20px;
+  width: 64%;
+  aspect-ratio: 7 / 1;
+  border-radius: 999px;
 }
 .media__shape--tag {
-  width: 180px;
-  height: 36px;
-  border-radius: 18px;
+  width: 41%;
+  aspect-ratio: 5 / 1;
+  border-radius: 999px;
 }
 .media__shape--panel {
-  width: 260px;
-  height: 160px;
+  width: 60%;
+  aspect-ratio: 13 / 8;
   border-radius: 8px;
 }
 .media__shape--sheet {
-  width: 220px;
-  height: 180px;
+  width: 50%;
+  aspect-ratio: 11 / 9;
   border-radius: 16px;
 }
 .media__shape--row {
-  width: 320px;
-  height: 56px;
+  width: 73%;
+  aspect-ratio: 40 / 7;
   border-radius: 8px;
 }
 
-/* ── Case study article ─────────────────────────────────────────────────────── */
+/* ── Case study page ────────────────────────────────────────────────────────
+ * Two columns, full screen: media left, text right. The text column is sticky
+ * under the nav and scrolls internally if it is taller than the viewport.
+ */
+.case-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 48rem) {
+  .case-page {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+/* The case page runs under the fixed nav: cancel main's top padding. */
+.case-page {
+  margin-top: calc(-1 * var(--nav-height));
+}
+
+/* Media: one panel per item, edge to edge, no radius, one viewport each. */
+.case-page__media {
+  display: grid;
+}
+
+.case-page__media > .media {
+  aspect-ratio: 4 / 5;
+  border-radius: 0;
+}
+
+@media (min-width: 48rem) {
+  .case-page__media > .media {
+    aspect-ratio: auto;
+    height: 100svh;
+  }
+}
 
 .case {
-  padding-block: var(--space-10) var(--space-6);
+  padding: var(--space-8) var(--gutter) var(--space-10);
+}
+
+@media (min-width: 48rem) {
+  .case {
+    position: sticky;
+    top: 0;
+    max-height: 100svh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: calc(var(--nav-height) + var(--space-6)) var(--gutter) var(--space-10) var(--column-gap);
+  }
+}
+
+.case__draft {
+  margin-bottom: var(--space-5);
+  color: var(--ink-muted);
 }
 
 .case__caption {
-  padding-bottom: var(--space-6);
+  display: grid;
+  gap: var(--space-3);
+  max-width: var(--measure);
+  padding-bottom: var(--space-8);
 }
 
 .case__title {
   font-size: var(--text-title);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-bold);
   line-height: var(--leading-title);
   letter-spacing: var(--tracking-title);
 }
 
 .case__meta {
-  margin-top: var(--space-3);
   color: var(--ink-muted);
 }
 
 .case__summary {
-  max-width: var(--measure-wide);
+  margin-top: var(--space-3);
   color: var(--ink-body);
 }
 
-/*
- * The body sits on the page grid. Prose takes columns 2–3, under the summary;
- * media rows span all three. Authors write plain MDX and never touch layout.
- */
+/* The body is a single reading column. Authors write plain MDX. */
 .case__body {
-  row-gap: 0;
+  max-width: var(--measure);
   color: var(--ink-body);
 }
 
 .case__body > * {
   min-width: 0;
-  max-width: var(--measure-wide);
 }
 
 .case__body > p + p,
@@ -146,23 +199,18 @@
   margin-top: var(--space-5);
 }
 
+.case__body > .shipped {
+  margin-top: var(--space-8);
+}
+
+/* Media rows inside the prose stack one tile per row in this narrow column. */
 .case__body > .media-row {
-  max-width: none;
+  grid-template-columns: minmax(0, 1fr);
   margin-block: var(--space-8);
 }
 
 .case__body > .media-row:first-child {
   margin-top: 0;
-  margin-bottom: var(--space-9);
-}
-
-@media (min-width: 48rem) {
-  .case__body > * {
-    grid-column: 2 / -1;
-  }
-  .case__body > .media-row {
-    grid-column: 1 / -1;
-  }
 }
 
 /* "Shipped" list */

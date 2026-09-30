@@ -1,11 +1,13 @@
 ---
 /**
- * Display heading in the serif face: first word roman, the rest italic.
- * e.g. <SectionHead lead="Selected" italic="works" />
+ * Display heading in the serif face: first word italic, the rest roman.
+ * e.g. <SectionHead italic="Selected" lead="works" />
  */
 interface Props {
-  lead: string;
+  /** Italic first word. */
   italic: string;
+  /** Roman remainder. */
+  lead: string;
   as?: 'h1' | 'h2';
   id?: string;
 }
@@ -15,7 +17,7 @@ const { lead, italic, as: Tag = 'h2', id } = Astro.props;
 
 <div class="section-head">
   <Tag class="section-head__title" id={id}>
-    {lead}{' '}<em>{italic}</em>
+    <em>{italic}</em>{' '}{lead}
   </Tag>
   <slot />
 </div>
@@ -27,7 +29,7 @@ const { lead, italic, as: Tag = 'h2', id } = Astro.props;
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--space-5);
-    padding-block: var(--space-7) calc(var(--space-6) - var(--space-1));
+    padding-block: var(--space-11);
   }
 
   .section-head__title {

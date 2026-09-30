@@ -1,0 +1,90 @@
+---
+/**
+ * End of a case study: a one-viewport runway with a single centred label,
+ * "Next project · Scroll down ↓". Scrolling to the bottom of the runway
+ * navigates straight to the next case study (wrapping to the first). The
+ * label is also a link, for clicks, keyboards and reduced motion.
+ */
+import { caseStudyPath, getCaseStudies, type WorkEntry } from '../lib/work';
+
+interface Props {
+  current: WorkEntry;
+}
+
+const { current } = Astro.props;
+const all = await getCaseStudies();
+const i = all.findIndex((e) => e.id === current.id);
+const next = all.length > 1 ? all[(i + 1) % all.length] : undefined;
+---
+
+{
+  next && (
+    <section class="next" data-next-project data-href={caseStudyPath(next)} aria-label="Next project">
+      <a class="next__link caps" href={caseStudyPath(next)}>
+        Next project · Scroll down ↓<span class="visually-hidden">: {next.data.title}</span>
+      </a>
+    </section>
+  )
+}
+
+<style>
+  .next {
+    display: grid;
+    place-items: center;
+    min-height: 100svh;
+  }
+
+  .next__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-inline: var(--space-4);
+    color: var(--ink-muted);
+    text-decoration: none;
+    transition: color var(--duration-base) var(--ease-out);
+  }
+
+  .next__link:hover,
+  .next__link:focus-visible {
+    color: var(--ink);
+  }
+</style>
+
+<script>
+  const section = document.querySelector<HTMLElement>('[data-next-project]');
+
+  if (section) {
+    const href = section.dataset.href!;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let navigated = false;
+    let armed = false; // don't fire on a page that loads already at the bottom
+    let ticking = false;
+
+    const update = () => {
+      ticking = false;
+      const rect = section.getBoundingClientRect();
+      // 0 when the runway's top enters the viewport bottom, 1 when its bottom does.
+      const progress = (window.innerHeight - rect.top) / rect.height;
+      if (progress < 0.9) armed = true;
+      if (armed && !navigated && !reduced && progress >= 1) {
+        navigated = true;
+        // Let the top gauge wind back to zero first (ScrollGauge.astro), then go.
+        const go = () => window.location.assign(href);
+        window.dispatchEvent(new CustomEvent('gauge:reset', { detail: { done: go } }));
+        // Safety net in case nothing is listening.
+        window.setTimeout(go, 2000);
+      }
+    };
+
+    const request = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    };
+
+    update();
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', request);
+  }
+</script>

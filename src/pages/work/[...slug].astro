@@ -1,11 +1,11 @@
 ---
 /**
- * A case study as a full page. The landing-page sheet fetches these same
- * pages, so anything here must render without client JS.
+ * A case study as a full-screen, two-column page. Renders without client JS.
  */
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseStudyLayout from '../../layouts/CaseStudyLayout.astro';
+import NextProject from '../../components/NextProject.astro';
 import { getCaseStudies } from '../../lib/work';
 
 // Static paths come from the same helper as the landing page, so a draft is
@@ -23,4 +23,5 @@ const { Content } = await render(entry);
   <CaseStudyLayout entry={entry}>
     <Content />
   </CaseStudyLayout>
+  <NextProject current={entry} />
 </BaseLayout>

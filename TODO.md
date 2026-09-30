@@ -1,7 +1,7 @@
 # Open items
 
-State as of 2026-09-27. The Figma structure (landing + about + case-study
-sheet) is implemented with the Figma's placeholder copy and grey media wells.
+State as of 2026-10-01. Landing + about + full-screen two-column case pages
+are implemented with the Figma's placeholder copy and grey media wells.
 
 ## Before sharing the site
 
@@ -30,8 +30,6 @@ sheet) is implemented with the Figma's placeholder copy and grey media wells.
 
 - [ ] The Figma has no phone layouts. The implementation stacks media rows
       and columns below 48rem/64rem — review on a real phone.
-- [ ] Sheet open/close motion is a simple slide + fade; tune if wanted
-      (CaseSheet.astro keyframes; durations are tokens).
 
 ## Nice to have
 
@@ -41,7 +39,5 @@ sheet) is implemented with the Figma's placeholder copy and grey media wells.
 
 - Deploy: push to `main` → live in ~1 minute.
 - Redirects: `/work/` → `/`, `/contact/` → `/about/`.
-- Sheet: opens via fetch + pushState, closes on ✕ / Esc / scrim / back,
-  falls through to the real page for modifier-clicks and no-JS.
 - Durability audit: no work email in history, no `.npmrc`, no internal
   packages, SSH-only remote, fonts self-hosted.

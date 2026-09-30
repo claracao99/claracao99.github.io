@@ -1,12 +1,15 @@
 ---
 /**
- * The case-study article: caption (title, client · year, summary), then the
- * MDX body via <slot />. The body's first <MediaRow> is the lead media.
+ * Case study as a full-screen, two-column page (after ol.studio/interior):
  *
- * Rendered by /work/[slug]/ as a full page, and lifted from there into the
- * landing-page sheet by CaseSheet.astro — so this must stay a self-contained
- * <article class="case"> styled by styles/case.css (global).
+ *   left   — the entry's media, edge to edge, one viewport-high panel each
+ *   right  — the text: title, client · year, summary, then the MDX body.
+ *            Sticky, so it stays put while the media scrolls past.
+ *
+ * On phones the media stacks above the text. No client JS: media comes from
+ * the entry's frontmatter, the body from <slot />.
  */
+import Media from '../components/Media.astro';
 import type { WorkEntry } from '../lib/work';
 
 interface Props {
@@ -14,32 +17,30 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { title, summary, client, year, draft } = entry.data;
+const { title, summary, client, year, draft, media } = entry.data;
 const meta = [client, String(year)].filter(Boolean).join(' · ');
+const headingId = `case-${entry.id}`;
 ---
 
-<article class="case wrap" aria-labelledby={`case-${entry.id}`}>
-  {
-    draft && (
-      <p class="case__draft caps">Draft — visible in development only</p>
-    )
-  }
-  <header class="case__caption grid">
-    <div class="col-1">
-      <h1 class="case__title" id={`case-${entry.id}`}>{title}</h1>
-      <p class="case__meta caps">{meta}</p>
-    </div>
-    <p class="case__summary col-2-3">{summary}</p>
-  </header>
-
-  <div class="case__body grid">
-    <slot />
+<div class="case-page">
+  <div class="case-page__media" role="group" aria-label={`${title} — media`}>
+    {
+      media.map((item, i) => (
+        <Media {...item} eager={i === 0} sizes="(max-width: 48rem) 100vw, 50vw" />
+      ))
+    }
   </div>
-</article>
 
-<style is:global>
-  .case__draft {
-    margin-bottom: var(--space-5);
-    color: var(--ink-muted);
-  }
-</style>
+  <article class="case" aria-labelledby={headingId} data-lenis-prevent>
+    {draft && <p class="case__draft caps">Draft — visible in development only</p>}
+    <header class="case__caption">
+      <h1 class="case__title" id={headingId}>{title}</h1>
+      <p class="case__meta caps">{meta}</p>
+      <p class="case__summary">{summary}</p>
+    </header>
+
+    <div class="case__body">
+      <slot />
+    </div>
+  </article>
+</div>

@@ -26,12 +26,10 @@ Node version is pinned in `.nvmrc` (24). Any Node ≥ 22.12 works locally.
 Three routes:
 
 - `/` — landing page: header, **Selected works** (one block per case study),
-  **Fun stuff** grid. "Read more" opens the case study in a bottom sheet.
+  **Fun stuff** grid. "Read more" links to the case study page.
 - `/about/` — bio, experience, contact.
-- `/work/<slug>/` — a case study as a full page. The sheet on the landing page
-  fetches this exact page and lifts its `<article class="case">` into a
-  `<dialog>`, so the page must render without client JS (it does). Direct
-  links, new-tab clicks, refresh and no-JS all land here.
+- `/work/<slug>/` — a case study as a full-screen, two-column page: the entry's
+  `media` panels on the left, the text on the right. No client JS.
 
 `/work/` and `/contact/` from the previous structure redirect (see
 `astro.config.mjs`).
@@ -112,8 +110,8 @@ title, body, label — are documented at the top of the type section in
 
 `src/styles/base.css` holds element defaults and utilities (`.wrap`, `.caps`,
 `.rule`, `.visually-hidden`, `.skip-link`). `src/styles/case.css` is
-global on purpose: it styles the case-study article and media rows, which are
-fetched into the landing-page sheet and so must be styled on every page.
+global on purpose: it styles the case-study page and media rows, which MDX
+bodies emit without any component scope.
 
 ### Responsive rules worth keeping
 
@@ -148,11 +146,10 @@ src/
   lib/work.ts            draft filtering + sort order (used everywhere)
   layouts/
     BaseLayout.astro     <head>, meta/OG, header, footer
-    CaseStudyLayout.astro  the <article class="case"> (page + sheet)
+    CaseStudyLayout.astro  the two-column case-study page
   components/
     Nav, Footer, SectionHead, ProjectEntry, SmallCard
     Media, MediaRow, Shipped   used in MDX bodies too
-    CaseSheet              <dialog> + fetch/history script
   pages/                 index, about, 404, work/[...slug]
   styles/                fonts, tokens, base, case
   fonts/                 woff2

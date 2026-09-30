@@ -40,11 +40,11 @@ infrastructure:
   (fun tiles: `src/content/fun/`). No code changes needed. The filename is the
   slug. `draft: true` entries render in `astro dev` but are excluded from
   builds. Frontmatter is documented in README.
-- **The case study is one article, used twice.** `/work/<slug>/` renders it as
-  a page; the landing-page sheet fetches that page and injects
-  `<article class="case">`. So: keep everything the article needs in
-  `src/styles/case.css` (global), never in a scoped `<style>`; and never make
-  the article depend on client JS or on being inside a particular layout.
+- **Case study pages are full-screen, two columns.** `/work/<slug>/` renders
+  the entry's frontmatter `media` as edge-to-edge panels on the left and the
+  text (caption + MDX body) in a sticky column on the right. Layout lives in
+  `src/styles/case.css` (global, because MDX output has no scope). There is no
+  overlay/sheet any more: "Read more" is a plain link.
 - **Light-only palette** from the Figma file. Tokens are `--grey-*` ramp plus a
   semantic layer. Don't reintroduce `prefers-color-scheme` without a design.
 - **`draft: true` hides the page, not the images.** Verified: a draft's cover

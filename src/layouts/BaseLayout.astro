@@ -6,6 +6,8 @@
 import { SITE } from '../consts';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
+import SmoothScroll from '../components/SmoothScroll.astro';
+import ScrollGauge from '../components/ScrollGauge.astro';
 
 import '../styles/fonts.css';
 import '../styles/tokens.css';
@@ -38,7 +40,7 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <meta name="theme-color" content="#ffffff" />
+    <meta name="theme-color" content="#f6f6f4" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
@@ -62,5 +64,7 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
       <slot />
     </main>
     <Footer />
+    <SmoothScroll />
+    <ScrollGauge />
   </body>
 </html>

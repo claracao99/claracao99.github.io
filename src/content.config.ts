@@ -44,8 +44,9 @@ const work = defineCollection({
       ...common,
       /** e.g. "Bolt". Shown with the year in the case-study caption. */
       client: z.string().optional(),
-      /** 1–3 items; the count sets the landing media row layout. */
-      media: z.array(mediaItem(ctx)).min(1).max(3),
+      /** Landing page shows the first three; the case page shows them all,
+       * as full-height panels down the left column. */
+      media: z.array(mediaItem(ctx)).min(1),
       /** If set, "Read more" links out here and no case-study page is built. */
       externalUrl: z.url().optional(),
     }),

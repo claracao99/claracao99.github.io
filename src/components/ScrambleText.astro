@@ -1,0 +1,77 @@
+---
+/**
+ * Character-scramble reveal for a line of text, after andmade.jp's project
+ * titles. On load the text starts as blanks, then resolves left to right:
+ * each character flickers through two random glyphs before settling.
+ * Spaces never scramble, so word shapes stay legible throughout.
+ *
+ * Plain text only: the span's textContent is rewritten each frame, so there
+ * is no per-letter markup and no layout shift. Under prefers-reduced-motion
+ * the final text renders immediately. Screen readers always get the real
+ * text via aria-label.
+ *
+ *   <ScrambleText text={title} />
+ *
+ * Currently unused (tried on case-study and section titles, parked). Timing
+ * knobs are the constants at the top of the script.
+ *
+ * A heading split across several spans (e.g. an italic first word) can pass
+ * `offset`, the number of characters that precede this span, so the ripple
+ * continues across the whole line instead of restarting per span.
+ */
+interface Props {
+  text: string;
+  class?: string;
+  offset?: number;
+}
+
+const { text, class: className, offset = 0 } = Astro.props;
+---
+
+<span class={className} data-scramble={text} data-scramble-offset={offset} aria-label={text}>{text}</span>
+
+<script>
+  const GLYPHS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const STEP_MS = 30; // per-character stagger
+  const JITTER_MS = 25; // random offset on top of the stagger
+  const FLICKERS = 2; // random glyphs shown before settling
+  const FLICKER_MS = 35; // time per random glyph
+
+  const rand = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+
+  const scramble = (el: HTMLElement) => {
+    const chars = el.dataset.scramble!.split('');
+    const offset = Number(el.dataset.scrambleOffset) || 0;
+    const starts = chars.map((_, i) => (offset + i) * STEP_MS + Math.random() * JITTER_MS);
+    const noise = FLICKERS * FLICKER_MS;
+    const t0 = performance.now();
+
+    el.textContent = chars.map(() => ' ').join('');
+
+    const frame = (now: number) => {
+      const t = now - t0;
+      let settled = true;
+      const out = chars.map((c, i) => {
+        if (c === ' ') return c;
+        const dt = t - starts[i];
+        if (dt < 0) {
+          settled = false;
+          return ' ';
+        }
+        if (dt < noise) {
+          settled = false;
+          return rand();
+        }
+        return c;
+      });
+      el.textContent = out.join('');
+      if (!settled) requestAnimationFrame(frame);
+    };
+
+    requestAnimationFrame(frame);
+  };
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.querySelectorAll<HTMLElement>('[data-scramble]').forEach(scramble);
+  }
+</script>

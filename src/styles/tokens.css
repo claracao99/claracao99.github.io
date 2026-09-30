@@ -9,7 +9,7 @@
   /* ── Palette ───────────────────────────────────────────────────────────────
    * Pure neutrals, no tint: white page, cool greys, near-black ink.
    */
-  --grey-00: #ffffff; /* page */
+  --grey-00: #f6f6f4; /* page — warm off-white, matched to andmade.jp */
   --grey-10: #f2f2f2; /* media wells, hover fills */
   --grey-20: #e3e3e3; /* placeholder shapes */
   --grey-30: #e0e0e0; /* hairlines */
@@ -40,35 +40,36 @@
 
   /* ── Type ──────────────────────────────────────────────────────────────────
    * Four roles, from the type spec:
-   *   Display — Instrument Serif, 96 desktop / 64 phone, lh ~1, tracking -1.5%
-   *   Title   — ABC Diatype Medium 20, lh 1.2
-   *   Body    — ABC Diatype Regular 17, lh 1.5
-   *   Label   — ABC Diatype 12, uppercase, tracking +8%, tabular figures
+   *   Display — Instrument Serif, 72 desktop / 48 phone, lh ~1, tracking -1.5%
+   *   Title   — ABC Diatype Bold 18, lh 1.2
+   *   Body    — ABC Diatype Regular 17, lh 1.35
+   *   Label   — ABC Diatype Mono 12, uppercase, tracking +6%, tabular figures
    * Self-hosted, see fonts.css.
    */
   --font-sans: 'ABC Diatype', system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
   --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
-  /* Labels share the sans; kept as a token so a mono can be swapped in. */
-  --font-mono: var(--font-sans);
+  /* Labels, dates and "Read more" — per the Figma. */
+  --font-mono: 'ABC Diatype Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --text-label: 0.75rem; /* 12 */
   --text-body: 1.0625rem; /* 17 */
-  --text-title: 1.25rem; /* 20 */
-  --text-display: clamp(4rem, 2rem + 4.5vw, 6rem); /* 64 → 96 */
+  --text-title: 1.125rem; /* 18 */
+  --text-display: clamp(3rem, 1.5rem + 3.4vw, 4.5rem); /* 48 → 72 */
 
   --leading-none: 1;
   --leading-display: 1;
   --leading-title: 1.2;
-  --leading-body: 1.5;
+  --leading-body: 1.35;
 
   --tracking-display: -0.015em;
-  --tracking-body: -0.005em; /* Diatype is already fairly tight */
-  --tracking-title: -0.025em;
-  --tracking-label: 0.08em;
+  --tracking-body: -0.015em; /* a step looser than titles */
+  --tracking-title: -0.03em;
+  --tracking-label: 0.06em; /* 0.72px at 12 */
 
   --weight-normal: 400;
   --weight-medium: 500;
+  --weight-bold: 700;
 
   /* ── Space ─────────────────────────────────────────────────────────────────
    * 4px-based; named steps match the values used repeatedly in the design.
@@ -87,15 +88,26 @@
   --space-12: 7.5rem;
 
   /* ── Layout ────────────────────────────────────────────────────────────────
-   * The layout runs edge to edge with a 40px gutter at desktop. --measure caps
+   * The layout runs edge to edge with a 3vw gutter (see below). --measure caps
    * a reading column (descriptions, case study body).
    */
-  --gutter: clamp(1.25rem, 1rem + 1.6vw, 2.5rem);
+  /* Side margin mirrors tash.work: 3% of the viewport (their 2rem page padding
+   * on a 1.5vw rem), never below 16px. 38px at 1280, 43px at 1440, 58px at 1920. */
+  --gutter: max(1rem, 3vw);
+  /* Sticky header: 44px link + 2×space-4 padding. Case pages use it to size
+   * the media panels and pin the text column beneath the nav. */
+  --nav-height: calc(44px + 2 * var(--space-4));
   --page-max: 120rem;
   --measure: 37.5rem; /* 600 */
   --measure-wide: 42em; /* cap for prose spanning two grid columns */
-  --media-height: clamp(15rem, 12rem + 12vw, 22.5rem); /* 360 at desktop */
-  --grid-gap: var(--space-5); /* 24 — one gap for images and text columns */
+  /* Media wells keep a fixed aspect ratio and scale with their column, like
+   * tash.work. Ratios come from the Figma at 1440: 3-up tile 437×360, the
+   * wide tile of a 2-up row 898×360, a full-width 1-up 1360×360. */
+  --media-ratio: 437 / 360;
+  --media-ratio-wide: 898 / 360;
+  --media-ratio-full: 1360 / 360;
+  --grid-gap: var(--space-5); /* 24 — text columns */
+  --media-gap: var(--space-3); /* 12 — between media tiles in a row */
   --column-gap: var(--space-7);
 
   --radius-sm: 6px;
@@ -108,10 +120,16 @@
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 420ms;
+  --duration-sweep: 700ms; /* underline sweep on "Read more" */
+  --duration-reset: 1100ms; /* scroll gauge winding back before a hand-off */
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 
   --z-nav: 100;
+  --z-gauge: 150; /* scroll progress bar: above the nav */
   --z-overlay: 200;
+
+  --gauge-height: 3px;
 }
 
 @media (min-resolution: 2dppx) {

@@ -58,6 +58,11 @@ button {
   cursor: pointer;
 }
 
+/* The nav is fixed and takes no space; clear it by default. */
+main {
+  padding-top: var(--nav-height);
+}
+
 /* Long words (URLs, project names) must not force horizontal scroll. */
 p,
 h1,
@@ -157,7 +162,7 @@ ol {
 /* Title: project and column headings. */
 .title {
   font-size: var(--text-title);
-  font-weight: var(--weight-medium);
+  font-weight: var(--weight-bold);
   line-height: var(--leading-title);
   letter-spacing: var(--tracking-title);
 }
@@ -209,6 +214,8 @@ ol {
     --duration-fast: 0ms;
     --duration-base: 0ms;
     --duration-slow: 0ms;
+    --duration-sweep: 0ms;
+    --duration-reset: 0ms;
   }
 
   html {
@@ -223,4 +230,25 @@ ol {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* ── Lenis smooth scroll ───────────────────────────────────────────────────
+ * Recommended rules from the library. Lenis adds `.lenis` to <html> when it
+ * mounts; none of this applies when it doesn't (reduced motion).
+ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
 }

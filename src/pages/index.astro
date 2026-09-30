@@ -1,13 +1,12 @@
 ---
 /**
  * Landing page: header, "Selected works" (one block per case study), then the
- * "Fun stuff" grid. Case studies open in a sheet — see CaseSheet.astro.
+ * "Fun stuff" grid. "Read more" links to the case-study page.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import SectionHead from '../components/SectionHead.astro';
 import ProjectEntry from '../components/ProjectEntry.astro';
 import SmallCard from '../components/SmallCard.astro';
-import CaseSheet from '../components/CaseSheet.astro';
 import { getPublishedWork, getPublishedFun } from '../lib/work';
 
 const work = await getPublishedWork();
@@ -16,7 +15,7 @@ const fun = await getPublishedFun();
 
 <BaseLayout>
   <section class="wrap works" aria-labelledby="selected-works">
-    <SectionHead lead="Selected" italic="works" id="selected-works" />
+    <SectionHead italic="Selected" lead="works" id="selected-works" />
     {
       work.length === 0 ? (
         <p class="empty">Nothing published yet.</p>
@@ -29,7 +28,7 @@ const fun = await getPublishedFun();
   {
     fun.length > 0 && (
       <section class="wrap fun" aria-labelledby="fun-stuff">
-        <SectionHead lead="Fun" italic="stuff" id="fun-stuff" />
+        <SectionHead italic="Fun" lead="stuff" id="fun-stuff" />
         <div class="fun__grid grid">
           {fun.map((entry) => (
             <SmallCard entry={entry} />
@@ -39,12 +38,11 @@ const fun = await getPublishedFun();
     )
   }
 
-  <CaseSheet />
 </BaseLayout>
 
 <style>
   .works {
-    padding-top: var(--space-7);
+    padding-top: 0;
   }
 
   /* The first project follows the heading directly; later ones get the

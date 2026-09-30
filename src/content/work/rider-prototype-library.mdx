@@ -10,12 +10,13 @@ year: 2026
 order: 2
 media:
   - shape: phone
-    label: Phone · 2-up
+    label: Phone frame
   - shape: phone
-    label: Phone · 2-up
+    label: Variant panel
+  - shape: card
+    label: Recording pipeline
 ---
 
-import MediaRow from '../../components/MediaRow.astro';
 import Shipped from '../../components/Shipped.astro';
 
 {/* TODO (Clara): case study body. The landing block above is complete. */}
@@ -23,12 +24,5 @@ import Shipped from '../../components/Shipped.astro';
 Placeholder body. Open with why a library of tappable prototypes was needed,
 then what the shared phone frame and variant panel actually do for the people
 using them.
-
-<MediaRow
-  items={[
-    { shape: 'phone', label: 'Shared frame' },
-    { shape: 'card', label: 'Variant panel' },
-  ]}
-/>
 
 <Shipped items={['Shared phone frame', 'Variant control panel', '60fps recording pipeline']} />

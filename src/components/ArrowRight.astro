@@ -1,0 +1,33 @@
+---
+/**
+ * Right-pointing arrow icon. Fills with `currentColor`, so it takes the
+ * colour of the surrounding text. Decorative by default (aria-hidden).
+ *
+ * Usage:
+ *   <a href="/work/">See all work <ArrowRight /></a>
+ *   <ArrowRight size={16} class="cta__arrow" />
+ */
+interface Props {
+  /** Rendered width in px. Height follows the 12:10 aspect ratio. */
+  size?: number;
+  class?: string;
+}
+
+const { size = 12, class: className } = Astro.props;
+const height = Math.round((size * 10) / 12);
+---
+
+<svg
+  width={size}
+  height={height}
+  viewBox="0 0 12 10"
+  fill="none"
+  aria-hidden="true"
+  focusable="false"
+  class:list={['icon-arrow-right', className]}
+>
+  <path
+    d="M7.20698 0L6.16675 1.07672L9.17704 4.23907H0V5.76093L9.18807 5.76094L6.16675 8.92328L7.20698 10L12 5.00761L7.20698 0Z"
+    fill="currentColor"
+  />
+</svg>

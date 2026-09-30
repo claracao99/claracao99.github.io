@@ -1,7 +1,7 @@
 ---
 /**
  * Site header: name on the left, one link on the right that swaps between
- * "About me" and "Work" depending on where you are. No JS.
+ * "Info" and "Work" depending on where you are. No JS.
  */
 import { SITE } from '../consts';
 
@@ -9,7 +9,7 @@ const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const onAbout = path === '/about';
 const link = onAbout
   ? { href: '/', label: 'Work' }
-  : { href: '/about/', label: 'About me' };
+  : { href: '/about/', label: 'Info' };
 ---
 
 <header class="nav">
@@ -19,17 +19,22 @@ const link = onAbout
       <a class="nav__link" href={link.href}>{link.label}</a>
     </nav>
   </div>
-  <div class="wrap"><hr class="rule" /></div>
 </header>
 
 <style>
-  /* Sticky so the name and the one nav link stay reachable while scrolling.
-   * Opaque background because content passes underneath. */
+  /* Fixed and out of the flow: pages start at the very top and scroll behind
+   * the two links. No background, no rule. Pages that want to clear it use
+   * --nav-height (base.css pads <main>; case pages pull back under it). */
   .nav {
-    position: sticky;
+    position: fixed;
+    inset-inline: 0;
     top: 0;
     z-index: var(--z-nav);
-    background: var(--surface);
+    pointer-events: none;
+  }
+
+  .nav__link {
+    pointer-events: auto;
   }
 
   .nav__inner {
@@ -45,15 +50,17 @@ const link = onAbout
     display: inline-flex;
     align-items: center;
     min-height: 44px;
-    font-size: var(--text-body);
-    font-weight: var(--weight-medium);
+    /* Same size and weight as project titles (.title). */
+    font-size: var(--text-title);
+    font-weight: var(--weight-bold);
     line-height: var(--leading-none);
+    letter-spacing: var(--tracking-title);
     color: var(--ink);
     text-decoration: none;
+    transition: color var(--duration-base) var(--ease-out);
   }
 
   .nav__link:hover {
-    text-decoration: underline;
-    text-underline-offset: 0.2em;
+    color: var(--ink-muted);
   }
 </style>

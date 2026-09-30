@@ -9,25 +9,25 @@ date: Jun 2026
 year: 2026
 order: 1
 media:
-  - shape: none
-    label: Hero · one wide image
+  - shape: phone
+    label: Contact picker
+  - shape: phone
+    label: Live tracking
+  - shape: card
+    label: Hand-off card
+  - shape: phone
+    label: Passenger link
+  - shape: card
+    label: Driver view
 ---
 
-import MediaRow from '../../components/MediaRow.astro';
 import Shipped from '../../components/Shipped.astro';
 
 {/*
-  Media: swap each `shape` for `src: ./file.png` (co-located) once the exports
-  exist. Everything else in this file is prose and stays where it is.
+  Media lives in the frontmatter above: the first three make the landing row,
+  all of them stack down the left of the case page. Swap each `shape` for
+  `src: ./file.png` (co-located) once the exports exist.
 */}
-
-<MediaRow
-  items={[
-    { shape: 'phone', label: 'Pick a contact' },
-    { shape: 'phone', label: 'Confirm for them' },
-    { shape: 'phone', label: 'They track it' },
-  ]}
-/>
 
 The hard part was not the booking. It was the moment the car arrives and two
 people need to know what is happening. The booker sees the trip in their own
@@ -39,13 +39,6 @@ I prototyped the three screens as one tappable flow on Clay rather than as a
 deck, and tested it with the rider support team first. Two rounds of that
 changed the order of the confirmation screen and killed a feature we had
 assumed was essential.
-
-<MediaRow
-  items={[
-    { shape: 'phone', label: 'Passenger link' },
-    { shape: 'card', label: 'Driver view' },
-  ]}
-/>
 
 <Shipped
   items={[

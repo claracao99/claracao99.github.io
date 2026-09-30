@@ -1,0 +1,19 @@
+---
+/**
+ * Inertial page scroll via Lenis (MIT, ~5kB). Tuned to match the feel of
+ * andmade.jp: lerp 0.13 (Lenis default is 0.1), anchors smoothed.
+ *
+ * - Disabled entirely under prefers-reduced-motion: no script, native scroll.
+ * - The case-study text column carries `data-lenis-prevent`, so wheel events
+ *   over it scroll that column, not the page behind it.
+ * - Touch scrolling stays native (Lenis default), so iOS keeps its own physics.
+ */
+---
+
+<script>
+  import Lenis from 'lenis';
+
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    new Lenis({ lerp: 0.13, anchors: true, autoRaf: true });
+  }
+</script>
