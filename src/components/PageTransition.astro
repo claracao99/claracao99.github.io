@@ -1,0 +1,230 @@
+---
+/**
+ * Work ↔ case-study page transition, after paulkalkbrenner.net: the current
+ * page shrinks into a card and swings off to one side while the next page
+ * swings in from the other, over a black backdrop. The arriving page's heading
+ * then rises word by word.
+ *
+ *   work → case   leaving card exits left, new page enters from the right
+ *   case → work   mirrored, so going back reads as going back
+ *
+ * Native cross-document View Transitions, no library: pages still load in
+ * full, so Lenis, the gauge and the next-project runway are untouched.
+ * Browsers without support, and prefers-reduced-motion, get a plain load.
+ * Every other navigation (About, case → case) is skipped, as before.
+ *
+ * Rendered inside <head>: the pagereveal listener has to exist before the
+ * new page's first frame.
+ */
+---
+
+<script is:inline>
+  (() => {
+    const kind = (url) => {
+      if (!url) return null;
+      let path;
+      try {
+        path = new URL(url, location.href).pathname.replace(/\/+$/, '') || '/';
+      } catch {
+        return null;
+      }
+      if (path === '/') return 'work';
+      if (/^\/work\/[^/]+$/.test(path)) return 'case';
+      return null;
+    };
+
+    // Wrap each word under `el` in a clipping mask, keeping inline markup
+    // (e.g. the <em> in "Selected works") and the spaces between words.
+    const splitWords = (el) => {
+      const original = el.innerHTML;
+      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      let i = 0;
+      for (const node of nodes) {
+        const frag = document.createDocumentFragment();
+        for (const part of node.textContent.split(/(\s+)/)) {
+          if (!part) continue;
+          if (/^\s+$/.test(part)) {
+            frag.append(part);
+            continue;
+          }
+          const mask = document.createElement('span');
+          const word = document.createElement('span');
+          mask.className = 'vt-word';
+          word.className = 'vt-word__inner';
+          word.style.setProperty('--i', String(i++));
+          word.textContent = part;
+          mask.append(word);
+          frag.append(mask);
+        }
+        node.replaceWith(frag);
+      }
+      return () => (el.innerHTML = original);
+    };
+
+    window.addEventListener('pagereveal', async (e) => {
+      const vt = e.viewTransition;
+      if (!vt) return;
+
+      const from = kind(navigation?.activation?.from?.url ?? document.referrer);
+      const to = kind(location.href);
+      const direction =
+        from === 'work' && to === 'case' ? 'to-case' : from === 'case' && to === 'work' ? 'to-work' : null;
+      if (!direction) {
+        vt.skipTransition();
+        return;
+      }
+
+      const root = document.documentElement;
+      root.dataset.pageTransition = direction;
+      const heading = document.querySelector('.case__title, .section-head__title');
+      const restore = heading ? splitWords(heading) : null;
+
+      await vt.finished.catch(() => {});
+      // The text reveal outlasts the page swap; let it land before cleaning up.
+      const reveal = document.querySelectorAll('.vt-word__inner, .case__meta, .case__summary');
+      await Promise.allSettled(
+        [...reveal].flatMap((el) => el.getAnimations().map((a) => a.finished)),
+      );
+      delete root.dataset.pageTransition;
+      restore?.();
+    });
+  })();
+</script>
+
+<!-- Opt-in inline rather than bundled: the browser checks it on the arriving
+     page at reveal, and a stylesheet still in flight occasionally counts as
+     "not opted in". -->
+<style is:inline>
+  @media (prefers-reduced-motion: no-preference) {
+    @view-transition {
+      navigation: auto;
+    }
+  }
+</style>
+
+<style is:global>
+  /* The header holds still above both cards instead of swinging with them. */
+  .nav {
+    view-transition-name: site-nav;
+  }
+
+  ::view-transition {
+    background: var(--transition-backdrop);
+  }
+
+  /* The nav has no background, so its black text vanishes over the black
+   * backdrop. Inverted and blended with difference, it reads black over the
+   * cards and white over the backdrop. */
+  ::view-transition-group(site-nav) {
+    mix-blend-mode: difference;
+  }
+
+  ::view-transition-old(site-nav),
+  ::view-transition-new(site-nav) {
+    filter: invert(1);
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    transform-origin: center bottom;
+    mix-blend-mode: normal;
+  }
+
+  /* Leaving page: shrink and dim first, then swing out. Two animations on
+   * separate properties (scale vs translate/rotate) so they overlap the way
+   * the reference staggers them. */
+  html[data-page-transition]::view-transition-old(root) {
+    animation:
+      vt-card-shrink var(--duration-card-shrink) var(--ease-card) both,
+      vt-card-out-left var(--duration-card-slide) var(--ease-card) var(--delay-card-slide) both;
+  }
+
+  html[data-page-transition]::view-transition-new(root) {
+    animation: vt-card-in-right var(--duration-card-slide) var(--ease-card) var(--delay-card-slide) both;
+  }
+
+  html[data-page-transition='to-work']::view-transition-old(root) {
+    animation-name: vt-card-shrink, vt-card-out-right;
+  }
+
+  html[data-page-transition='to-work']::view-transition-new(root) {
+    animation-name: vt-card-in-left;
+  }
+
+  @keyframes vt-card-shrink {
+    to {
+      scale: 0.8;
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes vt-card-out-left {
+    to {
+      translate: -50% 0;
+      rotate: -5deg;
+    }
+  }
+
+  @keyframes vt-card-out-right {
+    to {
+      translate: 50% 0;
+      rotate: 5deg;
+    }
+  }
+
+  @keyframes vt-card-in-right {
+    from {
+      translate: 100% 0;
+      rotate: 5deg;
+      scale: 0.85;
+    }
+  }
+
+  @keyframes vt-card-in-left {
+    from {
+      translate: -100% 0;
+      rotate: -5deg;
+      scale: 0.85;
+    }
+  }
+
+  /* ── Arriving page: heading words rise out of a mask, then the rest ── */
+  .vt-word {
+    display: inline-block;
+    overflow: clip;
+    /* Room for descenders inside the mask, without moving the line box. */
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+    vertical-align: top;
+  }
+
+  .vt-word__inner {
+    display: inline-block;
+    animation: vt-word-rise var(--duration-reveal) var(--ease-card)
+      calc(var(--delay-reveal) + var(--i) * 30ms) both;
+  }
+
+  @keyframes vt-word-rise {
+    from {
+      translate: 0 140%;
+      rotate: 5deg;
+    }
+  }
+
+  html[data-page-transition] :is(.case__meta, .case__summary) {
+    animation: vt-fade-up var(--duration-reveal) var(--ease-card) calc(var(--delay-reveal) + 150ms) both;
+  }
+
+  html[data-page-transition] .case__summary {
+    animation-delay: calc(var(--delay-reveal) + 200ms);
+  }
+
+  @keyframes vt-fade-up {
+    from {
+      translate: 0 0.75em;
+      opacity: 0;
+    }
+  }
+</style>
