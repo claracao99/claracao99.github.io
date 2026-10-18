@@ -5,8 +5,7 @@
  *
  * Tuned to this site rather than copied: lower and rounder (soft felt, not
  * bright plastic), and every pitched note sits in D major so the sounds
- * agree with each other. Tones fall slightly in pitch, like something
- * settling; only the About bloop rises.
+ * agree with each other.
  *
  * Silent until the first click or key press (browsers keep audio locked
  * until then). Off for anyone who set localStorage.sound = 'off'.
@@ -31,10 +30,9 @@ type Layer = (Tone | { noise: Noise }) & {
   delay?: number;
 };
 
-// D major: D5 587.33, A5 880, D6 1174.66.
+// D major: D5 587.33, A5 880.
 const D5 = 587.33;
 const A5 = 880;
-const D6 = 1174.66;
 
 export const SOUNDS = {
   /** Every link and button except About, including the email copying: a
@@ -44,13 +42,15 @@ export const SOUNDS = {
     { type: 'sine', freq: [D5 / 2, 230], attack: 0.002, decay: 0.07, gain: 0.55 },
     { type: 'sine', freq: [D5, 520], attack: 0.002, decay: 0.035, gain: 0.18, delay: 0.004 },
   ],
-  /** The About pill, opening or closing its panel: a bubbly bloop that
-   * bounces up once, on the same felt tick as tap. The one playful sound. */
-  about: [
-    { noise: { filter: 'lowpass', freq: 1400, q: 0.7 }, decay: 0.01, gain: 0.25 },
-    { type: 'sine', freq: [D5 / 2, A5], attack: 0.002, decay: 0.06, gain: 0.45 },
-    { type: 'sine', freq: [A5, D6], attack: 0.002, decay: 0.09, gain: 0.3, delay: 0.065 },
-    { type: 'triangle', freq: D6, attack: 0.002, decay: 0.05, gain: 0.05, delay: 0.065 },
+  /** About opening: two glass notes stepping up a fifth. */
+  open: [
+    { type: 'sine', freq: D5, fm: [3, 6], attack: 0.003, decay: 0.09, gain: 0.32 },
+    { type: 'sine', freq: A5, fm: [3, 6], attack: 0.003, decay: 0.14, gain: 0.28, delay: 0.055 },
+  ],
+  /** About closing: the same two notes, stepping back down. */
+  close: [
+    { type: 'sine', freq: A5, fm: [3, 6], attack: 0.003, decay: 0.07, gain: 0.26 },
+    { type: 'sine', freq: D5, fm: [3, 6], attack: 0.003, decay: 0.1, gain: 0.24, delay: 0.05 },
   ],
 } satisfies Record<string, Layer[]>;
 
