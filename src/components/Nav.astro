@@ -2,7 +2,7 @@
 /**
  * Site header (01 Index): two solid Figure pills on the index grid. The
  * wordmark pill takes three tracks on desktop and its own row on phones;
- * About takes the last track.
+ * About takes the last track on desktop and the row below on phones.
  *
  * About is an accordion, after yuriroga.com: it drops a glass panel beneath
  * itself holding the intro (Information) and the contact links. It closes on
@@ -11,8 +11,7 @@
  * On the index the wordmark pill is the current page: clicking it does
  * nothing rather than reloading (a modified click still opens a new tab).
  *
- * Fixed on desktop so the pills ride over the work; on phones,
- * where the header is two rows tall, it scrolls away with the page.
+ * Fixed at every size so the pills ride over the work.
  */
 import { CONTACT, SITE } from '../consts';
 import TriangleSouth from '../icons/triangle-south.svg';
@@ -71,7 +70,7 @@ const isHome = Astro.url.pathname === '/';
   /* Out of the flow: pages start at the very top and clear it with
    * --nav-height (base.css pads <main>; case pages pull back under it). */
   .nav {
-    position: absolute;
+    position: fixed;
     inset-inline: 0;
     top: 0;
     z-index: var(--z-nav);
@@ -83,7 +82,7 @@ const isHome = Astro.url.pathname === '/';
 
   .nav__about {
     position: relative;
-    grid-column: -2 / -1;
+    grid-column: 1 / -1;
   }
 
   .nav__about-toggle {
@@ -94,12 +93,12 @@ const isHome = Astro.url.pathname === '/';
     cursor: pointer;
   }
 
-  /* One gutter below the pill, its width on desktop; both tracks on phones. */
+  /* One gutter below the pill, its width. */
   .about-panel {
     position: absolute;
     top: calc(100% + var(--index-gap));
     right: 0;
-    width: calc(200% + var(--index-gap));
+    width: 100%;
     max-height: calc(100svh - var(--nav-height) - var(--index-margin));
     overflow-y: auto;
     display: flex;
@@ -140,14 +139,11 @@ const isHome = Astro.url.pathname === '/';
   }
 
   @media (min-width: 48rem) {
-    .nav {
-      position: fixed;
-    }
     .nav__grid > .nav__home {
       grid-column: span 3;
     }
-    .about-panel {
-      width: 100%;
+    .nav__about {
+      grid-column: -2 / -1;
     }
   }
 </style>
