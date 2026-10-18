@@ -8,6 +8,7 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import SmoothScroll from '../components/SmoothScroll.astro';
 import PageTransition from '../components/PageTransition.astro';
+import Cursor from '../components/Cursor.astro';
 import Sound from '../components/Sound.astro';
 
 import '../styles/fonts.css';
@@ -20,9 +21,11 @@ interface Props {
   description?: string;
   /** Path to an OG image, relative to the site root. */
   ogImage?: string;
+  /** Fit header, main and footer into one screen, no scroll (the index). */
+  fit?: boolean;
 }
 
-const { title, description = SITE.description, ogImage } = Astro.props;
+const { title, description = SITE.description, ogImage, fit = false } = Astro.props;
 
 // Landing page uses the bare site title; inner pages get a suffix.
 const pageTitle = title ? `${title} — ${SITE.name}` : SITE.title;
@@ -39,7 +42,9 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#ffffff" />
 
@@ -59,7 +64,7 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     <PageTransition />
   </head>
 
-  <body>
+  <body class:list={{ 'page-fit': fit }}>
     <a class="skip-link" href="#main">Skip to content</a>
     <Nav />
     <main id="main">
@@ -67,6 +72,7 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     </main>
     <Footer />
     <SmoothScroll />
+    <Cursor />
     <Sound />
     <!-- Cookieless analytics (claracao.goatcounter.com). Skips localhost. -->
     <script

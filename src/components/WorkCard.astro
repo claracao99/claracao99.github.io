@@ -1,54 +1,56 @@
 ---
 /**
- * One project on the index (01 Index): a very round card, then a caption —
- * number, title, year. Case studies are wide with the cover photo full bleed;
- * visual pieces are portrait: the prototype in a phone on Figure grey, playing
- * only while hovered or tapped (DeviceVideo).
+ * One project on the index (01 Index): a very round card, then its title.
+ * Every card is one track of the index grid, 4:5 on desktop, after
+ * yuriroga.com. A cover photo shows full bleed; a cover video shows the
+ * prototype in a phone on Figure grey, looping on its own (DeviceVideo). The case page opens on this same tile.
  *
- * Case studies link to their page (or out to externalUrl), and their image
- * zooms in by one gutter on hover. Visual pieces have no page: no link, no
- * zoom. On phones a portrait card is one track wide, so its caption keeps
- * only the name — the part of the title before the colon — and drops the year.
+ * Cards link to their case page (or out to externalUrl); on hover the cursor
+ * frames the card (Cursor.astro). Pieces with `caseStudy:
+ * false` have no page and no link. A title too long for its card scrolls (Marquee); on phones the
+ * caption keeps only the name — the part before the colon.
  */
 import Media from './Media.astro';
+import Marquee from './Marquee.astro';
 import DeviceVideo from './DeviceVideo.astro';
 import { caseStudyPath, type WorkEntry } from '../lib/work';
+import { tileSizes } from '../lib/media';
 
 interface Props {
   entry: WorkEntry;
-  /** Position on the index, from 1. */
-  index: number;
   eager?: boolean;
 }
 
-const { entry, index, eager = false } = Astro.props;
-const { title, year, cover, card, caseStudy, externalUrl, stage } = entry.data;
+const { entry, eager = false } = Astro.props;
+const { title, cover, caseStudy, externalUrl, stage } = entry.data;
 const href = externalUrl ?? (caseStudy ? caseStudyPath(entry) : undefined);
-const [name, ...rest] = title.split(':');
-const sub = rest.length ? `:${rest.join(':')}` : '';
-const wide = card === 'wide';
-const sizes = wide ? '(max-width: 48rem) 100vw, 66vw' : '(max-width: 48rem) 50vw, 33vw';
+const [name] = title.split(':');
+const sizes = tileSizes(cover.src, { phone: [50, 180 / 235], desktop: [25, 4 / 5] });
 const Tag = href ? 'a' : 'div';
 const linkProps = href
   ? { href, ...(externalUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {}) }
   : {};
 ---
 
-<article class:list={['work-card', wide ? 'span-wide' : 'span-portrait', `work-card--${card}`]}>
+<article class="work-card">
   <Tag class="work-card__inner" {...linkProps}>
-    <div class="work-card__media">
+    <div
+      class="work-card__media"
+      data-cursor-frame={href ? '' : undefined}
+    >
       {
         cover.video && cover.src ? (
-          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} label={title} eager={eager} stage={stage} />
+          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} eager={eager} stage={stage} />
         ) : (
-          <Media {...cover} eager={eager} sizes={sizes} widths={[640, 960, 1440, 1920]} />
+          <Media {...cover} eager={eager} sizes={sizes} widths={[640, 960, 1440, 1920, 2000]} />
         )
       }
     </div>
     <p class="work-card__caption">
-      <span class="detail">{String(index).padStart(2, '0')}</span>
-      <span class="work-card__title">{name}<span class="work-card__sub">{sub}</span></span>
-      <span class="detail work-card__year">{year}</span>
+      <span class="work-card__title">
+        <Marquee text={title} class="work-card__full" />
+        <span class="work-card__name">{name}</span>
+      </span>
     </p>
   </Tag>
 </article>
@@ -56,19 +58,20 @@ const linkProps = href
 <style>
   /* Card height follows the column, measured off the cards grid (a size
    * container, see index.astro). Phones: 2 tracks, 180×235 at 390.
-   * Desktop: 3 columns, portrait 4:5, wide the same height. Radius is a flat
+   * Desktop: 4 tracks, 4:5. Shorter if the grid sets --card-fit-height
+   * (the one-screen index, see index.astro). Radius is a flat
    * 32px at every size, matching marco.fyi's tiles. */
   .work-card {
     --col: calc((100cqw - var(--index-gap)) / 2);
-    --card-height: calc(var(--col) * 235 / 180);
-    --card-radius: 32px;
+    --card-height: min(calc(var(--col) * 235 / 180), var(--card-fit-height, 100svh));
+    --card-radius: var(--radius-card);
     min-width: 0;
   }
 
   @media (min-width: 48rem) {
     .work-card {
-      --col: calc((100cqw - 2 * var(--index-gap)) / 3);
-      --card-height: calc(var(--col) * 5 / 4);
+      --col: calc((100cqw - 3 * var(--index-gap)) / 4);
+      --card-height: min(calc(var(--col) * 5 / 4), var(--card-fit-height, 100svh));
     }
   }
 
@@ -90,20 +93,13 @@ const linkProps = href
     isolation: isolate;
   }
 
-  /* Media.astro's well, stretched to the card. Inset (not scale) so the zoom
-   * is exactly one gutter on every side, whatever the card's size. */
+  /* Media.astro's well, stretched to the card. */
   .work-card__media :global(.media) {
     position: absolute;
     inset: 0;
     aspect-ratio: auto;
     border-radius: 0;
     background: none;
-    transition: inset var(--duration-card-hover) var(--ease-standard);
-  }
-
-  a.work-card__inner:hover .work-card__media :global(.media),
-  a.work-card__inner:focus-visible .work-card__media :global(.media) {
-    inset: calc(-1 * var(--index-gap));
   }
 
   a.work-card__inner:focus-visible {
@@ -130,13 +126,14 @@ const linkProps = href
     min-width: 0;
   }
 
-  .work-card__caption > .detail {
-    flex: none;
+  @media (max-width: 47.99rem) {
+    .work-card__title :global(.work-card__full) {
+      display: none;
+    }
   }
 
-  @media (max-width: 47.99rem) {
-    .work-card--portrait .work-card__sub,
-    .work-card--portrait .work-card__year {
+  @media (min-width: 48rem) {
+    .work-card__name {
       display: none;
     }
   }

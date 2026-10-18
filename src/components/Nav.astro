@@ -1,33 +1,69 @@
 ---
 /**
- * Site header (01 Index): three pills on the index grid. The wordmark pill
- * is solid Figure, Work and About are glass. The wordmark pill takes four tracks on desktop and its own row on phones; Work (with
- * the project count) and About take one each. About jumps down to the
- * footer's contacts.
+ * Site header (01 Index): two solid Figure pills on the index grid. The
+ * wordmark pill takes three tracks on desktop and its own row on phones;
+ * About takes the last track.
  *
- * Fixed on desktop so the pills ride over the work as glass; on phones,
+ * About is an accordion, after yuriroga.com: it drops a glass panel beneath
+ * itself holding the intro (Information) and the contact links. It closes on
+ * a second click, Escape, or a click anywhere outside.
+ *
+ * On the index the wordmark pill is the current page: clicking it does
+ * nothing rather than reloading (a modified click still opens a new tab).
+ *
+ * Fixed on desktop so the pills ride over the work; on phones,
  * where the header is two rows tall, it scrolls away with the page.
  */
-import { getPublishedWork } from '../lib/work';
+import { CONTACT, SITE } from '../consts';
 import TriangleSouth from '../icons/triangle-south.svg';
 
-const count = (await getPublishedWork()).filter((e) => !e.data.draft).length;
+const isHome = Astro.url.pathname === '/';
 ---
 
 <header class="nav">
   <nav class="index-grid nav__grid" aria-label="Main">
-    <a class="pill pill--filled span-wide" href="/">
+    <a
+      class="pill pill--filled span-wide nav__home"
+      href="/"
+      aria-current={isHome ? 'page' : undefined}
+    >
       <span class="logotype">Clara Cao</span>
       <span>Product Designer</span>
     </a>
-    <a class="pill" href="/#work">
-      <span>Work</span>
-      <span class="detail" aria-label={`${count} projects`}>{String(count).padStart(2, '0')}</span>
-    </a>
-    <a class="pill" href="#about">
-      <span>About</span>
-      <TriangleSouth aria-hidden="true" data-direction="south" />
-    </a>
+    <div class="nav__about" data-about>
+      <button
+        class="pill pill--filled nav__about-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="about-panel"
+      >
+        <span>About</span>
+        <TriangleSouth aria-hidden="true" data-direction="south" />
+      </button>
+      <div class="about-panel" id="about-panel" hidden>
+        <section class="about-panel__section">
+          <h2 class="about-panel__label">Information</h2>
+          <p>{SITE.intro}</p>
+        </section>
+        <section class="about-panel__section">
+          <h2 class="about-panel__label">Contact</h2>
+          <ul>
+            {
+              CONTACT.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    {...('external' in link ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      </div>
+    </div>
   </nav>
 </header>
 
@@ -45,9 +81,102 @@ const count = (await getPublishedWork()).filter((e) => !e.data.draft).length;
     padding-block: var(--index-margin);
   }
 
+  .nav__about {
+    position: relative;
+    grid-column: -2 / -1;
+  }
+
+  .nav__about-toggle {
+    width: 100%;
+    font: inherit;
+    font-size: var(--text-small);
+    border: 0;
+    cursor: pointer;
+  }
+
+  /* One gutter below the pill, its width on desktop; both tracks on phones. */
+  .about-panel {
+    position: absolute;
+    top: calc(100% + var(--index-gap));
+    right: 0;
+    width: calc(200% + var(--index-gap));
+    max-height: calc(100svh - var(--nav-height) - var(--index-margin));
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    padding: var(--space-4) var(--pill-pad) var(--space-7);
+    border-radius: var(--radius-sheet);
+    background: var(--pill-glass);
+    -webkit-backdrop-filter: blur(var(--pill-blur));
+    backdrop-filter: blur(var(--pill-blur));
+    font-size: var(--text-small);
+    line-height: var(--leading-small);
+    letter-spacing: var(--tracking-small);
+  }
+
+  .about-panel[hidden] {
+    display: none;
+  }
+
+  .about-panel__label {
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: var(--rule-width) solid var(--rule);
+    color: var(--ink-detail);
+    font-size: inherit;
+    font-weight: var(--weight-normal);
+    line-height: inherit;
+    text-transform: uppercase;
+  }
+
+  .about-panel a {
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .about-panel a:hover {
+    color: var(--ink-detail);
+  }
+
   @media (min-width: 48rem) {
     .nav {
       position: fixed;
     }
+    .nav__grid > .nav__home {
+      grid-column: span 3;
+    }
+    .about-panel {
+      width: 100%;
+    }
   }
 </style>
+
+<script>
+  // The current page's link: a plain click would only reload it.
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('.nav a[aria-current="page"]')) {
+    link.addEventListener('click', (e) => {
+      if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) e.preventDefault();
+    });
+  }
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-about]')) {
+    const toggle = root.querySelector<HTMLButtonElement>('button')!;
+    const panel = root.querySelector<HTMLElement>('.about-panel')!;
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      panel.hidden = !open;
+    };
+    const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
+    toggle.addEventListener('click', () => setOpen(!isOpen()));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen()) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!root.contains(e.target as Node)) setOpen(false);
+    });
+  }
+</script>

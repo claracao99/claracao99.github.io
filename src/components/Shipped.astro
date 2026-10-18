@@ -14,7 +14,7 @@ const { label = 'Shipped', items } = Astro.props;
 ---
 
 <section class="shipped" aria-labelledby="shipped-label">
-  <p class="shipped__label caps" id="shipped-label">{label}</p>
+  <h2 class="shipped__label" id="shipped-label">{label}</h2>
   <ul class="shipped__list">
     {items.map((item) => <li>{item}</li>)}
   </ul>

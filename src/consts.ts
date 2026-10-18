@@ -13,6 +13,9 @@ export const SITE = {
     'Product designer at Bolt, raising the quality bar for the ride-hailing experience. Selected work and case studies.',
   /** Used for OG locale and the <html lang> attribute. */
   lang: 'en',
+  /** The About panel's Information text (Nav.astro). */
+  intro:
+    'Clara Cao is a product designer at Bolt, shaping the app millions of people use to get around their city. She finds the problem worth solving, builds the answer in real code with AI, and turns messy flows into calm, effortless experiences.',
 } as const;
 
 /**

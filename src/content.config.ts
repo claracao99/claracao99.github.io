@@ -9,7 +9,9 @@ import type { SchemaContext } from 'astro:content';
  * uppercase caption inside the well; omit it once the image speaks for itself.
  * A `video` (a path under public/, e.g. /media/search-bar.mp4) plays muted on
  * a loop, with `src` as its poster: required alongside it, because the poster
- * is what reduced-motion visitors see.
+ * is what reduced-motion visitors see. On a case page, `size: large` spans
+ * two tiles at the image's own ratio (16:9 for a placeholder); `small` is
+ * one 4:5 tile.
  */
 const mediaItem = ({ image }: SchemaContext) =>
   z.object({
@@ -21,6 +23,7 @@ const mediaItem = ({ image }: SchemaContext) =>
     shape: z
       .enum(['phone', 'card', 'pill', 'bar', 'tag', 'panel', 'sheet', 'row', 'none'])
       .default('none'),
+    size: z.enum(['small', 'large']).default('small'),
   })
     .refine((m) => !m.video || m.src, { message: 'a video needs `src` as its poster' });
 
@@ -52,23 +55,14 @@ const work = defineCollection({
       client: z.string().optional(),
       /** The index card's visual: a cover photo, or a video with its poster. */
       cover: mediaItem(ctx),
-      /** Index card size. Case studies are wide with the cover photo full
-       * bleed; visual pieces are portrait, video on Figure grey. */
-      card: z.enum(['wide', 'portrait']).default('wide'),
-      /** Video cards only: where the phone sits at rest (`start`) and while
-       * playing (`end`). Phone left, top and width in px on the Figma board
-       * "Device tile · phone positions" (549:1867), whose cards are
-       * 347.5×434.375, a portrait card at 1440. Scaled to any card size. */
-      stage: z
-        .object({
-          start: z.object({ x: z.number(), y: z.number(), w: z.number() }),
-          end: z.object({ x: z.number(), y: z.number(), w: z.number() }),
-        })
-        .optional(),
+      /** Video cards only: where the phone sits. Left, top and width in px on
+       * the Figma board "Device tile · phone positions" (549:1867), whose
+       * cards are 347.5×434.375, a card at 1440. Scaled to any card size. */
+      stage: z.object({ x: z.number(), y: z.number(), w: z.number() }).optional(),
       /** False for visual pieces: no page is built and the card isn't a link. */
       caseStudy: z.boolean().default(true),
-      /** The case page's panels, down the left column. Falls back to the
-       * cover when empty. */
+      /** The case page's tiles, after the cover. Placeholder tiles stand in
+       * when empty. */
       media: z.array(mediaItem(ctx)).default([]),
       /** If set, the card links out here and no case-study page is built. */
       externalUrl: z.url().optional(),

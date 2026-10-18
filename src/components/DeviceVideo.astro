@@ -1,16 +1,17 @@
 ---
 /**
  * A prototype clip in the iPhone 17 frame (Figma Cover page, "iPhone
- * Mockups"), staged like marco.fyi's command_dot tile.
+ * Mockups"), on Figure grey.
  *
- * At rest the phone holds the clip's first frame. On hover (tap on touch,
- * focus from the keyboard) it moves and scales to its end position over
- * 300ms, and the clip plays. Leaving reverses it and rewinds the clip, so
- * the next look starts from the beginning. Nothing plays until someone asks.
+ * The phone sits still where `stage` puts it and the clip loops on its own,
+ * playing while any of the tile is on screen and pausing when it leaves.
+ * Under prefers-reduced-motion it never starts and the first frame (the
+ * poster) stands in.
  *
- * Both positions come from `stage`, measured on the Figma board "Device tile
- * · phone positions" (549:1867). The default is marco.fyi's: large and low
- * at rest, running off the bottom edge, then 65% size and raised.
+ * `stage` is the phone's left, top and width in px on a 347.5×434.375 card,
+ * measured on the Figma board "Device tile · phone positions" (549:1867),
+ * and scales with the card. The default is marco.fyi's: large and low,
+ * running off the bottom edge.
  *
  * Fills its parent, which must be positioned and clip its overflow.
  */
@@ -23,44 +24,23 @@ interface Props {
   /** The clip's first frame. */
   poster: ImageMetadata;
   alt?: string;
-  label?: string;
   eager?: boolean;
   /** Phone left, top and width in px on a 347.5×434.375 card. */
-  stage?: { start: Spot; end: Spot };
+  stage?: { x: number; y: number; w: number };
 }
 
-type Spot = { x: number; y: number; w: number };
-
 const CARD = { w: 347.5, h: 434.375 };
-const PHONE = 920 / 450;
 
-const {
-  video,
-  poster,
-  alt = '',
-  label,
-  eager = false,
-  stage = {
-    start: { x: 27.8, y: 137.7, w: 291.9 },
-    end: { x: 78.88, y: 63.1, w: 189.74 },
-  },
-} = Astro.props;
-const { start, end } = stage;
-// Rest is laid out in % of the card; the end is a transform from it, in %
-// of the phone's own box (origin top left), so it scales with the card.
-const startH = start.w * PHONE;
+const { video, poster, alt = '', eager = false, stage = { x: 27.8, y: 137.7, w: 291.9 } } = Astro.props;
 const style = [
-  `--x: ${(start.x / CARD.w) * 100}%`,
-  `--y: ${(start.y / CARD.h) * 100}%`,
-  `--w: ${(start.w / CARD.w) * 100}%`,
-  `--dx: ${((end.x - start.x) / start.w) * 100}%`,
-  `--dy: ${((end.y - start.y) / startH) * 100}%`,
-  `--k: ${end.w / start.w}`,
+  `--x: ${(stage.x / CARD.w) * 100}%`,
+  `--y: ${(stage.y / CARD.h) * 100}%`,
+  `--w: ${(stage.w / CARD.w) * 100}%`,
 ].join('; ');
 const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
 ---
 
-<div class="device-tile" data-device-tile tabindex="0" role="group" aria-label={label ?? alt ?? undefined}>
+<div class="device-tile">
   <div class="device" style={style}>
     <video
       class="device__screen"
@@ -69,9 +49,10 @@ const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
       muted
       loop
       playsinline
-      preload="metadata"
+      preload={eager ? 'auto' : 'metadata'}
       aria-label={alt || undefined}
       aria-hidden={alt ? undefined : 'true'}
+      data-device-video
     ></video>
     <Image
       class="device__frame"
@@ -89,8 +70,6 @@ const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
   .device-tile {
     position: absolute;
     inset: 0;
-    outline: none;
-    -webkit-tap-highlight-color: transparent;
   }
 
   /* The frame image is 450×920 with the screen at 24,23, 402×874. */
@@ -100,12 +79,6 @@ const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
     top: var(--y);
     width: var(--w);
     aspect-ratio: 450 / 920;
-    transform-origin: 0 0;
-    transition: transform var(--duration-device) var(--ease-out-quad);
-  }
-
-  .device-tile.is-active .device {
-    transform: translate(var(--dx), var(--dy)) scale(var(--k));
   }
 
   .device__screen {
@@ -126,40 +99,19 @@ const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
     height: 100%;
     pointer-events: none;
   }
-
-  .device-tile:focus-visible {
-    outline: 2px solid var(--focus-ring);
-    outline-offset: -2px;
-    border-radius: inherit;
-  }
 </style>
 
 <script>
-  // Hover on devices that hover; tap toggles on touch; focus for keyboards.
-  for (const tile of document.querySelectorAll<HTMLElement>('[data-device-tile]')) {
-    const video = tile.querySelector('video')!;
-    let rewind = 0;
+  // Play each clip while any of it is on screen, pause it when it leaves.
+  const observer = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? null
+    : new IntersectionObserver((entries) => {
+        for (const { target, isIntersecting } of entries) {
+          const v = target as HTMLVideoElement;
+          if (isIntersecting) v.play().catch(() => {});
+          else v.pause();
+        }
+      });
 
-    const set = (on: boolean) => {
-      if (on === tile.classList.contains('is-active')) return;
-      tile.classList.toggle('is-active', on);
-      clearTimeout(rewind);
-      if (on) {
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-        // Back to the first frame once the phone has settled.
-        rewind = window.setTimeout(() => (video.currentTime = 0), 300);
-      }
-    };
-
-    tile.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && set(true));
-    tile.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && set(false));
-    tile.addEventListener('click', (e) => {
-      if ((e as PointerEvent).pointerType !== 'mouse') set(!tile.classList.contains('is-active'));
-    });
-    tile.addEventListener('focus', () => tile.matches(':focus-visible') && set(true));
-    tile.addEventListener('blur', () => set(false));
-    tile.addEventListener('keydown', (e) => e.key === 'Escape' && set(false));
-  }
+  document.querySelectorAll<HTMLVideoElement>('[data-device-video]').forEach((v) => observer?.observe(v));
 </script>
