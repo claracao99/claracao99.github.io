@@ -2,7 +2,7 @@
 /**
  * Site header (01 Index): two solid Figure pills on the index grid. The
  * wordmark pill takes three tracks on desktop and its own row on phones;
- * About takes the last track on desktop and the row below on phones.
+ * About takes the last track.
  *
  * About is an accordion, after yuriroga.com: it drops a glass panel beneath
  * itself holding the intro (Information) and the contact links. It closes on
@@ -82,7 +82,7 @@ const isHome = Astro.url.pathname === '/';
 
   .nav__about {
     position: relative;
-    grid-column: 1 / -1;
+    grid-column: -2 / -1;
   }
 
   .nav__about-toggle {
@@ -93,12 +93,12 @@ const isHome = Astro.url.pathname === '/';
     cursor: pointer;
   }
 
-  /* One gutter below the pill, its width. */
+  /* One gutter below the pill, its width on desktop; both tracks on phones. */
   .about-panel {
     position: absolute;
     top: calc(100% + var(--index-gap));
     right: 0;
-    width: 100%;
+    width: calc(200% + var(--index-gap));
     max-height: calc(100svh - var(--nav-height) - var(--index-margin));
     overflow-y: auto;
     display: flex;
@@ -142,8 +142,8 @@ const isHome = Astro.url.pathname === '/';
     .nav__grid > .nav__home {
       grid-column: span 3;
     }
-    .nav__about {
-      grid-column: -2 / -1;
+    .about-panel {
+      width: 100%;
     }
   }
 </style>
