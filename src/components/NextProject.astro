@@ -2,8 +2,8 @@
 /**
  * End of a case study: a Next Project pill (wrapping to the first), like the
  * other pills. It cycles through what the index shows, so drafts are skipped
- * in dev too. It sits under the tiles in the grid's last track,
- * the right half on phones.
+ * in dev too. It sits under the tiles in the grid's last track on desktop;
+ * on phones it spans the full row, like the back pill.
  */
 import TriangleEast from '../icons/triangle-east.svg';
 import { caseStudyPath, getCaseStudies, type WorkEntry } from '../lib/work';
@@ -37,6 +37,12 @@ const next = all.length > 1 ? all[(i + 1) % all.length] : undefined;
   }
 
   .next__link {
-    grid-column: -2 / -1;
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 48rem) {
+    .next__link {
+      grid-column: -2 / -1;
+    }
   }
 </style>
