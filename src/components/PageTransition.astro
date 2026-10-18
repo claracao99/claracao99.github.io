@@ -1,17 +1,13 @@
 ---
 /**
- * Work ↔ case-study page transition, after paulkalkbrenner.net: the current
- * page shrinks into a card and swings off to one side while the next page
- * swings in from the other, over a black backdrop. The arriving page's heading
- * then rises word by word.
- *
- *   work → case   leaving card exits left, new page enters from the right
- *   case → work   mirrored, so going back reads as going back
+ * Index ↔ case-study page transition, after yuriroga.com: the header stays
+ * put while the page under it fades out and drops a little (150ms), then the
+ * next page fades in as it rises into place (250ms).
  *
  * Native cross-document View Transitions, no library: pages still load in
- * full, so Lenis and the next-project runway are untouched.
- * Browsers without support, and prefers-reduced-motion, get a plain load.
- * Every other navigation (About, case → case) is skipped, as before.
+ * full, so Lenis is untouched. Browsers without support, and
+ * prefers-reduced-motion, get a plain load. Only index ↔ case and case →
+ * case navigations animate; the rest are skipped.
  *
  * Rendered inside <head>: the pagereveal listener has to exist before the
  * new page's first frame.
@@ -33,62 +29,27 @@
       return null;
     };
 
-    // Wrap each word under `el` in a clipping mask, keeping inline markup
-    // (e.g. the <em> in "Selected works") and the spaces between words.
-    const splitWords = (el) => {
-      const original = el.innerHTML;
-      const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
-      const nodes = [];
-      while (walker.nextNode()) nodes.push(walker.currentNode);
-      let i = 0;
-      for (const node of nodes) {
-        const frag = document.createDocumentFragment();
-        for (const part of node.textContent.split(/(\s+)/)) {
-          if (!part) continue;
-          if (/^\s+$/.test(part)) {
-            frag.append(part);
-            continue;
-          }
-          const mask = document.createElement('span');
-          const word = document.createElement('span');
-          mask.className = 'vt-word';
-          word.className = 'vt-word__inner';
-          word.style.setProperty('--i', String(i++));
-          word.textContent = part;
-          mask.append(word);
-          frag.append(mask);
-        }
-        node.replaceWith(frag);
-      }
-      return () => (el.innerHTML = original);
-    };
+    // The header's transition name is only set while a transition runs: a
+    // named element is a backdrop root, which would stop the About panel's
+    // glass from blurring the work behind it. Leaving page: set before the
+    // snapshot; cleared if the page comes back from the bfcache.
+    const root = document.documentElement;
+    window.addEventListener('pageswap', (e) => {
+      if (e.viewTransition) root.dataset.vtNav = '';
+    });
+    window.addEventListener('pageshow', () => delete root.dataset.vtNav);
 
-    window.addEventListener('pagereveal', async (e) => {
+    window.addEventListener('pagereveal', (e) => {
       const vt = e.viewTransition;
       if (!vt) return;
-
       const from = kind(navigation?.activation?.from?.url ?? document.referrer);
       const to = kind(location.href);
-      const direction =
-        from === 'work' && to === 'case' ? 'to-case' : from === 'case' && to === 'work' ? 'to-work' : null;
-      if (!direction) {
+      if (!from || !to || (from === 'work' && to === 'work')) {
         vt.skipTransition();
         return;
       }
-
-      const root = document.documentElement;
-      root.dataset.pageTransition = direction;
-      const heading = document.querySelector('.case__title, .section-head__title');
-      const restore = heading ? splitWords(heading) : null;
-
-      await vt.finished.catch(() => {});
-      // The text reveal outlasts the page swap; let it land before cleaning up.
-      const reveal = document.querySelectorAll('.vt-word__inner, .case__meta, .case__summary');
-      await Promise.allSettled(
-        [...reveal].flatMap((el) => el.getAnimations().map((a) => a.finished)),
-      );
-      delete root.dataset.pageTransition;
-      restore?.();
+      root.dataset.vtNav = '';
+      vt.finished.finally(() => delete root.dataset.vtNav);
     });
   })();
 </script>
@@ -105,8 +66,9 @@
 </style>
 
 <style is:global>
-  /* The header holds still above both cards instead of swinging with them. */
-  .nav {
+  /* The header holds still while the page under it changes. Only during a
+   * transition; see the pageswap listener. */
+  [data-vt-nav] .nav {
     view-transition-name: site-nav;
   }
 
@@ -114,105 +76,39 @@
     background: var(--transition-backdrop);
   }
 
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    transform-origin: center bottom;
-    mix-blend-mode: normal;
-  }
-
-  /* Leaving page: shrink and dim first, then swing out. Two animations on
-   * separate properties (scale vs translate/rotate) so they overlap the way
-   * the reference staggers them. */
-  html[data-page-transition]::view-transition-old(root) {
+  ::view-transition-old(root) {
     animation:
-      vt-card-shrink var(--duration-card-shrink) var(--ease-card) both,
-      vt-card-out-left var(--duration-card-slide) var(--ease-card) var(--delay-card-slide) both;
+      vt-fade-out var(--duration-page-out) linear both,
+      vt-drop var(--duration-page-out) var(--ease-page-out) both;
   }
 
-  html[data-page-transition]::view-transition-new(root) {
-    animation: vt-card-in-right var(--duration-card-slide) var(--ease-card) var(--delay-card-slide) both;
+  ::view-transition-new(root) {
+    animation:
+      vt-fade-in var(--duration-page-in) linear var(--duration-page-out) both,
+      vt-rise var(--duration-page-in) var(--ease-page-in) var(--duration-page-out) both;
   }
 
-  html[data-page-transition='to-work']::view-transition-old(root) {
-    animation-name: vt-card-shrink, vt-card-out-right;
-  }
-
-  html[data-page-transition='to-work']::view-transition-new(root) {
-    animation-name: vt-card-in-left;
-  }
-
-  @keyframes vt-card-shrink {
+  @keyframes vt-fade-out {
     to {
-      scale: 0.8;
-      opacity: 0.8;
-    }
-  }
-
-  @keyframes vt-card-out-left {
-    to {
-      translate: -50% 0;
-      rotate: -5deg;
-    }
-  }
-
-  @keyframes vt-card-out-right {
-    to {
-      translate: 50% 0;
-      rotate: 5deg;
-    }
-  }
-
-  @keyframes vt-card-in-right {
-    from {
-      translate: 100% 0;
-      rotate: 5deg;
-      scale: 0.85;
-    }
-  }
-
-  @keyframes vt-card-in-left {
-    from {
-      translate: -100% 0;
-      rotate: -5deg;
-      scale: 0.85;
-    }
-  }
-
-  /* ── Arriving page: heading words rise out of a mask, then the rest ── */
-  .vt-word {
-    display: inline-block;
-    overflow: clip;
-    /* Room for descenders inside the mask, without moving the line box. */
-    padding-bottom: 0.12em;
-    margin-bottom: -0.12em;
-    vertical-align: top;
-  }
-
-  .vt-word__inner {
-    display: inline-block;
-    animation: vt-word-rise var(--duration-reveal) var(--ease-card)
-      calc(var(--delay-reveal) + var(--i) * 30ms) both;
-  }
-
-  @keyframes vt-word-rise {
-    from {
-      translate: 0 140%;
-      rotate: 5deg;
-    }
-  }
-
-  html[data-page-transition] :is(.case__meta, .case__summary) {
-    animation: vt-fade-up var(--duration-reveal) var(--ease-card) calc(var(--delay-reveal) + 150ms) both;
-  }
-
-  html[data-page-transition] .case__summary {
-    animation-delay: calc(var(--delay-reveal) + 200ms);
-  }
-
-  @keyframes vt-fade-up {
-    from {
-      translate: 0 0.75em;
       opacity: 0;
+    }
+  }
+
+  @keyframes vt-drop {
+    to {
+      translate: 0 var(--page-out-shift);
+    }
+  }
+
+  @keyframes vt-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes vt-rise {
+    from {
+      translate: 0 var(--page-in-shift);
     }
   }
 </style>

@@ -1,53 +1,65 @@
 ---
 /**
- * The index (01 Index, Figma 487:792 / 493:825): the intro, then the work as
- * very round cards. Each desktop row pairs a wide case study with a portrait
- * visual piece, sides alternating; that comes from the entries' `order` and
- * `card`, so keep the pairs in step when adding work.
+ * The index (01 Index, Figma 487:792 / 493:825): the work as very round
+ * cards, four to a row on desktop and two on phones, ordered by the entries'
+ * `order`. The cards start a fixed distance down, like yuriroga.com, and the
+ * whole page fits one screen: cards keep 4:5 while there is room and get
+ * shorter when there isn't. The intro lives in the About panel (Nav.astro).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WorkCard from '../components/WorkCard.astro';
 import { getPublishedWork } from '../lib/work';
 
-// Drafts keep their pages in dev but stay off the grid, which is laid out in
-// pairs.
+// Drafts keep their pages in dev but stay off the grid.
 const work = (await getPublishedWork()).filter((e) => !e.data.draft);
+const rows = { phone: Math.ceil(work.length / 2), desktop: Math.ceil(work.length / 4) };
 ---
 
-<BaseLayout>
-  <div class="index-grid">
-    <h1 class="intro span-wide">
-      Clara Cao is a product designer at Bolt, shaping the app millions of people use to get
-      around their city. She finds the problem worth solving, builds the answer in real code with
-      AI, and turns messy flows into calm, effortless experiences.
-    </h1>
-  </div>
+<BaseLayout fit>
+  <h1 class="visually-hidden">Clara Cao, product designer: selected work</h1>
 
-  <section class="index-grid cards" id="work" aria-label="Work">
-    {work.map((entry, i) => <WorkCard entry={entry} index={i + 1} eager={i === 0} />)}
+  <section
+    class="index-grid cards"
+    id="work"
+    aria-label="Work"
+    style={`--rows-phone: ${rows.phone}; --rows-desktop: ${rows.desktop}`}
+  >
+    {work.map((entry, i) => <WorkCard entry={entry} eager={i === 0} />)}
   </section>
 </BaseLayout>
 
 <style>
-  /* Measured from under the header (main clears it). */
-  .intro {
-    padding: 96px var(--pill-pad) 72px;
-    font-size: var(--text-intro);
-    font-weight: var(--weight-normal);
-    line-height: var(--leading-intro);
-    letter-spacing: 0;
-  }
-
-  /* A size container, so the cards can size themselves off its width (cqw). */
+  /* A size container, so the cards can size themselves off its width (cqw).
+   * --card-fit-height caps each card (WorkCard) so every row, caption and
+   * gap fits between the header and the footer. */
   .cards {
+    --rows: var(--rows-phone);
+    /* Phones are short for two rows: the lead gives way (down to 24px)
+     * before the cards lose their shape. Full-shape card: WorkCard's 235/180. */
+    --index-lead: clamp(
+      24px,
+      100svh - var(--nav-height) - var(--footer-space) - var(--footer-height) - var(--rows) *
+        (var(--caption-height) + (100vw - 2 * var(--index-margin) - var(--index-gap)) / 2 * 235 / 180) -
+        (var(--rows) - 1) * var(--index-row-gap),
+      120px
+    );
+    --card-fit-height: calc(
+      (
+          100svh - var(--nav-height) - var(--index-lead) - var(--footer-space) -
+            var(--footer-height) - var(--rows) * var(--caption-height) - (var(--rows) - 1) *
+            var(--index-row-gap)
+        ) / var(--rows)
+    );
     container-type: inline-size;
     row-gap: var(--index-row-gap);
-    margin-top: var(--index-gap);
+    /* Measured from under the header (main clears it). */
+    padding-top: var(--index-lead);
   }
 
   @media (min-width: 48rem) {
-    .intro {
-      padding-block: 160px 120px;
+    .cards {
+      --rows: var(--rows-desktop);
+      --index-lead: 224px;
     }
   }
 </style>

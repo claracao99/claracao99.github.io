@@ -36,9 +36,9 @@
   /* Detail text: numbers, years, "Copy". Black at 55% (4.6:1 on white). */
   --ink-detail: rgb(0 0 0 / 0.55);
 
-  /* Index chrome, after yuriroga.com: the wordmark and footer pills are solid
-   * Figure; Work and About are glass, #F0F0F0 at 50% under a 50px blur, which
-   * reads as Figure over white. Every pill hovers to solid #F0F0F0. */
+  /* Index chrome, after yuriroga.com: header and footer pills are solid
+   * Figure (glass, #F0F0F0 at 50% under a 50px blur, is kept for .pill without
+   * --filled). Every pill hovers to solid #F0F0F0. */
   --figure: var(--grey-05);
   --pill-fill: var(--figure);
   --pill-fill-hover: var(--grey-08);
@@ -55,9 +55,8 @@
   --scrim: rgb(10 10 10 / 0.5);
 
   /* ── Type ──────────────────────────────────────────────────────────────────
-   * Five roles. Two weights only: Regular reads, Bold names or navigates.
+   * Four roles. Two weights only: Regular reads, Bold names or navigates.
    *   Display    — Instrument Serif, 72 desktop / 48 phone, lh 1, tracking -1.5%
-   *   Case title — ABC Diatype Bold 28, lh 1.2, tracking -3%
    *   Title      — ABC Diatype Bold 22, lh 1.2, tracking -3%
    *                (project titles)
    *   Body       — ABC Diatype Regular 17, lh 1.35, tracking -1.5%
@@ -79,22 +78,20 @@
   --font-logo: 'Special Gothic Expanded One', var(--font-sans);
 
   /* Index type (01 Index): one size for nearly everything.
-   *   Logotype — 13, uppercase, tracking +10%
-   *   Body     — Mona Sans 13 / 17, tracking +2% (nav, captions, footer)
-   *   Detail   — Fragment Mono 12 / 17, --ink-detail
-   *   Intro    — Mona Sans 20 / 26 desktop, 17 / 22 phone */
-  --text-small: 0.8125rem; /* 13 */
-  --text-detail: 0.75rem; /* 12 */
-  --text-intro: 1.0625rem; /* 17 */
-  --leading-small: 1.0625rem; /* 17px */
-  --leading-intro: 1.375rem; /* 22px */
+   *   Logotype — 11, uppercase, tracking +10%
+   *   Body     — Mona Sans 11 / 14, tracking +2% (nav, captions, footer);
+   *              a step up from yuriroga.com's 10 / 13, for legibility
+   *   Detail   — Fragment Mono 11 / 14, --ink-detail
+ */
+  --text-small: 0.6875rem; /* 11 */
+  --text-detail: 0.6875rem; /* 11 */
+  --leading-small: 0.875rem; /* 14px */
   --tracking-small: 0.02em;
   --tracking-logo: 0.1em;
 
   --text-label: 0.75rem; /* 12 */
   --text-body: 1.0625rem; /* 17 */
   --text-title: 1.375rem; /* 22 — project titles */
-  --text-case-title: 1.75rem; /* 28 — case-study page title */
   --text-display: clamp(3rem, 1.5rem + 3.4vw, 4.5rem); /* 48 → 72 */
 
   --leading-none: 1;
@@ -127,8 +124,7 @@
   --space-12: 7.5rem;
 
   /* ── Layout ────────────────────────────────────────────────────────────────
-   * The layout runs edge to edge with a 3vw gutter (see below). --measure caps
-   * a reading column (descriptions, case study body).
+   * The layout runs edge to edge with a 3vw gutter (see below).
    */
   /* Side margin mirrors tash.work: 3% of the viewport (their 2rem page padding
    * on a 1.5vw rem), never below 16px. 38px at 1280, 43px at 1440, 58px at 1920. */
@@ -138,8 +134,6 @@
    * panels and pin the text column beneath the nav. */
   --nav-height: calc(3 * var(--index-margin) + 2 * var(--pill-height));
   --page-max: 120rem;
-  --measure: 37.5rem; /* 600 */
-  --measure-wide: 42em; /* cap for prose spanning two grid columns */
   /* Media wells keep a fixed aspect ratio and scale with their column, like
    * tash.work. Ratios come from the Figma at 1440: 3-up tile 437×360, the
    * wide tile of a 2-up row 898×360, a full-width 1-up 1360×360. */
@@ -148,31 +142,33 @@
   --media-ratio-full: 1360 / 360;
   --grid-gap: var(--space-5); /* 24 — text columns */
   --media-gap: var(--space-3); /* 12 — between media tiles in a row */
-  --column-gap: var(--space-7);
 
-  /* Index grid: 10px gutters and page margin. 6 tracks on desktop (a wide
-   * card spans 4, a portrait 2, the nav's small pills 1), 2 on phones. */
+  /* Index grid: 10px gutters and page margin. 4 equal tracks on desktop, 2 on
+   * phones (see .index-grid in base.css). */
   --index-gap: 10px;
   --index-margin: 10px;
   --index-row-gap: var(--space-5); /* 24 between card rows */
   --pill-height: 40px;
   --pill-pad: var(--space-4); /* 16 */
   --footer-space: 150px; /* last card row → footer */
+  /* Header → first card row, as yuriroga.com: 280px down on desktop, under
+   * the 56px header. Phones' lead flexes to fit (index.astro). */
+  --index-lead: 120px;
+  /* Footer pills and bottom margin: two rows on phones, one on desktop. */
+  --footer-height: calc(2 * var(--pill-height) + var(--index-gap) + var(--index-margin));
+  --caption-height: calc(var(--leading-small) + var(--caption-gap));
   --caption-gap: var(--space-2); /* card → caption, and within a caption */
 
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-sheet: 28px;
+  /* Work tiles on the index and case pages: flat 32px, like marco.fyi. */
+  --radius-card: 32px;
 
   /* ── Motion ────────────────────────────────────────────────────────────────
    * Referenced, not hardcoded, so prefers-reduced-motion can zero them once.
    */
   --duration-fast: 120ms;
-  --duration-card-hover: 150ms; /* index card image zoom */
-  /* Phone tiles (after marco.fyi's command_dot): the phone shrinks and rises
-   * on hover over 300ms, ease-out quad — measured off the reference. */
-  --duration-device: 300ms;
-  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --duration-base: 200ms;
   --duration-slow: 420ms;
@@ -180,16 +176,25 @@
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  /* Work ↔ case page transition (PageTransition.astro), from paulkalkbrenner.net:
-   * the card shrinks over 600ms while it swings away over 800ms, 100ms later.
-   * The arriving heading starts rising at 500ms. */
-  --ease-card: cubic-bezier(0.625, 0.05, 0, 1);
-  --duration-card-shrink: 600ms;
-  --duration-card-slide: 800ms;
-  --delay-card-slide: 100ms;
-  --duration-reveal: 700ms;
-  --delay-reveal: 500ms;
-  --transition-backdrop: var(--grey-100);
+  /* Index ↔ case page transition (PageTransition.astro), from yuriroga.com:
+   * the page fades out dropping 15px, then the next fades in rising 30px. */
+  --duration-page-out: 150ms;
+  --duration-page-in: 250ms;
+  --ease-page-out: cubic-bezier(0.4, 0, 1, 1);
+  --ease-page-in: cubic-bezier(0, 0, 0.2, 1);
+  --page-out-shift: 15px;
+  --page-in-shift: 30px;
+  --transition-backdrop: var(--surface);
+
+  /* Cursor.astro, after templo.co.uk: white under exclusion blending, so it
+   * shows as black on the white page. One size everywhere. */
+  --cursor-size: 18px;
+  --cursor-fill: var(--grey-00);
+  /* Over a card it becomes a frame, after otherkind.design (their orange,
+   * our greys): a hairline 4px outside the card, over it, no fill. */
+  --cursor-frame-gap: 4px;
+  --cursor-frame-line: var(--grey-60);
+  --duration-cursor-frame: 200ms;
 
   /* Marquee.astro: space between the text and its looping copy, and how far
    * the edges fade while it scrolls. */
@@ -198,16 +203,18 @@
 
   --z-nav: 100;
   --z-overlay: 200;
+  --z-cursor: 300;
+  --z-cursor-frame: 250; /* over the page and header, under the dot */
 }
 
 @media (min-width: 48rem) {
   :root {
-    --text-intro: 1.25rem; /* 20 */
-    --leading-intro: 1.625rem; /* 26px */
     --index-row-gap: var(--space-6); /* 32 */
     --pill-height: 36px;
     --pill-pad: 1.25rem; /* 20 */
     --footer-space: 230px;
+    --index-lead: 224px;
+    --footer-height: calc(var(--pill-height) + var(--index-margin));
     --caption-gap: 10px;
     --nav-height: calc(2 * var(--index-margin) + var(--pill-height));
   }

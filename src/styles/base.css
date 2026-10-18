@@ -63,6 +63,19 @@ main {
   padding-top: var(--nav-height);
 }
 
+/* One-screen pages (the index): the footer sits on the bottom edge, at
+ * least a row gap under main; spare height opens up between the two. */
+.page-fit {
+  --footer-space: var(--index-row-gap);
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.page-fit > main {
+  flex: 1;
+}
+
 /* Long words (URLs, project names) must not force horizontal scroll. */
 p,
 h1,
@@ -203,9 +216,9 @@ ol {
 }
 
 /*
- * The index grid (01 Index): edge to edge with a 10px margin and gutter. Six
- * tracks on desktop: a wide card or the wordmark pill spans 4, a portrait
- * card 2, the small nav pills 1. Two tracks on phones.
+ * The index grid (01 Index), after yuriroga.com: edge to edge with a 10px
+ * margin and gutter. Four equal tracks on desktop, two on phones. Every card
+ * and the small nav pills take one; the wordmark pill and the intro span two.
  */
 .index-grid {
   display: grid;
@@ -220,13 +233,7 @@ ol {
 
 @media (min-width: 48rem) {
   .index-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-  .index-grid > .span-wide {
-    grid-column: span 4;
-  }
-  .index-grid > .span-portrait {
-    grid-column: span 2;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
@@ -274,8 +281,18 @@ button.pill:hover > svg {
   transform: translateX(2px);
 }
 
-a.pill:hover > svg[data-direction='south'] {
+a.pill:hover > svg[data-direction='west'] {
+  transform: translateX(-2px);
+}
+
+a.pill:hover > svg[data-direction='south'],
+button.pill:hover > svg[data-direction='south'] {
   transform: translateY(2px);
+}
+
+/* An open accordion pill (Nav's About) points its triangle up. */
+button.pill[aria-expanded='true'] > svg[data-direction='south'] {
+  transform: rotate(180deg);
 }
 
 /* Phones' pills are 40px; stretch the hit area into the gutter to 44. */

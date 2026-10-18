@@ -1,47 +1,111 @@
 ---
 /**
- * Case study as a full-screen, two-column page (after ol.studio/interior):
+ * Case study page, after yuriroga.com/work/*, on the index grid:
  *
- *   left   — the entry's media, edge to edge, one viewport-high panel each
- *   right  — the text: title, client · year, summary, then the MDX body.
- *            Sticky, so it stays put while the media scrolls past.
+ *   left half  — the project name in a pill that leads back (arrow first,
+ *                the whole pill links to the index), then a Figure
+ *                card: Information (client, year), Description (summary and
+ *                the MDX body). Sticky under the header on desktop.
+ *   right half — the work as tiles. First the index card's own tile (the
+ *                cover photo, or the phone video), so the page opens on what
+ *                was clicked; then `small` media as 4:5 tiles and `large`
+ *                spanning two at its own ratio.
  *
- * On phones the media stacks above the text. No client JS: media comes from
- * the entry's frontmatter, the body from <slot />.
+ * The name pill carries the index caption's full title, scrolling when it
+ * doesn't fit (Marquee).
+ *
+ * It starts as far down as the index's first row. Media without an image is
+ * a placeholder tile, and an entry with no media gets a default set, so every
+ * page reads as a full grid until the exports exist. On phones it stacks:
+ * name, card, then the tiles two across.
  */
 import Media from '../components/Media.astro';
+import Marquee from '../components/Marquee.astro';
+import DeviceVideo from '../components/DeviceVideo.astro';
+import TriangleWest from '../icons/triangle-west.svg';
 import type { WorkEntry } from '../lib/work';
+import { tileSizes } from '../lib/media';
 
 interface Props {
   entry: WorkEntry;
 }
 
+type Item = WorkEntry['data']['media'][number];
+
 const { entry } = Astro.props;
-const { title, summary, client, year, draft, cover } = entry.data;
-const media = entry.data.media.length ? entry.data.media : [cover];
-const meta = [client, String(year)].filter(Boolean).join(' · ');
-const headingId = `case-${entry.id}`;
+const { title, summary, client, year, draft, cover, stage } = entry.data;
+const [name] = title.split(':');
+
+const placeholders: Item[] = [
+  { shape: 'phone', size: 'small', alt: '' },
+  { shape: 'panel', size: 'large', alt: '' },
+  { shape: 'phone', size: 'small', alt: '' },
+  { shape: 'card', size: 'small', alt: '' },
+];
+const tiles: Item[] = entry.data.media.length ? entry.data.media : placeholders;
+
+const ratio = (item: Item) =>
+  item.size === 'large' ? (item.src ? item.src.width / item.src.height : 16 / 9) : 4 / 5;
+const sizes = (item: Item) =>
+  item.size === 'large'
+    ? tileSizes(item.src, { phone: [100, ratio(item)], desktop: [50, ratio(item)] })
+    : tileSizes(item.src, { phone: [50, 4 / 5], desktop: [25, 4 / 5] });
+
+const info = [
+  ['Client', client],
+  ['Year', String(year)],
+].filter((row): row is [string, string] => Boolean(row[1]));
 ---
 
-<div class="case-page">
-  <div class="case-page__media" role="group" aria-label={`${title} — media`}>
+<div class="index-grid case-page">
+  <aside class="case" aria-labelledby="case-title">
+    <a class="pill pill--filled case__title" href="/">
+      <TriangleWest aria-hidden="true" data-direction="west" />
+      <span class="visually-hidden">Back to overview: </span>
+      <h1 id="case-title"><Marquee text={title} /></h1>
+    </a>
+
+    <article class="case__card" data-lenis-prevent>
+      {draft && <p class="case__draft">Draft, visible in development only</p>}
+      <section class="case__section">
+        <h2 class="case__label">Information</h2>
+        <dl class="case__details">
+          {
+            info.map(([term, value]) => (
+              <div>
+                <dt>{term}:</dt>
+                <dd>{value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </section>
+      <section class="case__section">
+        <h2 class="case__label">Description</h2>
+        <p>{summary}</p>
+        <div class="case__body">
+          <slot />
+        </div>
+      </section>
+    </article>
+  </aside>
+
+  <div class="case__tiles" role="group" aria-label={`${name}, images`}>
+    <div class="case__tile" data-size="small" style="--ratio: 0.8">
+      {
+        cover.video && cover.src ? (
+          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} eager stage={stage} />
+        ) : (
+          <Media {...cover} eager sizes={sizes({ ...cover, size: 'small' })} widths={[640, 960, 1440, 1920, 2000]} />
+        )
+      }
+    </div>
     {
-      media.map((item, i) => (
-        <Media {...item} eager={i === 0} sizes="(max-width: 48rem) 100vw, 50vw" />
+      tiles.map((item) => (
+        <div class="case__tile" data-size={item.size} style={`--ratio: ${ratio(item)}`}>
+          <Media {...item} sizes={sizes(item)} widths={[640, 960, 1440, 1920, 2000]} />
+        </div>
       ))
     }
   </div>
-
-  <article class="case" aria-labelledby={headingId} data-lenis-prevent>
-    {draft && <p class="case__draft caps">Draft — visible in development only</p>}
-    <header class="case__caption">
-      <h1 class="case__title" id={headingId}>{title}</h1>
-      <p class="case__meta caps">{meta}</p>
-      <p class="case__summary">{summary}</p>
-    </header>
-
-    <div class="case__body">
-      <slot />
-    </div>
-  </article>
 </div>

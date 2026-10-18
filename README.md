@@ -27,8 +27,9 @@ Three routes:
 
 - `/` — landing page: header and **Selected works** (one block per case study).
   "Read more" links to the case study page.
-- `/work/<slug>/` — a case study as a full-screen, two-column page: the entry's
-  `media` panels on the left, the text on the right. No client JS.
+- `/work/<slug>/` — a case study, after yuriroga.com/work/*: the name in a
+  pill that leads back, and an Information/Description card on the left; the cover and the
+  entry's `media` as tiles on the right.
 
 `/work/` and `/contact/` from the previous structure redirect (see
 `astro.config.mjs`).
@@ -41,16 +42,17 @@ Drop one `.mdx` file into `src/content/work/`. No code changes.
 ---
 title: Order for someone else
 summary: One or two sentences. Landing description and meta description.
-client: Bolt              # optional; shown as "BOLT · 2026" in the case study
+client: Bolt              # optional; Information → Client on the case page
 date: Jun 2026            # display label, free text
 year: 2026                # sort tiebreaker
 order: 1                  # lower sorts first
 draft: true               # visible in dev, excluded from the built site
-media:                    # 1–3 items → 1-up / 2-up / 3-up landing row
+media:                    # case page tiles after the cover; omit for placeholders
   - src: ./hero.png       # co-located image, optimised by astro:assets
     alt: ''               # '' is correct for decorative images
-  - shape: phone          # …or a placeholder until the export exists
-    label: Pick a contact # small uppercase caption inside the well
+    size: large           # two tiles wide at its own ratio; default small (4:5)
+  - shape: phone          # …or a placeholder tile until the export exists
+    label: Pick a contact # small uppercase caption inside the tile
 externalUrl: https://...  # optional: "Read more" links out, no page built
 ---
 ```

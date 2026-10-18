@@ -1,8 +1,8 @@
 ---
 /**
  * Footer (01 Index): mirrors the header. The email pill copies the address
- * (four tracks on desktop, its own row on phones); LinkedIn and CV open in a
- * new tab. It is the About pill's target, hence the id. Addresses come from
+ * (two tracks on desktop, its own row on phones); LinkedIn and CV open in a
+ * new tab. Addresses come from
  * CONTACT in consts.ts so they live in one place.
  */
 import { CONTACT } from '../consts';
@@ -12,7 +12,7 @@ const email = CONTACT.find((c) => c.href.startsWith('mailto:'))!;
 const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
 ---
 
-<footer class="footer" id="about">
+<footer class="footer">
   <div class="index-grid">
     <button class="pill pill--filled span-wide footer__copy" type="button" data-copy={email.label}>
       <span>{email.label}</span>

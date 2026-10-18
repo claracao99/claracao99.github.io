@@ -106,136 +106,164 @@
 }
 
 /* ── Case study page ────────────────────────────────────────────────────────
- * Two columns, full screen: media left, text right. The text column is sticky
- * under the nav and scrolls internally if it is taller than the viewport.
+ * After yuriroga.com/work/*, on the index grid (CaseStudyLayout.astro): the
+ * text in the left half, sticky under the header on desktop; the tiles in
+ * the right half. Starts where the index's first card row does.
  */
 .case-page {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  padding-top: var(--index-lead);
+  row-gap: var(--index-gap);
+}
+
+.case-page > * {
+  grid-column: 1 / -1;
+  min-width: 0;
 }
 
 @media (min-width: 48rem) {
   .case-page {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    --index-lead: 224px;
     align-items: start;
   }
-}
-
-/* The case page runs under the fixed nav: cancel main's top padding. */
-.case-page {
-  margin-top: calc(-1 * var(--nav-height));
-}
-
-/* Media: one panel per item, edge to edge, no radius, one viewport each. */
-.case-page__media {
-  display: grid;
-}
-
-.case-page__media > .media {
-  aspect-ratio: 4 / 5;
-  border-radius: 0;
-}
-
-@media (min-width: 48rem) {
-  .case-page__media > .media {
-    aspect-ratio: auto;
-    height: 100svh;
+  .case-page > .case {
+    grid-column: 1 / 3;
+    position: sticky;
+    top: var(--nav-height);
+  }
+  .case-page > .case__tiles {
+    grid-column: 3 / -1;
   }
 }
 
 .case {
-  padding: var(--space-8) var(--gutter) var(--space-10);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--index-gap);
+}
+
+/* The name, led by a back arrow; the whole pill links to the index. The
+ * full row on phones, one track on desktop. */
+.case__title {
+  justify-content: flex-start;
+}
+
+.case__title > h1 {
+  flex: 1;
+  min-width: 0;
+  font-size: inherit;
+  font-weight: var(--weight-normal);
+}
+
+.case__title,
+.case__card {
+  grid-column: 1 / -1;
 }
 
 @media (min-width: 48rem) {
-  .case {
-    position: sticky;
-    top: 0;
-    max-height: 100svh;
+  .case__title {
+    grid-column: 1;
+  }
+  /* The card is one track wide, and scrolls inside itself if it is taller
+   * than the space under the pills. */
+  .case__card {
+    grid-column: 1;
+    max-height: calc(
+      100svh - var(--nav-height) - var(--pill-height) - var(--index-gap) - var(--index-margin)
+    );
     overflow-y: auto;
     overscroll-behavior: contain;
-    padding: calc(var(--nav-height) + var(--space-6)) var(--gutter) var(--space-10) var(--column-gap);
   }
 }
 
+.case__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-4) var(--pill-pad) var(--space-7);
+  border-radius: var(--radius-sheet);
+  background: var(--figure);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  letter-spacing: var(--tracking-small);
+}
+
 .case__draft {
-  margin-bottom: var(--space-5);
-  color: var(--ink-muted);
+  color: var(--ink-detail);
 }
 
-.case__caption {
+/* A section: a quiet uppercase label over a hairline, as in the About panel. */
+.case__label {
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: var(--rule-width) solid var(--rule);
+  color: var(--ink-detail);
+  font-size: inherit;
+  font-weight: var(--weight-normal);
+  line-height: inherit;
+  text-transform: uppercase;
+}
+
+.case__details > div {
   display: grid;
-  gap: var(--space-3);
-  max-width: var(--measure);
-  padding-bottom: var(--space-8);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--index-gap);
 }
 
-.case__title {
-  font-size: var(--text-case-title);
-  font-weight: var(--weight-bold);
-  line-height: var(--leading-title);
-  letter-spacing: var(--tracking-title);
-}
-
-.case__meta {
-  color: var(--ink-muted);
-}
-
-.case__summary {
-  margin-top: var(--space-3);
-  color: var(--ink-body);
-}
-
-/* The body is a single reading column. Authors write plain MDX. */
-.case__body {
-  max-width: var(--measure);
-  color: var(--ink-body);
-}
-
+/* The MDX body continues the description. */
 .case__body > * {
   min-width: 0;
 }
 
+.case__body > :first-child,
 .case__body > p + p,
 .case__body > p + ul,
 .case__body > ul + p {
-  margin-top: var(--space-5);
+  margin-top: var(--leading-small);
 }
 
-.case__body > .shipped {
+/* Tiles: two across in the right half (and on phones). A small tile is one
+ * track at 4:5; a large one spans both at its --ratio. Dense, so a small
+ * tile after a large one fills the hole a lone small tile leaves before it. */
+.case__tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row dense;
+  gap: var(--index-gap);
+}
+
+.case__tile {
+  position: relative;
+  aspect-ratio: var(--ratio);
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  background: var(--figure);
+  isolation: isolate;
+}
+
+.case__tile[data-size='large'] {
+  grid-column: 1 / -1;
+}
+
+.case__tile > .media {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+  border-radius: 0;
+  background: none;
+}
+
+/* "Shipped" list: another card section. */
+.shipped {
   margin-top: var(--space-8);
 }
 
-/* Media rows inside the prose stack one tile per row in this narrow column. */
-.case__body > .media-row {
-  grid-template-columns: minmax(0, 1fr);
-  margin-block: var(--space-8);
-}
-
-.case__body > .media-row:first-child {
-  margin-top: 0;
-}
-
-/* "Shipped" list */
 .shipped__label {
-  padding-bottom: var(--space-3);
-  color: var(--ink);
-}
-
-.shipped__list {
-  display: grid;
-  gap: var(--space-3);
-  padding-top: var(--space-5);
-  border-top: var(--rule-width) solid var(--rule);
-}
-
-.shipped__list li {
-  display: grid;
-  grid-template-columns: 1rem 1fr;
-  gap: var(--space-3);
-}
-
-.shipped__list li::before {
-  content: '—';
-  color: var(--ink-muted);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: var(--rule-width) solid var(--rule);
+  color: var(--ink-detail);
+  font-size: inherit;
+  font-weight: var(--weight-normal);
+  line-height: inherit;
+  text-transform: uppercase;
 }
