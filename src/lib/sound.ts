@@ -6,7 +6,7 @@
  * Tuned to this site rather than copied: lower and rounder (soft felt, not
  * bright plastic), and every pitched note sits in D major so the sounds
  * agree with each other. Tones fall slightly in pitch, like something
- * settling; only About opening and the title bloop rise.
+ * settling; only the About bloop rises.
  *
  * Silent until the first click or key press (browsers keep audio locked
  * until then). Off for anyone who set localStorage.sound = 'off'.
@@ -31,43 +31,26 @@ type Layer = (Tone | { noise: Noise }) & {
   delay?: number;
 };
 
-// D major: D5 587.33, F#5 739.99, A5 880, D6 1174.66.
+// D major: D5 587.33, A5 880, D6 1174.66.
 const D5 = 587.33;
-const FS5 = 739.99;
 const A5 = 880;
 const D6 = 1174.66;
 
 export const SOUNDS = {
-  /** Tiles, pills and every other link or button: a soft, deep felt tap. */
+  /** Every link and button except About, including the email copying: a
+   * soft, deep felt tap. */
   tap: [
     { noise: { filter: 'lowpass', freq: 1200, q: 0.7 }, decay: 0.014, gain: 0.35 },
     { type: 'sine', freq: [D5 / 2, 230], attack: 0.002, decay: 0.07, gain: 0.55 },
     { type: 'sine', freq: [D5, 520], attack: 0.002, decay: 0.035, gain: 0.18, delay: 0.004 },
   ],
-  /** The title pills (wordmark, case name): a bubbly bloop that bounces up
-   * once, on the same felt tick as tap. The one playful sound. */
-  title: [
+  /** The About pill, opening or closing its panel: a bubbly bloop that
+   * bounces up once, on the same felt tick as tap. The one playful sound. */
+  about: [
     { noise: { filter: 'lowpass', freq: 1400, q: 0.7 }, decay: 0.01, gain: 0.25 },
     { type: 'sine', freq: [D5 / 2, A5], attack: 0.002, decay: 0.06, gain: 0.45 },
     { type: 'sine', freq: [A5, D6], attack: 0.002, decay: 0.09, gain: 0.3, delay: 0.065 },
     { type: 'triangle', freq: D6, attack: 0.002, decay: 0.05, gain: 0.05, delay: 0.065 },
-  ],
-  /** About opening: two glass notes stepping up a fifth. */
-  open: [
-    { type: 'sine', freq: D5, fm: [3, 6], attack: 0.003, decay: 0.09, gain: 0.32 },
-    { type: 'sine', freq: A5, fm: [3, 6], attack: 0.003, decay: 0.14, gain: 0.28, delay: 0.055 },
-  ],
-  /** About closing: the same two notes, stepping back down. */
-  close: [
-    { type: 'sine', freq: A5, fm: [3, 6], attack: 0.003, decay: 0.07, gain: 0.26 },
-    { type: 'sine', freq: D5, fm: [3, 6], attack: 0.003, decay: 0.1, gain: 0.24, delay: 0.05 },
-  ],
-  /** Email copied: a small rising chord, the one moment allowed to ring. */
-  copied: [
-    { type: 'sine', freq: D5, attack: 0.003, decay: 0.18, gain: 0.22 },
-    { type: 'sine', freq: FS5, attack: 0.003, decay: 0.2, gain: 0.2, delay: 0.05 },
-    { type: 'sine', freq: A5, attack: 0.003, decay: 0.3, gain: 0.2, delay: 0.1 },
-    { type: 'triangle', freq: D6, attack: 0.003, decay: 0.35, gain: 0.06, delay: 0.1 },
   ],
 } satisfies Record<string, Layer[]>;
 
