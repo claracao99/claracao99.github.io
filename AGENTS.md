@@ -36,8 +36,8 @@ infrastructure:
   `src/styles/tokens.css` as a custom property. Components consume tokens only
   — no literal hex outside that file. Art direction is still being settled, so
   the palette must remain a one-file change.
-- **Adding a case study:** drop one `.mdx` file into `src/content/work/`
-  (fun tiles: `src/content/fun/`). No code changes needed. The filename is the
+- **Adding a case study:** drop one `.mdx` file into `src/content/work/`.
+  No code changes needed. The filename is the
   slug. `draft: true` entries render in `astro dev` but are excluded from
   builds. Frontmatter is documented in README.
 - **Case study pages are full-screen, two columns.** `/work/<slug>/` renders

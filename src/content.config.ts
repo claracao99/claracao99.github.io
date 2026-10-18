@@ -75,17 +75,4 @@ const work = defineCollection({
     }),
 });
 
-/**
- * Fun stuff. Small grid at the bottom of the landing page; no detail page.
- */
-const fun = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/fun' }),
-  schema: (ctx) =>
-    z.object({
-      ...common,
-      media: mediaItem(ctx),
-      externalUrl: z.url().optional(),
-    }),
-});
-
-export const collections = { work, fun };
+export const collections = { work };

@@ -11,9 +11,8 @@ export default defineConfig({
   integrations: [mdx(), sitemap()],
   build: { format: 'directory' },
   // Routes from the previous structure. Work now lives on the landing page and
-  // contact details on /about, so old links and search results still land.
+  // contact details in the About panel, so old links still land.
   redirects: {
     '/work/': '/',
-    '/contact/': '/about/',
   },
 });

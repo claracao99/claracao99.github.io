@@ -1,7 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type WorkEntry = CollectionEntry<'work'>;
-export type FunEntry = CollectionEntry<'fun'>;
 
 /** Drafts are visible in `astro dev` and never reach a production build. */
 const published = ({ data }: { data: { draft: boolean } }) =>
@@ -21,10 +20,6 @@ export async function getPublishedWork(): Promise<WorkEntry[]> {
 /** Case studies that get their own page (not visual pieces, not links out). */
 export async function getCaseStudies(): Promise<WorkEntry[]> {
   return (await getPublishedWork()).filter((e) => e.data.caseStudy && !e.data.externalUrl);
-}
-
-export async function getPublishedFun(): Promise<FunEntry[]> {
-  return (await getCollection('fun', published)).sort(byOrder);
 }
 
 export const caseStudyPath = (entry: WorkEntry) => `/work/${entry.id}/`;
