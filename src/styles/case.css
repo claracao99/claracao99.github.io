@@ -108,9 +108,12 @@
 /* ── Case study page ────────────────────────────────────────────────────────
  * After yuriroga.com/work/*, on the index grid (CaseStudyLayout.astro): the
  * text in the left half, sticky under the header on desktop; the tiles in
- * the right half. Starts where the index's first card row does.
+ * the right half. Starts where the index's first card row does: on phones
+ * that is the index's lead at its 24px floor (index.astro), which is where it
+ * lands on real phone heights.
  */
 .case-page {
+  --index-lead: var(--space-5);
   padding-top: var(--index-lead);
   row-gap: var(--index-gap);
 }

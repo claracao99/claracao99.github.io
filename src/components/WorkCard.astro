@@ -7,8 +7,7 @@
  *
  * Cards link to their case page (or out to externalUrl); on hover the cursor
  * frames the card (Cursor.astro). Pieces with `caseStudy:
- * false` have no page and no link. A title too long for its card scrolls (Marquee); on phones the
- * caption keeps only the name — the part before the colon.
+ * false` have no page and no link. A title too long for its card scrolls (Marquee).
  */
 import Media from './Media.astro';
 import Marquee from './Marquee.astro';
@@ -24,7 +23,6 @@ interface Props {
 const { entry, eager = false } = Astro.props;
 const { title, cover, caseStudy, externalUrl, stage } = entry.data;
 const href = externalUrl ?? (caseStudy ? caseStudyPath(entry) : undefined);
-const [name] = title.split(':');
 const sizes = tileSizes(cover.src, { phone: [50, 180 / 235], desktop: [25, 4 / 5] });
 const Tag = href ? 'a' : 'div';
 const linkProps = href
@@ -48,8 +46,7 @@ const linkProps = href
     </div>
     <p class="work-card__caption">
       <span class="work-card__title">
-        <Marquee text={title} class="work-card__full" />
-        <span class="work-card__name">{name}</span>
+        <Marquee text={title} />
       </span>
     </p>
   </Tag>
@@ -124,18 +121,6 @@ const linkProps = href
   .work-card__title {
     flex: 1 1 0;
     min-width: 0;
-  }
-
-  @media (max-width: 47.99rem) {
-    .work-card__title :global(.work-card__full) {
-      display: none;
-    }
-  }
-
-  @media (min-width: 48rem) {
-    .work-card__name {
-      display: none;
-    }
   }
 
   @media (min-width: 48rem) {
