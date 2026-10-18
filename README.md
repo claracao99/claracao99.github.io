@@ -25,9 +25,8 @@ Node version is pinned in `.nvmrc` (24). Any Node ≥ 22.12 works locally.
 
 Three routes:
 
-- `/` — landing page: header, **Selected works** (one block per case study),
-  **Fun stuff** grid. "Read more" links to the case study page.
-- `/about/` — bio, experience, contact.
+- `/` — landing page: header and **Selected works** (one block per case study).
+  "Read more" links to the case study page.
 - `/work/<slug>/` — a case study as a full-screen, two-column page: the entry's
   `media` panels on the left, the text on the right. No client JS.
 
@@ -79,11 +78,6 @@ Placeholder `shape`s: `phone`, `card`, `pill`, `bar`, `tag`, `panel`,
 
 The **filename is the URL slug**. The schema is enforced at build time
 (`src/content.config.ts`).
-
-### Fun stuff
-
-Same idea, one file per tile in `src/content/fun/`, with a single `media`
-object instead of a list and no case-study body.
 
 ### `draft: true` hides the page, not the images
 
@@ -143,13 +137,13 @@ invisible in dev — it only shows up in `astro preview`.
 ```
 src/
   consts.ts              site name, contact links
-  content.config.ts      work + fun schemas
+  content.config.ts      work schema
   lib/work.ts            draft filtering + sort order (used everywhere)
   layouts/
     BaseLayout.astro     <head>, meta/OG, header, footer
     CaseStudyLayout.astro  the two-column case-study page
   components/
-    Nav, Footer, SectionHead, ProjectEntry, SmallCard
+    Nav, Footer, SectionHead, ProjectEntry
     Media, MediaRow, Shipped   used in MDX bodies too
   pages/                 index, about, 404, work/[...slug]
   styles/                fonts, tokens, base, case

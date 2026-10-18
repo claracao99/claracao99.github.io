@@ -16,9 +16,9 @@ export const SITE = {
 } as const;
 
 /**
- * Public contact links, shown on /about. Static links only — a contact form
+ * Public contact links, shown in the About panel (Nav.astro). Static links only — a contact form
  * would need a server or third-party endpoint, which this site avoids.
- * TODO (Clara): drop a CV at public/cv.pdf.
+ * public/cv.pdf is a copy of cv/Clara-Cao-CV.pdf (WIP); re-copy after ./build.sh.
  */
 export const CONTACT = [
   { label: 'claracao99@gmail.com', href: 'mailto:claracao99@gmail.com' },

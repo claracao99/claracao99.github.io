@@ -59,13 +59,13 @@
    *   Display    — Instrument Serif, 72 desktop / 48 phone, lh 1, tracking -1.5%
    *   Case title — ABC Diatype Bold 28, lh 1.2, tracking -3%
    *   Title      — ABC Diatype Bold 22, lh 1.2, tracking -3%
-   *                (project titles, fun tiles; About bio uses it in Regular)
+   *                (project titles)
    *   Body       — ABC Diatype Regular 17, lh 1.35, tracking -1.5%
    *                (header and footer links: Body size, Bold)
    *   Label      — ABC Diatype Mono 12, uppercase, tracking +6%, tabular figures
    *
    * Links, by intent:
-   *   navigate  (header, footer, titles, fun tiles) — no underline, fade to muted
+   *   navigate  (header, footer, titles) — no underline, fade to muted
    *   act       ("Read more", "Next project")       — sweep underline + arrow
    *   prose     (About page)                        — static 1px underline
    * Self-hosted, see fonts.css.
