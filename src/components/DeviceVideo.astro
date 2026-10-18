@@ -3,12 +3,14 @@
  * A prototype clip in the iPhone 17 frame (Figma Cover page, "iPhone
  * Mockups"), staged like marco.fyi's command_dot tile.
  *
- * At rest the phone sits large and low, 84% of the card's width, its top a
- * third of the way down, running off the bottom edge; the screen holds the
- * clip's first frame. On hover (tap on touch, focus from the keyboard) it
- * shrinks to 65% and rises by 30% of its height over 300ms, and the clip
- * plays. Leaving reverses it and rewinds the clip, so the next look starts
- * from the beginning. Nothing plays until someone asks.
+ * At rest the phone holds the clip's first frame. On hover (tap on touch,
+ * focus from the keyboard) it moves and scales to its end position over
+ * 300ms, and the clip plays. Leaving reverses it and rewinds the clip, so
+ * the next look starts from the beginning. Nothing plays until someone asks.
+ *
+ * Both positions come from `stage`, measured on the Figma board "Device tile
+ * · phone positions" (549:1867). The default is marco.fyi's: large and low
+ * at rest, running off the bottom edge, then 65% size and raised.
  *
  * Fills its parent, which must be positioned and clip its overflow.
  */
@@ -23,14 +25,43 @@ interface Props {
   alt?: string;
   label?: string;
   eager?: boolean;
+  /** Phone left, top and width in px on a 347.5×434.375 card. */
+  stage?: { start: Spot; end: Spot };
 }
 
-const { video, poster, alt = '', label, eager = false } = Astro.props;
+type Spot = { x: number; y: number; w: number };
+
+const CARD = { w: 347.5, h: 434.375 };
+const PHONE = 920 / 450;
+
+const {
+  video,
+  poster,
+  alt = '',
+  label,
+  eager = false,
+  stage = {
+    start: { x: 27.8, y: 137.7, w: 291.9 },
+    end: { x: 78.88, y: 63.1, w: 189.74 },
+  },
+} = Astro.props;
+const { start, end } = stage;
+// Rest is laid out in % of the card; the end is a transform from it, in %
+// of the phone's own box (origin top left), so it scales with the card.
+const startH = start.w * PHONE;
+const style = [
+  `--x: ${(start.x / CARD.w) * 100}%`,
+  `--y: ${(start.y / CARD.h) * 100}%`,
+  `--w: ${(start.w / CARD.w) * 100}%`,
+  `--dx: ${((end.x - start.x) / start.w) * 100}%`,
+  `--dy: ${((end.y - start.y) / startH) * 100}%`,
+  `--k: ${end.w / start.w}`,
+].join('; ');
 const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
 ---
 
 <div class="device-tile" data-device-tile tabindex="0" role="group" aria-label={label ?? alt ?? undefined}>
-  <div class="device">
+  <div class="device" style={style}>
     <video
       class="device__screen"
       src={video}
@@ -65,15 +96,16 @@ const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
   /* The frame image is 450×920 with the screen at 24,23, 402×874. */
   .device {
     position: absolute;
-    left: 8%;
-    top: 31.7%;
-    width: 84%;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
     aspect-ratio: 450 / 920;
+    transform-origin: 0 0;
     transition: transform var(--duration-device) var(--ease-out-quad);
   }
 
   .device-tile.is-active .device {
-    transform: translateY(-30%) scale(0.65);
+    transform: translate(var(--dx), var(--dy)) scale(var(--k));
   }
 
   .device__screen {

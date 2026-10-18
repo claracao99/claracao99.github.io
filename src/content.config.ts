@@ -55,6 +55,16 @@ const work = defineCollection({
       /** Index card size. Case studies are wide with the cover photo full
        * bleed; visual pieces are portrait, video on Figure grey. */
       card: z.enum(['wide', 'portrait']).default('wide'),
+      /** Video cards only: where the phone sits at rest (`start`) and while
+       * playing (`end`). Phone left, top and width in px on the Figma board
+       * "Device tile · phone positions" (549:1867), whose cards are
+       * 347.5×434.375, a portrait card at 1440. Scaled to any card size. */
+      stage: z
+        .object({
+          start: z.object({ x: z.number(), y: z.number(), w: z.number() }),
+          end: z.object({ x: z.number(), y: z.number(), w: z.number() }),
+        })
+        .optional(),
       /** False for visual pieces: no page is built and the card isn't a link. */
       caseStudy: z.boolean().default(true),
       /** The case page's panels, down the left column. Falls back to the

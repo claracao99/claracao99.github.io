@@ -22,7 +22,7 @@ interface Props {
 }
 
 const { entry, index, eager = false } = Astro.props;
-const { title, year, cover, card, caseStudy, externalUrl } = entry.data;
+const { title, year, cover, card, caseStudy, externalUrl, stage } = entry.data;
 const href = externalUrl ?? (caseStudy ? caseStudyPath(entry) : undefined);
 const [name, ...rest] = title.split(':');
 const sub = rest.length ? `:${rest.join(':')}` : '';
@@ -39,7 +39,7 @@ const linkProps = href
     <div class="work-card__media">
       {
         cover.video && cover.src ? (
-          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} label={title} eager={eager} />
+          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} label={title} eager={eager} stage={stage} />
         ) : (
           <Media {...cover} eager={eager} sizes={sizes} widths={[640, 960, 1440, 1920]} />
         )
