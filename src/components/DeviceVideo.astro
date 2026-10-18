@@ -13,6 +13,11 @@
  * and scales with the card. The default is marco.fyi's: large and low,
  * running off the bottom edge.
  *
+ * `stageMobile` is the same for phones, measured on a 180×169 card (390 wide)
+ * on "Device tile · phone positions, mobile" (558:1871). Phone cards change
+ * height with the screen (the index fits one screen), so all three values
+ * scale with the card's width: the phone keeps its place from the top edge.
+ *
  * Fills its parent, which must be positioned and clip its overflow.
  */
 import { Image, getImage } from 'astro:assets';
@@ -27,15 +32,25 @@ interface Props {
   eager?: boolean;
   /** Phone left, top and width in px on a 347.5×434.375 card. */
   stage?: { x: number; y: number; w: number };
+  /** Phones: left, top and width in px on a 180×169 card. */
+  stageMobile?: { x: number; y: number; w: number };
 }
 
 const CARD = { w: 347.5, h: 434.375 };
+const CARD_MOBILE_W = 180;
 
-const { video, poster, alt = '', eager = false, stage = { x: 27.8, y: 137.7, w: 291.9 } } = Astro.props;
+const { video, poster, alt = '', eager = false, stage = { x: 27.8, y: 137.7, w: 291.9 }, stageMobile } = Astro.props;
 const style = [
   `--x: ${(stage.x / CARD.w) * 100}%`,
   `--y: ${(stage.y / CARD.h) * 100}%`,
   `--w: ${(stage.w / CARD.w) * 100}%`,
+  ...(stageMobile
+    ? [
+        `--mx: ${(stageMobile.x / CARD_MOBILE_W) * 100}cqw`,
+        `--my: ${(stageMobile.y / CARD_MOBILE_W) * 100}cqw`,
+        `--mw: ${(stageMobile.w / CARD_MOBILE_W) * 100}cqw`,
+      ]
+    : []),
 ].join('; ');
 const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
 ---
@@ -70,15 +85,25 @@ const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
   .device-tile {
     position: absolute;
     inset: 0;
+    /* For stageMobile, which is in cqw of the card. */
+    container-type: inline-size;
   }
 
   /* The frame image is 450×920 with the screen at 24,23, 402×874. */
   .device {
     position: absolute;
-    left: var(--x);
-    top: var(--y);
-    width: var(--w);
+    left: var(--mx, var(--x));
+    top: var(--my, var(--y));
+    width: var(--mw, var(--w));
     aspect-ratio: 450 / 920;
+  }
+
+  @media (min-width: 48rem) {
+    .device {
+      left: var(--x);
+      top: var(--y);
+      width: var(--w);
+    }
   }
 
   .device__screen {
