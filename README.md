@@ -3,7 +3,7 @@
 Clara Cao's personal design portfolio. Astro static site, deployed to GitHub
 Pages.
 
-**Live:** https://claracao99.github.io/
+**Live:** https://claracao.work/
 
 ## Quick start
 
@@ -168,12 +168,14 @@ This is a GitHub **user site**, so it serves from the domain root and
 into `getStaticPaths` slugs, hrefs and `BASE_URL`, and absolute links then work
 in dev but 404 in production.
 
-### Custom domain, later
+### Custom domain
 
-Add `public/CNAME` with the bare domain, point DNS at `claracao99.github.io`,
-enable Enforce HTTPS in repo settings, and update `site` in `astro.config.mjs`
-so canonical URLs and the sitemap follow. Nothing else changes, because there's
-no `base`.
+Served at `claracao.work` (GoDaddy DNS: four `A`/`AAAA` records on `@` to
+GitHub's Pages IPs, `www` CNAME to `claracao99.github.io`, plus the
+`_github-pages-challenge-claracao99` TXT verifying the domain on the account).
+The domain is set in repo Settings → Pages; with the Actions deploy no
+`public/CNAME` is needed. `site` in `astro.config.mjs` matches it so canonical
+URLs and the sitemap follow.
 
 ## Constraints
 
