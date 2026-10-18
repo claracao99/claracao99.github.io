@@ -1,0 +1,70 @@
+---
+/**
+ * Wires the interface sounds (lib/sound.ts) to the page, all by delegation so
+ * no other component needs to know about them:
+ *
+ * - tap: pressing any link or button that does something. Played on
+ *   pointerdown, not click, so it has sounded before a link swaps the page.
+ * - title: the same, for the title pills (wordmark, case name)
+ * - open / close: the About panel showing, or closed from its pill or Escape
+ *   (a click elsewhere dismisses it silently)
+ * - copied: the footer's email copy succeeding
+ */
+---
+
+<script>
+  import { playSound, unlockSound } from '../lib/sound';
+
+  const press = (target: EventTarget | null) => {
+    const el = (target as Element | null)?.closest?.('a[href], button');
+    if (!el || el.matches(':disabled')) return;
+    // These two announce themselves once they've worked (observers below).
+    if (el.matches('[data-copy], [aria-controls="about-panel"]')) return;
+    // A link to the page you're already on goes nowhere: no sound.
+    if (
+      el instanceof HTMLAnchorElement &&
+      el.target !== '_blank' &&
+      el.origin === location.origin &&
+      el.pathname === location.pathname &&
+      !el.hash
+    ) {
+      return;
+    }
+    playSound(el.matches('.nav__home, .case__title') ? 'title' : 'tap');
+  };
+
+  // About sounds closing only when asked to (its pill, or Escape), not when a
+  // click elsewhere dismisses it.
+  let aboutAsked = false;
+
+  document.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    unlockSound();
+    aboutAsked = !!(e.target as Element).closest?.('[aria-controls="about-panel"]');
+    press(e.target);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    unlockSound();
+    aboutAsked = true;
+    if (e.key === 'Enter' || (e.key === ' ' && (e.target as Element).matches?.('button'))) {
+      press(e.target);
+    }
+  });
+
+  const panel = document.getElementById('about-panel');
+  if (panel) {
+    new MutationObserver(() => {
+      if (!panel.hidden) playSound('open');
+      else if (aboutAsked) playSound('close');
+    }).observe(panel, {
+      attributeFilter: ['hidden'],
+    });
+  }
+
+  for (const status of document.querySelectorAll('[data-copy-status]')) {
+    new MutationObserver(() => {
+      if (status.textContent === 'Copied') playSound('copied');
+    }).observe(status, { childList: true, characterData: true, subtree: true });
+  }
+</script>

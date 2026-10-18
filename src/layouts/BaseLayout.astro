@@ -8,6 +8,7 @@ import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import SmoothScroll from '../components/SmoothScroll.astro';
 import PageTransition from '../components/PageTransition.astro';
+import Sound from '../components/Sound.astro';
 
 import '../styles/fonts.css';
 import '../styles/tokens.css';
@@ -66,6 +67,7 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     </main>
     <Footer />
     <SmoothScroll />
+    <Sound />
     <!-- Cookieless analytics (claracao.goatcounter.com). Skips localhost. -->
     <script
       is:inline
