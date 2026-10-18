@@ -144,26 +144,19 @@
   gap: var(--index-gap);
 }
 
-/* The name, led by a back arrow; the whole pill links to the index. The
- * full row on phones, one track on desktop. */
-.case__title {
+/* Back to the index, led by an arrow. The full row on phones, one track on
+ * desktop. */
+.case__back {
   justify-content: flex-start;
 }
 
-.case__title > h1 {
-  flex: 1;
-  min-width: 0;
-  font-size: inherit;
-  font-weight: var(--weight-normal);
-}
-
-.case__title,
+.case__back,
 .case__card {
   grid-column: 1 / -1;
 }
 
 @media (min-width: 48rem) {
-  .case__title {
+  .case__back {
     grid-column: 1;
   }
   /* The card is one track wide, and scrolls inside itself if it is taller
@@ -210,6 +203,12 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--index-gap);
+}
+
+/* The project name is the page's h1, set like the other details. */
+.case__details h1 {
+  font: inherit;
+  letter-spacing: inherit;
 }
 
 /* The MDX body continues the description. */

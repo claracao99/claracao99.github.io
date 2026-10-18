@@ -41,11 +41,11 @@ infrastructure:
   slug. `draft: true` entries render in `astro dev` but are excluded from
   builds. Frontmatter is documented in README.
 - **Case study pages follow yuriroga.com/work/\*.** `/work/<slug>/` sits on
-  the index grid: a name pill that links back (arrow first) and a sticky
-  Figure card (Information, Description = summary + MDX body) in the left
-  half; the index card's own tile then the frontmatter `media` as tiles in
-  the right half (`size: small` = one
-  4:5 tile, `large` = two tiles wide). Media without `src` is a placeholder
+  the index grid: a Back pill (arrow first) and a sticky Figure card
+  (Information = short project name as h1, client, year; Description =
+  summary + MDX body) in the left half; the index card's own tile then the
+  frontmatter `media` as tiles in the right half (`size: small` = one 4:5
+  tile, `large` = two tiles wide). The index captions keep the full title. Media without `src` is a placeholder
   tile; no `media` at all gets a default placeholder set. Layout lives in
   `src/styles/case.css` (global, because MDX output has no scope).
 - **Light-only palette** from the Figma file. Tokens are `--grey-*` ramp plus a

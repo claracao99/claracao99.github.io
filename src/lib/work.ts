@@ -22,4 +22,7 @@ export async function getCaseStudies(): Promise<WorkEntry[]> {
   return (await getPublishedWork()).filter((e) => e.data.caseStudy && !e.data.externalUrl);
 }
 
+/** The project name: the title before its colon ("Activity", not the tagline). */
+export const projectName = (entry: WorkEntry) => entry.data.title.split(':')[0].trim();
+
 export const caseStudyPath = (entry: WorkEntry) => `/work/${entry.id}/`;
