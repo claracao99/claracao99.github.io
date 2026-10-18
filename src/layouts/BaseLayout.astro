@@ -7,7 +7,6 @@ import { SITE } from '../consts';
 import Nav from '../components/Nav.astro';
 import Footer from '../components/Footer.astro';
 import SmoothScroll from '../components/SmoothScroll.astro';
-import ScrollGauge from '../components/ScrollGauge.astro';
 import PageTransition from '../components/PageTransition.astro';
 
 import '../styles/fonts.css';
@@ -41,7 +40,7 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <meta name="theme-color" content="#f6f6f4" />
+    <meta name="theme-color" content="#ffffff" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
@@ -67,7 +66,6 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     </main>
     <Footer />
     <SmoothScroll />
-    <ScrollGauge />
     <!-- Cookieless analytics (claracao.goatcounter.com). Skips localhost. -->
     <script
       is:inline

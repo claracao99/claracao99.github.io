@@ -18,10 +18,10 @@ export const SITE = {
 /**
  * Public contact links, shown on /about. Static links only — a contact form
  * would need a server or third-party endpoint, which this site avoids.
- * TODO (Clara): add the real LinkedIn URL and drop a CV at public/cv.pdf.
+ * TODO (Clara): drop a CV at public/cv.pdf.
  */
 export const CONTACT = [
   { label: 'claracao99@gmail.com', href: 'mailto:claracao99@gmail.com' },
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/claracao99/', external: true },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/clara-cao/', external: true },
   { label: 'CV', href: '/cv.pdf', external: true },
 ] as const;

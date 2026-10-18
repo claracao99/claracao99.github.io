@@ -1,66 +1,53 @@
 ---
 /**
- * Site header: name on the left, one link on the right that swaps between
- * "About" and "Work" depending on where you are. No JS.
+ * Site header (01 Index): three pills on the index grid. The wordmark pill
+ * is solid Figure, Work and About are glass. The wordmark pill takes four tracks on desktop and its own row on phones; Work (with
+ * the project count) and About take one each. About jumps down to the
+ * footer's contacts.
+ *
+ * Fixed on desktop so the pills ride over the work as glass; on phones,
+ * where the header is two rows tall, it scrolls away with the page.
  */
-import { SITE } from '../consts';
+import { getPublishedWork } from '../lib/work';
+import TriangleSouth from '../icons/triangle-south.svg';
 
-const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
-const onAbout = path === '/about';
-const link = onAbout
-  ? { href: '/', label: 'Work' }
-  : { href: '/about/', label: 'About' };
+const count = (await getPublishedWork()).filter((e) => !e.data.draft).length;
 ---
 
 <header class="nav">
-  <div class="wrap nav__inner">
-    <a class="nav__link nav__home" href="/">{SITE.name}</a>
-    <nav aria-label="Main">
-      <a class="nav__link" href={link.href}>{link.label}</a>
-    </nav>
-  </div>
+  <nav class="index-grid nav__grid" aria-label="Main">
+    <a class="pill pill--filled span-wide" href="/">
+      <span class="logotype">Clara Cao</span>
+      <span>Product Designer</span>
+    </a>
+    <a class="pill" href="/#work">
+      <span>Work</span>
+      <span class="detail" aria-label={`${count} projects`}>{String(count).padStart(2, '0')}</span>
+    </a>
+    <a class="pill" href="#about">
+      <span>About</span>
+      <TriangleSouth aria-hidden="true" data-direction="south" />
+    </a>
+  </nav>
 </header>
 
 <style>
-  /* Fixed and out of the flow: pages start at the very top and scroll behind
-   * the two links. No background, no rule. Pages that want to clear it use
+  /* Out of the flow: pages start at the very top and clear it with
    * --nav-height (base.css pads <main>; case pages pull back under it). */
   .nav {
-    position: fixed;
+    position: absolute;
     inset-inline: 0;
     top: 0;
     z-index: var(--z-nav);
-    pointer-events: none;
   }
 
-  .nav__link {
-    pointer-events: auto;
+  .nav__grid {
+    padding-block: var(--index-margin);
   }
 
-  .nav__inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-5);
-    padding-block: var(--space-4);
-  }
-
-  /* inline-flex + min-height guarantees the 44px tap target. */
-  .nav__link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    /* Body size, bold: the "navigate" link role. */
-    font-size: var(--text-body);
-    font-weight: var(--weight-bold);
-    line-height: var(--leading-none);
-    letter-spacing: var(--tracking-title);
-    color: var(--ink);
-    text-decoration: none;
-    transition: color var(--duration-base) var(--ease-out);
-  }
-
-  .nav__link:hover {
-    color: var(--ink-muted);
+  @media (min-width: 48rem) {
+    .nav {
+      position: fixed;
+    }
   }
 </style>

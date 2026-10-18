@@ -1,42 +1,53 @@
 ---
 /**
- * Landing page: header, then "Selected works" (one block per case study).
- * "Read more" links to the case-study page.
+ * The index (01 Index, Figma 487:792 / 493:825): the intro, then the work as
+ * very round cards. Each desktop row pairs a wide case study with a portrait
+ * visual piece, sides alternating; that comes from the entries' `order` and
+ * `card`, so keep the pairs in step when adding work.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SectionHead from '../components/SectionHead.astro';
-import ProjectEntry from '../components/ProjectEntry.astro';
+import WorkCard from '../components/WorkCard.astro';
 import { getPublishedWork } from '../lib/work';
 
-const work = await getPublishedWork();
+// Drafts keep their pages in dev but stay off the grid, which is laid out in
+// pairs.
+const work = (await getPublishedWork()).filter((e) => !e.data.draft);
 ---
 
 <BaseLayout>
-  <section class="wrap works" aria-labelledby="selected-works">
-    <SectionHead italic="Selected" lead="works" id="selected-works" />
-    {
-      work.length === 0 ? (
-        <p class="empty">Nothing published yet.</p>
-      ) : (
-        work.map((entry, i) => <ProjectEntry entry={entry} eager={i === 0} />)
-      )
-    }
-  </section>
+  <div class="index-grid">
+    <h1 class="intro span-wide">
+      Clara Cao is a product designer at Bolt, shaping the app millions of people use to get
+      around their city. She finds the problem worth solving, builds the answer in real code with
+      AI, and turns messy flows into calm, effortless experiences.
+    </h1>
+  </div>
 
+  <section class="index-grid cards" id="work" aria-label="Work">
+    {work.map((entry, i) => <WorkCard entry={entry} index={i + 1} eager={i === 0} />)}
+  </section>
 </BaseLayout>
 
 <style>
-  .works {
-    padding-top: 0;
+  /* Measured from under the header (main clears it). */
+  .intro {
+    padding: 96px var(--pill-pad) 72px;
+    font-size: var(--text-intro);
+    font-weight: var(--weight-normal);
+    line-height: var(--leading-intro);
+    letter-spacing: 0;
   }
 
-  /* The first project follows the heading directly; later ones get the
-   * tighter top padding from ProjectEntry. */
-  .works > :global(.project:first-of-type) {
-    padding-top: 0;
+  /* A size container, so the cards can size themselves off its width (cqw). */
+  .cards {
+    container-type: inline-size;
+    row-gap: var(--index-row-gap);
+    margin-top: var(--index-gap);
   }
 
-  .empty {
-    color: var(--ink-muted);
+  @media (min-width: 48rem) {
+    .intro {
+      padding-block: 160px 120px;
+    }
   }
 </style>

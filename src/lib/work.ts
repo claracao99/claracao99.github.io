@@ -18,9 +18,9 @@ export async function getPublishedWork(): Promise<WorkEntry[]> {
   return (await getCollection('work', published)).sort(byOrder);
 }
 
-/** Case studies that get their own page (i.e. don't link out). */
+/** Case studies that get their own page (not visual pieces, not links out). */
 export async function getCaseStudies(): Promise<WorkEntry[]> {
-  return (await getPublishedWork()).filter((e) => !e.data.externalUrl);
+  return (await getPublishedWork()).filter((e) => e.data.caseStudy && !e.data.externalUrl);
 }
 
 export async function getPublishedFun(): Promise<FunEntry[]> {

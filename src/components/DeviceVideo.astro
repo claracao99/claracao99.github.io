@@ -1,0 +1,133 @@
+---
+/**
+ * A prototype clip in the iPhone 17 frame (Figma Cover page, "iPhone
+ * Mockups"), staged like marco.fyi's command_dot tile.
+ *
+ * At rest the phone sits large and low, 84% of the card's width, its top a
+ * third of the way down, running off the bottom edge; the screen holds the
+ * clip's first frame. On hover (tap on touch, focus from the keyboard) it
+ * shrinks to 65% and rises by 30% of its height over 300ms, and the clip
+ * plays. Leaving reverses it and rewinds the clip, so the next look starts
+ * from the beginning. Nothing plays until someone asks.
+ *
+ * Fills its parent, which must be positioned and clip its overflow.
+ */
+import { Image, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import frame from '../assets/device/iphone-17-black.png';
+
+interface Props {
+  video: string;
+  /** The clip's first frame. */
+  poster: ImageMetadata;
+  alt?: string;
+  label?: string;
+  eager?: boolean;
+}
+
+const { video, poster, alt = '', label, eager = false } = Astro.props;
+const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
+---
+
+<div class="device-tile" data-device-tile tabindex="0" role="group" aria-label={label ?? alt ?? undefined}>
+  <div class="device">
+    <video
+      class="device__screen"
+      src={video}
+      poster={posterImage.src}
+      muted
+      loop
+      playsinline
+      preload="metadata"
+      aria-label={alt || undefined}
+      aria-hidden={alt ? undefined : 'true'}
+    ></video>
+    <Image
+      class="device__frame"
+      src={frame}
+      alt=""
+      widths={[400, 800, 1200]}
+      sizes="(max-width: 48rem) 45vw, 30vw"
+      format="webp"
+      loading={eager ? 'eager' : 'lazy'}
+    />
+  </div>
+</div>
+
+<style>
+  .device-tile {
+    position: absolute;
+    inset: 0;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The frame image is 450×920 with the screen at 24,23, 402×874. */
+  .device {
+    position: absolute;
+    left: 8%;
+    top: 31.7%;
+    width: 84%;
+    aspect-ratio: 450 / 920;
+    transition: transform var(--duration-device) var(--ease-out-quad);
+  }
+
+  .device-tile.is-active .device {
+    transform: translateY(-30%) scale(0.65);
+  }
+
+  .device__screen {
+    position: absolute;
+    left: 5.333%;
+    top: 2.5%;
+    width: 89.333%;
+    height: 95%;
+    object-fit: cover;
+    /* The screen's corners: 62pt on a 402×874 screen. */
+    border-radius: 15.4% / 7.1%;
+    background: var(--figure);
+  }
+
+  .device__frame {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .device-tile:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+    border-radius: inherit;
+  }
+</style>
+
+<script>
+  // Hover on devices that hover; tap toggles on touch; focus for keyboards.
+  for (const tile of document.querySelectorAll<HTMLElement>('[data-device-tile]')) {
+    const video = tile.querySelector('video')!;
+    let rewind = 0;
+
+    const set = (on: boolean) => {
+      if (on === tile.classList.contains('is-active')) return;
+      tile.classList.toggle('is-active', on);
+      clearTimeout(rewind);
+      if (on) {
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+        // Back to the first frame once the phone has settled.
+        rewind = window.setTimeout(() => (video.currentTime = 0), 300);
+      }
+    };
+
+    tile.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && set(true));
+    tile.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && set(false));
+    tile.addEventListener('click', (e) => {
+      if ((e as PointerEvent).pointerType !== 'mouse') set(!tile.classList.contains('is-active'));
+    });
+    tile.addEventListener('focus', () => tile.matches(':focus-visible') && set(true));
+    tile.addEventListener('blur', () => set(false));
+    tile.addEventListener('keydown', (e) => e.key === 'Escape' && set(false));
+  }
+</script>

@@ -17,7 +17,8 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { title, summary, client, year, draft, media } = entry.data;
+const { title, summary, client, year, draft, cover } = entry.data;
+const media = entry.data.media.length ? entry.data.media : [cover];
 const meta = [client, String(year)].filter(Boolean).join(' · ');
 const headingId = `case-${entry.id}`;
 ---

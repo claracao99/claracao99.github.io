@@ -9,7 +9,7 @@
  *   case → work   mirrored, so going back reads as going back
  *
  * Native cross-document View Transitions, no library: pages still load in
- * full, so Lenis, the gauge and the next-project runway are untouched.
+ * full, so Lenis and the next-project runway are untouched.
  * Browsers without support, and prefers-reduced-motion, get a plain load.
  * Every other navigation (About, case → case) is skipped, as before.
  *
@@ -112,18 +112,6 @@
 
   ::view-transition {
     background: var(--transition-backdrop);
-  }
-
-  /* The nav has no background, so its black text vanishes over the black
-   * backdrop. Inverted and blended with difference, it reads black over the
-   * cards and white over the backdrop. */
-  ::view-transition-group(site-nav) {
-    mix-blend-mode: difference;
-  }
-
-  ::view-transition-old(site-nav),
-  ::view-transition-new(site-nav) {
-    filter: invert(1);
   }
 
   ::view-transition-old(root),

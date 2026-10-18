@@ -1,28 +1,29 @@
 /*
- * Self-hosted typefaces. woff2 only, font-display: swap — see AGENTS.md.
+ * Self-hosted typefaces. woff2 only (Latin subset), font-display: swap — see
+ * AGENTS.md. All SIL Open Font Licence.
  *
- * ABC Diatype + ABC Diatype Mono — Dinamo. TRIAL licence: testing only, not
- *   for published work. Replace with licensed files before this site is shared
- *   publicly (TODO.md).
- * Instrument Serif — Rodrigo Fuenzalida & Jordan Egstad, SIL Open Font Licence.
+ * Special Gothic Expanded One — the Logotype: the wordmark only.
+ * Mona Sans (variable, 200–900) — GitHub. Body: everything else.
+ * Fragment Mono — Detail: numbers, years, text actions.
+ * Instrument Serif — case-study display titles.
  */
 @font-face {
-  font-family: 'ABC Diatype';
-  src: url('../fonts/ABCDiatypeTrial-Regular.woff2') format('woff2');
+  font-family: 'Special Gothic Expanded One';
+  src: url('../fonts/SpecialGothicExpandedOne-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'ABC Diatype';
-  src: url('../fonts/ABCDiatypeTrial-Bold.woff2') format('woff2');
-  font-weight: 700;
+  font-family: 'Mona Sans';
+  src: url('../fonts/MonaSans-Variable.woff2') format('woff2');
+  font-weight: 200 900;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
-  font-family: 'ABC Diatype Mono';
-  src: url('../fonts/ABCDiatypeMonoTrial-Regular.woff2') format('woff2');
+  font-family: 'Fragment Mono';
+  src: url('../fonts/FragmentMono-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;

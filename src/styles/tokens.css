@@ -1,7 +1,8 @@
 /*
  * Design tokens — the single source of truth for the site's look.
  *
- * Values come from the Figma file ("light editorial v3"). Components consume
+ * Values come from the Figma file: the index from the "01 Index" style guide
+ * (479:792), the older pages from "light editorial v3". Components consume
  * tokens only; no literal hex outside this file.
  */
 
@@ -9,7 +10,10 @@
   /* ── Palette ───────────────────────────────────────────────────────────────
    * Pure neutrals, no tint: white page, cool greys, near-black ink.
    */
-  --grey-00: #f6f6f4; /* page — warm off-white, matched to andmade.jp */
+  --grey-00: #ffffff; /* page — Paper */
+  --grey-05: #f7f7f7; /* Figure — pills, empty states, UI-showcase cards */
+  --grey-08: #f0f0f0; /* pill hover */
+  --grey-15: #e1e1e1; /* Icon */
   --grey-10: #f2f2f2; /* media wells, hover fills */
   --grey-20: #e3e3e3; /* placeholder shapes */
   --grey-30: #e0e0e0; /* hairlines */
@@ -29,6 +33,18 @@
   --ink: var(--grey-100);
   --ink-body: var(--grey-90);
   --ink-muted: var(--grey-60);
+  /* Detail text: numbers, years, "Copy". Black at 55% (4.6:1 on white). */
+  --ink-detail: rgb(0 0 0 / 0.55);
+
+  /* Index chrome, after yuriroga.com: the wordmark and footer pills are solid
+   * Figure; Work and About are glass, #F0F0F0 at 50% under a 50px blur, which
+   * reads as Figure over white. Every pill hovers to solid #F0F0F0. */
+  --figure: var(--grey-05);
+  --pill-fill: var(--figure);
+  --pill-fill-hover: var(--grey-08);
+  --pill-glass: rgb(240 240 240 / 0.5);
+  --pill-blur: 50px;
+  --icon: var(--grey-15);
 
   --rule: var(--grey-30);
   /* Hairlines: 1 device pixel wherever the screen can draw one. */
@@ -54,11 +70,26 @@
    *   prose     (About page)                        — static 1px underline
    * Self-hosted, see fonts.css.
    */
-  --font-sans: 'ABC Diatype', system-ui, -apple-system, 'Segoe UI', Roboto,
+  --font-sans: 'Mona Sans', system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
   --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
   /* Labels, dates and "Read more" — per the Figma. */
-  --font-mono: 'ABC Diatype Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-mono: 'Fragment Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* The wordmark, and nothing else. */
+  --font-logo: 'Special Gothic Expanded One', var(--font-sans);
+
+  /* Index type (01 Index): one size for nearly everything.
+   *   Logotype — 13, uppercase, tracking +10%
+   *   Body     — Mona Sans 13 / 17, tracking +2% (nav, captions, footer)
+   *   Detail   — Fragment Mono 12 / 17, --ink-detail
+   *   Intro    — Mona Sans 20 / 26 desktop, 17 / 22 phone */
+  --text-small: 0.8125rem; /* 13 */
+  --text-detail: 0.75rem; /* 12 */
+  --text-intro: 1.0625rem; /* 17 */
+  --leading-small: 1.0625rem; /* 17px */
+  --leading-intro: 1.375rem; /* 22px */
+  --tracking-small: 0.02em;
+  --tracking-logo: 0.1em;
 
   --text-label: 0.75rem; /* 12 */
   --text-body: 1.0625rem; /* 17 */
@@ -102,9 +133,10 @@
   /* Side margin mirrors tash.work: 3% of the viewport (their 2rem page padding
    * on a 1.5vw rem), never below 16px. 38px at 1280, 43px at 1440, 58px at 1920. */
   --gutter: max(1rem, 3vw);
-  /* Sticky header: 44px link + 2×space-4 padding. Case pages use it to size
-   * the media panels and pin the text column beneath the nav. */
-  --nav-height: calc(44px + 2 * var(--space-4));
+  /* The header's height: margin, pill, margin — two pill rows on phones,
+   * where the wordmark has its own row. Case pages use it to size the media
+   * panels and pin the text column beneath the nav. */
+  --nav-height: calc(3 * var(--index-margin) + 2 * var(--pill-height));
   --page-max: 120rem;
   --measure: 37.5rem; /* 600 */
   --measure-wide: 42em; /* cap for prose spanning two grid columns */
@@ -118,6 +150,16 @@
   --media-gap: var(--space-3); /* 12 — between media tiles in a row */
   --column-gap: var(--space-7);
 
+  /* Index grid: 10px gutters and page margin. 6 tracks on desktop (a wide
+   * card spans 4, a portrait 2, the nav's small pills 1), 2 on phones. */
+  --index-gap: 10px;
+  --index-margin: 10px;
+  --index-row-gap: var(--space-5); /* 24 between card rows */
+  --pill-height: 40px;
+  --pill-pad: var(--space-4); /* 16 */
+  --footer-space: 150px; /* last card row → footer */
+  --caption-gap: var(--space-2); /* card → caption, and within a caption */
+
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-sheet: 28px;
@@ -126,10 +168,15 @@
    * Referenced, not hardcoded, so prefers-reduced-motion can zero them once.
    */
   --duration-fast: 120ms;
+  --duration-card-hover: 150ms; /* index card image zoom */
+  /* Phone tiles (after marco.fyi's command_dot): the phone shrinks and rises
+   * on hover over 300ms, ease-out quad — measured off the reference. */
+  --duration-device: 300ms;
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --duration-base: 200ms;
   --duration-slow: 420ms;
   --duration-sweep: 700ms; /* underline sweep on "Read more" */
-  --duration-reset: 1100ms; /* scroll gauge winding back before a hand-off */
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 
@@ -144,11 +191,26 @@
   --delay-reveal: 500ms;
   --transition-backdrop: var(--grey-100);
 
-  --z-nav: 100;
-  --z-gauge: 150; /* scroll progress bar: above the nav */
-  --z-overlay: 200;
+  /* Marquee.astro: space between the text and its looping copy, and how far
+   * the edges fade while it scrolls. */
+  --marquee-gap: 2.5em;
+  --marquee-fade: 1.5em;
 
-  --gauge-height: 3px;
+  --z-nav: 100;
+  --z-overlay: 200;
+}
+
+@media (min-width: 48rem) {
+  :root {
+    --text-intro: 1.25rem; /* 20 */
+    --leading-intro: 1.625rem; /* 26px */
+    --index-row-gap: var(--space-6); /* 32 */
+    --pill-height: 36px;
+    --pill-pad: 1.25rem; /* 20 */
+    --footer-space: 230px;
+    --caption-gap: 10px;
+    --nav-height: calc(2 * var(--index-margin) + var(--pill-height));
+  }
 }
 
 @media (min-resolution: 2dppx) {

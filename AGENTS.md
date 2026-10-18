@@ -27,8 +27,8 @@ infrastructure:
   silently be the work one.
 - **Self-host fonts** as woff2 in `src/fonts/` with `font-display: swap`. No
   Google Fonts CDN, and no typeface licensed through an employer. Current
-  faces: ABC Diatype (Dinamo — trial files, must be replaced by a licensed
-  webfont before public launch) and Instrument Serif (SIL OFL).
+  faces, all SIL OFL: Special Gothic Expanded One (wordmark), Mona Sans
+  (body), Fragment Mono (numbers, years) and Instrument Serif (case titles).
 
 ## Conventions
 

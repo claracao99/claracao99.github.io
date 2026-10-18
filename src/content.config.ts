@@ -7,17 +7,22 @@ import type { SchemaContext } from 'astro:content';
  * One visual in a media row. Either a real image (`src`) or, until the export
  * exists, a placeholder `shape` sized like the design. `label` is the small
  * uppercase caption inside the well; omit it once the image speaks for itself.
+ * A `video` (a path under public/, e.g. /media/search-bar.mp4) plays muted on
+ * a loop, with `src` as its poster: required alongside it, because the poster
+ * is what reduced-motion visitors see.
  */
 const mediaItem = ({ image }: SchemaContext) =>
   z.object({
     src: image().optional(),
+    video: z.string().startsWith('/').optional(),
     /** Empty string is valid and correct for purely decorative images. */
     alt: z.string().default(''),
     label: z.string().optional(),
     shape: z
       .enum(['phone', 'card', 'pill', 'bar', 'tag', 'panel', 'sheet', 'row', 'none'])
       .default('none'),
-  });
+  })
+    .refine((m) => !m.video || m.src, { message: 'a video needs `src` as its poster' });
 
 const common = {
   title: z.string(),
@@ -33,9 +38,10 @@ const common = {
 };
 
 /**
- * Selected works. Each entry is a landing-page block plus a case study body.
- * Adding one means dropping an .mdx file into src/content/work/. The filename
- * is the slug, so there's no `slug` field to drift out of sync.
+ * Selected works. Each entry is a card on the index plus, for case studies, a
+ * page of its own. Adding one means dropping an .mdx file into
+ * src/content/work/. The filename is the slug, so there's no `slug` field to
+ * drift out of sync.
  */
 const work = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/work' }),
@@ -44,10 +50,17 @@ const work = defineCollection({
       ...common,
       /** e.g. "Bolt". Shown with the year in the case-study caption. */
       client: z.string().optional(),
-      /** Landing page shows the first three; the case page shows them all,
-       * as full-height panels down the left column. */
-      media: z.array(mediaItem(ctx)).min(1),
-      /** If set, "Read more" links out here and no case-study page is built. */
+      /** The index card's visual: a cover photo, or a video with its poster. */
+      cover: mediaItem(ctx),
+      /** Index card size. Case studies are wide with the cover photo full
+       * bleed; visual pieces are portrait, video on Figure grey. */
+      card: z.enum(['wide', 'portrait']).default('wide'),
+      /** False for visual pieces: no page is built and the card isn't a link. */
+      caseStudy: z.boolean().default(true),
+      /** The case page's panels, down the left column. Falls back to the
+       * cover when empty. */
+      media: z.array(mediaItem(ctx)).default([]),
+      /** If set, the card links out here and no case-study page is built. */
       externalUrl: z.url().optional(),
     }),
 });

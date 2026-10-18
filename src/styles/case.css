@@ -39,11 +39,14 @@
   background: var(--surface-sunken);
 }
 
-.media--image {
+.media--image,
+.media--video {
   display: block;
 }
 
-.media--image img {
+.media--image img,
+.media--video video {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;

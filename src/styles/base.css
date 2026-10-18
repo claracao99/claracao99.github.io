@@ -15,8 +15,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  /* Anchor jumps and the skip link land below the sticky header. */
-  scroll-padding-top: 5.5rem;
+  /* Anchor jumps and the skip link land below the fixed header. */
+  scroll-padding-top: var(--nav-height);
 }
 
 body {
@@ -202,6 +202,113 @@ ol {
   }
 }
 
+/*
+ * The index grid (01 Index): edge to edge with a 10px margin and gutter. Six
+ * tracks on desktop: a wide card or the wordmark pill spans 4, a portrait
+ * card 2, the small nav pills 1. Two tracks on phones.
+ */
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--index-gap);
+  padding-inline: var(--index-margin);
+}
+
+.index-grid > .span-wide {
+  grid-column: span 2;
+}
+
+@media (min-width: 48rem) {
+  .index-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .index-grid > .span-wide {
+    grid-column: span 4;
+  }
+  .index-grid > .span-portrait {
+    grid-column: span 2;
+  }
+}
+
+/* Pill: the index's chrome — nav, footer. Label left, detail or icon right,
+ * on glass or solid Figure. min-height keeps phones' 40px pills a comfortable tap. */
+.pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+  height: var(--pill-height);
+  padding-inline: var(--pill-pad);
+  border-radius: calc(var(--pill-height) / 2);
+  background: var(--pill-glass);
+  -webkit-backdrop-filter: blur(var(--pill-blur));
+  backdrop-filter: blur(var(--pill-blur));
+  color: var(--ink);
+  font-size: var(--text-small);
+  line-height: var(--leading-small);
+  letter-spacing: var(--tracking-small);
+  white-space: nowrap;
+  text-decoration: none;
+  transition: background-color var(--duration-base) var(--ease-out);
+}
+
+.pill--filled {
+  background: var(--pill-fill);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+a.pill:hover,
+button.pill:hover {
+  background: var(--pill-fill-hover);
+}
+
+.pill > svg {
+  flex: none;
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+a.pill:hover > svg,
+button.pill:hover > svg {
+  transform: translateX(2px);
+}
+
+a.pill:hover > svg[data-direction='south'] {
+  transform: translateY(2px);
+}
+
+/* Phones' pills are 40px; stretch the hit area into the gutter to 44. */
+@media (max-width: 47.99rem) {
+  .pill {
+    position: relative;
+  }
+  .pill::after {
+    content: '';
+    position: absolute;
+    inset: -2px 0;
+  }
+}
+
+/* Detail: numbers, years, text actions. */
+.detail {
+  font-family: var(--font-mono);
+  font-size: var(--text-detail);
+  line-height: var(--leading-small);
+  letter-spacing: 0;
+  color: var(--ink-detail);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Logotype: the wordmark. The one bold gesture. */
+.logotype {
+  font-family: var(--font-logo);
+  font-size: var(--text-small);
+  line-height: 1;
+  letter-spacing: var(--tracking-logo);
+  text-transform: uppercase;
+}
+
 /* Hairline between stacked entries. */
 .rule {
   border: 0;
@@ -215,7 +322,6 @@ ol {
     --duration-base: 0ms;
     --duration-slow: 0ms;
     --duration-sweep: 0ms;
-    --duration-reset: 0ms;
   }
 
   html {

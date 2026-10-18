@@ -1,0 +1,149 @@
+---
+/**
+ * One project on the index (01 Index): a very round card, then a caption —
+ * number, title, year. Case studies are wide with the cover photo full bleed;
+ * visual pieces are portrait: the prototype in a phone on Figure grey, playing
+ * only while hovered or tapped (DeviceVideo).
+ *
+ * Case studies link to their page (or out to externalUrl), and their image
+ * zooms in by one gutter on hover. Visual pieces have no page: no link, no
+ * zoom. On phones a portrait card is one track wide, so its caption keeps
+ * only the name — the part of the title before the colon — and drops the year.
+ */
+import Media from './Media.astro';
+import DeviceVideo from './DeviceVideo.astro';
+import { caseStudyPath, type WorkEntry } from '../lib/work';
+
+interface Props {
+  entry: WorkEntry;
+  /** Position on the index, from 1. */
+  index: number;
+  eager?: boolean;
+}
+
+const { entry, index, eager = false } = Astro.props;
+const { title, year, cover, card, caseStudy, externalUrl } = entry.data;
+const href = externalUrl ?? (caseStudy ? caseStudyPath(entry) : undefined);
+const [name, ...rest] = title.split(':');
+const sub = rest.length ? `:${rest.join(':')}` : '';
+const wide = card === 'wide';
+const sizes = wide ? '(max-width: 48rem) 100vw, 66vw' : '(max-width: 48rem) 50vw, 33vw';
+const Tag = href ? 'a' : 'div';
+const linkProps = href
+  ? { href, ...(externalUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {}) }
+  : {};
+---
+
+<article class:list={['work-card', wide ? 'span-wide' : 'span-portrait', `work-card--${card}`]}>
+  <Tag class="work-card__inner" {...linkProps}>
+    <div class="work-card__media">
+      {
+        cover.video && cover.src ? (
+          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} label={title} eager={eager} />
+        ) : (
+          <Media {...cover} eager={eager} sizes={sizes} widths={[640, 960, 1440, 1920]} />
+        )
+      }
+    </div>
+    <p class="work-card__caption">
+      <span class="detail">{String(index).padStart(2, '0')}</span>
+      <span class="work-card__title">{name}<span class="work-card__sub">{sub}</span></span>
+      <span class="detail work-card__year">{year}</span>
+    </p>
+  </Tag>
+</article>
+
+<style>
+  /* Card height follows the column, measured off the cards grid (a size
+   * container, see index.astro). Phones: 2 tracks, 180×235 at 390.
+   * Desktop: 3 columns, portrait 4:5, wide the same height. Radius is a flat
+   * 32px at every size, matching marco.fyi's tiles. */
+  .work-card {
+    --col: calc((100cqw - var(--index-gap)) / 2);
+    --card-height: calc(var(--col) * 235 / 180);
+    --card-radius: 32px;
+    min-width: 0;
+  }
+
+  @media (min-width: 48rem) {
+    .work-card {
+      --col: calc((100cqw - 2 * var(--index-gap)) / 3);
+      --card-height: calc(var(--col) * 5 / 4);
+    }
+  }
+
+  .work-card__inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--caption-gap);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .work-card__media {
+    position: relative;
+    height: var(--card-height);
+    overflow: hidden;
+    border-radius: var(--card-radius);
+    background: var(--figure);
+    /* Safari: clip the zooming child to the radius. */
+    isolation: isolate;
+  }
+
+  /* Media.astro's well, stretched to the card. Inset (not scale) so the zoom
+   * is exactly one gutter on every side, whatever the card's size. */
+  .work-card__media :global(.media) {
+    position: absolute;
+    inset: 0;
+    aspect-ratio: auto;
+    border-radius: 0;
+    background: none;
+    transition: inset var(--duration-card-hover) var(--ease-standard);
+  }
+
+  a.work-card__inner:hover .work-card__media :global(.media),
+  a.work-card__inner:focus-visible .work-card__media :global(.media) {
+    inset: calc(-1 * var(--index-gap));
+  }
+
+  a.work-card__inner:focus-visible {
+    outline: none;
+  }
+
+  a.work-card__inner:focus-visible .work-card__media {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .work-card__caption {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding-inline: var(--pill-pad);
+    font-size: var(--text-small);
+    line-height: var(--leading-small);
+    letter-spacing: var(--tracking-small);
+  }
+
+  .work-card__title {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .work-card__caption > .detail {
+    flex: none;
+  }
+
+  @media (max-width: 47.99rem) {
+    .work-card--portrait .work-card__sub,
+    .work-card--portrait .work-card__year {
+      display: none;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .work-card__caption {
+      gap: var(--space-3);
+    }
+  }
+</style>
