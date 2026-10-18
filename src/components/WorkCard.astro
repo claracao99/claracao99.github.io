@@ -21,7 +21,7 @@ interface Props {
 }
 
 const { entry, eager = false } = Astro.props;
-const { title, cover, caseStudy, externalUrl, stage } = entry.data;
+const { title, cover, caseStudy, externalUrl, stage, stageMobile } = entry.data;
 const href = externalUrl ?? (caseStudy ? caseStudyPath(entry) : undefined);
 const sizes = tileSizes(cover.src, { phone: [50, 180 / 235], desktop: [25, 4 / 5] });
 const Tag = href ? 'a' : 'div';
@@ -38,7 +38,7 @@ const linkProps = href
     >
       {
         cover.video && cover.src ? (
-          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} eager={eager} stage={stage} />
+          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} eager={eager} stage={stage} stageMobile={stageMobile} />
         ) : (
           <Media {...cover} eager={eager} sizes={sizes} widths={[640, 960, 1440, 1920, 2000]} />
         )

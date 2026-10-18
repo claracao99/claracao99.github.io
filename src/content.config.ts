@@ -59,6 +59,9 @@ const work = defineCollection({
        * the Figma board "Device tile · phone positions" (549:1867), whose
        * cards are 347.5×434.375, a card at 1440. Scaled to any card size. */
       stage: z.object({ x: z.number(), y: z.number(), w: z.number() }).optional(),
+      /** The same on the phone index, on "Device tile · phone positions,
+       * mobile" (558:1871), whose cards are 180×169. Index card only. */
+      stageMobile: z.object({ x: z.number(), y: z.number(), w: z.number() }).optional(),
       /** False for visual pieces: no page is built and the card isn't a link. */
       caseStudy: z.boolean().default(true),
       /** The case page's tiles, after the cover. Placeholder tiles stand in
