@@ -7,7 +7,7 @@ export const SITE = {
   /** Used in <title> suffixes, OG site_name and the header. */
   name: 'Clara Cao',
   /** Fallback <title> and OG title for the landing page. */
-  title: 'Clara Cao — Product Designer',
+  title: 'Clara Cao',
   /** Default meta description; individual pages should override this. */
   description:
     'Product designer at Bolt, raising the quality bar for the ride-hailing experience. Selected work and case studies.',
