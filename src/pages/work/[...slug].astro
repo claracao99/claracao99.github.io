@@ -6,7 +6,7 @@ import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CaseStudyLayout from '../../layouts/CaseStudyLayout.astro';
 import NextProject from '../../components/NextProject.astro';
-import { getCaseStudies } from '../../lib/work';
+import { getCaseStudies, projectName } from '../../lib/work';
 
 // Static paths come from the same helper as the landing page, so a draft is
 // excluded from both the listing and its own route in production.
@@ -19,7 +19,7 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 ---
 
-<BaseLayout title={entry.data.title} description={entry.data.summary}>
+<BaseLayout title={projectName(entry)} description={entry.data.summary}>
   <CaseStudyLayout entry={entry}>
     <Content />
   </CaseStudyLayout>

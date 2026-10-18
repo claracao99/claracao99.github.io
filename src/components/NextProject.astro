@@ -6,7 +6,7 @@
  * on phones it spans the full row, like the back pill.
  */
 import TriangleEast from '../icons/triangle-east.svg';
-import { caseStudyPath, getCaseStudies, type WorkEntry } from '../lib/work';
+import { caseStudyPath, getCaseStudies, projectName, type WorkEntry } from '../lib/work';
 
 interface Props {
   current: WorkEntry;
@@ -23,7 +23,7 @@ const next = all.length > 1 ? all[(i + 1) % all.length] : undefined;
     <nav class="index-grid next" aria-label="Next project">
       <a class="pill pill--filled next__link" href={caseStudyPath(next)}>
         <span>
-          Next Project<span class="visually-hidden">: {next.data.title}</span>
+          Next Project<span class="visually-hidden">: {projectName(next)}</span>
         </span>
         <TriangleEast aria-hidden="true" />
       </a>

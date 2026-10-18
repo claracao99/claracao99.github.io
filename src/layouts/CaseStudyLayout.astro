@@ -2,28 +2,27 @@
 /**
  * Case study page, after yuriroga.com/work/*, on the index grid:
  *
- *   left half  — the project name in a pill that leads back (arrow first,
- *                the whole pill links to the index), then a Figure
- *                card: Information (client, year), Description (summary and
- *                the MDX body). Sticky under the header on desktop.
+ *   left half  — a Back pill (arrow first, links to the index), then a
+ *                Figure card: Information (project, client, year),
+ *                Description (summary and the MDX body). Sticky under the
+ *                header on desktop.
  *   right half — the work as tiles. First the index card's own tile (the
  *                cover photo, or the phone video), so the page opens on what
  *                was clicked; then `small` media as 4:5 tiles and `large`
  *                spanning two at its own ratio.
  *
- * The name pill carries the index caption's full title, scrolling when it
- * doesn't fit (Marquee).
+ * The project row carries the project name (the title before its colon) as
+ * the page's h1.
  *
  * It starts as far down as the index's first row. Media without an image is
  * a placeholder tile, and an entry with no media gets a default set, so every
  * page reads as a full grid until the exports exist. On phones it stacks:
- * name, card, then the tiles two across.
+ * Back, card, then the tiles two across.
  */
 import Media from '../components/Media.astro';
-import Marquee from '../components/Marquee.astro';
 import DeviceVideo from '../components/DeviceVideo.astro';
 import TriangleWest from '../icons/triangle-west.svg';
-import type { WorkEntry } from '../lib/work';
+import { projectName, type WorkEntry } from '../lib/work';
 import { tileSizes } from '../lib/media';
 
 interface Props {
@@ -33,8 +32,8 @@ interface Props {
 type Item = WorkEntry['data']['media'][number];
 
 const { entry } = Astro.props;
-const { title, summary, client, year, draft, cover, stage } = entry.data;
-const [name] = title.split(':');
+const { summary, client, year, draft, cover, stage } = entry.data;
+const name = projectName(entry);
 
 const placeholders: Item[] = [
   { shape: 'phone', size: 'small', alt: '' },
@@ -59,10 +58,9 @@ const info = [
 
 <div class="index-grid case-page">
   <aside class="case" aria-labelledby="case-title">
-    <a class="pill pill--filled case__title" href="/">
+    <a class="pill pill--filled case__back" href="/">
       <TriangleWest aria-hidden="true" data-direction="west" />
-      <span class="visually-hidden">Back to overview: </span>
-      <h1 id="case-title"><Marquee text={title} /></h1>
+      Back
     </a>
 
     <article class="case__card" data-lenis-prevent>
@@ -70,6 +68,10 @@ const info = [
       <section class="case__section">
         <h2 class="case__label">Information</h2>
         <dl class="case__details">
+          <div>
+            <dt>Project:</dt>
+            <dd><h1 id="case-title">{name}</h1></dd>
+          </div>
           {
             info.map(([term, value]) => (
               <div>
