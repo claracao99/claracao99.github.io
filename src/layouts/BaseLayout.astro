@@ -68,5 +68,11 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     <Footer />
     <SmoothScroll />
     <ScrollGauge />
+    <!-- Cookieless analytics (claracao.goatcounter.com). Skips localhost. -->
+    <script
+      is:inline
+      async
+      data-goatcounter="https://claracao.goatcounter.com/count"
+      src="https://gc.zgo.at/count.js"></script>
   </body>
 </html>
