@@ -144,15 +144,30 @@
   gap: var(--index-gap);
 }
 
-/* Back to the index: label left, arrow right (same as other pills). The full
- * row on phones, one track on desktop. */
+/* Back to the index: label left, arrow right (same as other pills). On phones
+ * it rides up into the header's second row, in the empty track beside About
+ * (Nav.astro), so the card opens the page; one track on desktop. */
+.case {
+  position: relative;
+}
+
 .case__back,
 .case__card {
   grid-column: 1 / -1;
 }
 
+.case__back {
+  position: absolute;
+  top: calc(-1 * (var(--index-lead) + var(--index-margin) + var(--pill-height)));
+  left: 0;
+  width: calc((100% - var(--index-gap)) / 2);
+  z-index: var(--z-nav);
+}
+
 @media (min-width: 48rem) {
   .case__back {
+    position: static;
+    width: auto;
     grid-column: 1;
   }
   /* The card is one track wide, and scrolls inside itself if it is taller
