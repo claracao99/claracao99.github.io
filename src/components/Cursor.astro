@@ -10,8 +10,8 @@
  * wrap the target, one --cursor-frame-gap outside it, while the dot stays. The frame holds still while the pointer moves inside the target and
  * shrinks back into the pointer on the way out.
  *
- * Mouse-driven desktops only (fine pointer that can hover, ≥ 1000px wide,
- * as on the reference); touch and small screens keep the system cursor. The
+ * Mouse and trackpad only (fine pointer that can hover), at any window
+ * width; touch screens keep the system cursor. The
  * dot stays hidden until the first move and while the pointer is outside
  * the window.
  */
@@ -26,7 +26,7 @@
     display: none;
   }
 
-  @media (hover: hover) and (pointer: fine) and (min-width: 62.5rem) {
+  @media (hover: hover) and (pointer: fine) {
     :global(html.has-cursor),
     :global(html.has-cursor *) {
       cursor: none !important;
@@ -82,7 +82,7 @@
 <script>
   const cursor = document.querySelector<HTMLElement>('[data-cursor]');
   const frame = document.querySelector<HTMLElement>('[data-cursor-frame-box]');
-  const query = window.matchMedia('(hover: hover) and (pointer: fine) and (min-width: 62.5rem)');
+  const query = window.matchMedia('(hover: hover) and (pointer: fine)');
 
   if (cursor && frame) {
     const sync = () => document.documentElement.classList.toggle('has-cursor', query.matches);
