@@ -144,12 +144,8 @@
   gap: var(--index-gap);
 }
 
-/* Back to the index, led by an arrow. The full row on phones, one track on
- * desktop. */
-.case__back {
-  justify-content: flex-start;
-}
-
+/* Back to the index: label left, arrow right (same as other pills). The full
+ * row on phones, one track on desktop. */
 .case__back,
 .case__card {
   grid-column: 1 / -1;
