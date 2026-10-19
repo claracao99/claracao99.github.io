@@ -28,3 +28,6 @@ sounds/
 
 # generated cover drafts (local reference only; site covers live in src/assets/)
 /assets/
+
+# CV source and build output (local only; the published copy is public/cv.pdf)
+/cv/
