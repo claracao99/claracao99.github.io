@@ -2,8 +2,8 @@
 /**
  * Case study page, after yuriroga.com/work/*, on the index grid:
  *
- *   left half  — a Back pill (arrow first, links to the index), then a
- *                Figure card: Information (project, client, year),
+ *   left half  — a Back pill (label left, arrow right, links to the index),
+ *                then a Figure card: Information (project, client, year),
  *                Description (summary and the MDX body). Sticky under the
  *                header on desktop.
  *   right half — the work as tiles. First the index card's own tile (the
@@ -59,8 +59,8 @@ const info = [
 <div class="index-grid case-page">
   <aside class="case" aria-labelledby="case-title">
     <a class="pill pill--filled case__back" href="/">
-      <TriangleWest aria-hidden="true" data-direction="west" />
       Back
+      <TriangleWest aria-hidden="true" data-direction="west" />
     </a>
 
     <article class="case__card" data-lenis-prevent>
