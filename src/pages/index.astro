@@ -2,9 +2,9 @@
 /**
  * The index (01 Index, Figma 487:792 / 493:825): the work as very round
  * cards, four to a row on desktop and two on phones, ordered by the entries'
- * `order`. The cards start a fixed distance down, like yuriroga.com, and the
- * whole page fits one screen: cards keep 4:5 while there is room and get
- * shorter when there isn't. The intro lives in the About panel (Nav.astro).
+ * `order`. The cards start a fixed distance down and stay 4:5 at every size,
+ * like yuriroga.com; the page scrolls when they don't fit one screen. The
+ * intro lives in the About panel (Nav.astro).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WorkCard from '../components/WorkCard.astro';
@@ -12,54 +12,20 @@ import { getPublishedWork } from '../lib/work';
 
 // Drafts keep their pages in dev but stay off the grid.
 const work = (await getPublishedWork()).filter((e) => !e.data.draft);
-const rows = { phone: Math.ceil(work.length / 2), desktop: Math.ceil(work.length / 4) };
 ---
 
 <BaseLayout fit>
   <h1 class="visually-hidden">Clara Cao, product designer: selected work</h1>
 
-  <section
-    class="index-grid cards"
-    id="work"
-    aria-label="Work"
-    style={`--rows-phone: ${rows.phone}; --rows-desktop: ${rows.desktop}`}
-  >
+  <section class="index-grid cards" id="work" aria-label="Work">
     {work.map((entry, i) => <WorkCard entry={entry} eager={i === 0} />)}
   </section>
 </BaseLayout>
 
 <style>
-  /* A size container, so the cards can size themselves off its width (cqw).
-   * --card-fit-height caps each card (WorkCard) so every row, caption and
-   * gap fits between the header and the footer. */
   .cards {
-    --rows: var(--rows-phone);
-    /* Phones are short for two rows: the lead gives way (down to 24px)
-     * before the cards lose their shape. Full-shape card: WorkCard's 235/180. */
-    --index-lead: clamp(
-      24px,
-      100svh - var(--nav-height) - var(--footer-space) - var(--footer-height) - var(--rows) *
-        (var(--caption-height) + (100vw - 2 * var(--index-margin) - var(--index-gap)) / 2 * 235 / 180) -
-        (var(--rows) - 1) * var(--index-row-gap),
-      120px
-    );
-    --card-fit-height: calc(
-      (
-          100svh - var(--nav-height) - var(--index-lead) - var(--footer-space) -
-            var(--footer-height) - var(--rows) * var(--caption-height) - (var(--rows) - 1) *
-            var(--index-row-gap)
-        ) / var(--rows)
-    );
-    container-type: inline-size;
     row-gap: var(--index-row-gap);
     /* Measured from under the header (main clears it). */
     padding-top: var(--index-lead);
-  }
-
-  @media (min-width: 48rem) {
-    .cards {
-      --rows: var(--rows-desktop);
-      --index-lead: 224px;
-    }
   }
 </style>

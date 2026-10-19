@@ -1,7 +1,7 @@
 ---
 /**
  * One project on the index (01 Index): a very round card, then its title.
- * Every card is one track of the index grid, 4:5 on desktop, after
+ * Every card is one track of the index grid, 4:5 at every width, after
  * yuriroga.com. A cover photo shows full bleed; a cover video shows the
  * prototype in a phone on Figure grey, looping on its own (DeviceVideo). The case page opens on this same tile.
  *
@@ -23,7 +23,7 @@ interface Props {
 const { entry, eager = false } = Astro.props;
 const { title, cover, caseStudy, externalUrl, stage, stageMobile } = entry.data;
 const href = externalUrl ?? (caseStudy ? caseStudyPath(entry) : undefined);
-const sizes = tileSizes(cover.src, { phone: [50, 180 / 235], desktop: [25, 4 / 5] });
+const sizes = tileSizes(cover.src, { phone: [50, 4 / 5], desktop: [25, 4 / 5] });
 const Tag = href ? 'a' : 'div';
 const linkProps = href
   ? { href, ...(externalUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {}) }
@@ -53,23 +53,13 @@ const linkProps = href
 </article>
 
 <style>
-  /* Card height follows the column, measured off the cards grid (a size
-   * container, see index.astro). Phones: 2 tracks, 180×235 at 390.
-   * Desktop: 4 tracks, 4:5. Shorter if the grid sets --card-fit-height
-   * (the one-screen index, see index.astro). Radius is a flat
-   * 32px at every size, matching marco.fyi's tiles. */
+  /* 4:5 at every width, as yuriroga.com: the card's width comes from its
+   * track (2 on phones, 4 on desktop) and its height follows, so the shape
+   * never changes with the screen. Radius is a flat 32px at every size,
+   * matching marco.fyi's tiles. */
   .work-card {
-    --col: calc((100cqw - var(--index-gap)) / 2);
-    --card-height: min(calc(var(--col) * 235 / 180), var(--card-fit-height, 100svh));
     --card-radius: var(--radius-card);
     min-width: 0;
-  }
-
-  @media (min-width: 48rem) {
-    .work-card {
-      --col: calc((100cqw - 3 * var(--index-gap)) / 4);
-      --card-height: min(calc(var(--col) * 5 / 4), var(--card-fit-height, 100svh));
-    }
   }
 
   .work-card__inner {
@@ -82,7 +72,7 @@ const linkProps = href
 
   .work-card__media {
     position: relative;
-    height: var(--card-height);
+    aspect-ratio: 4 / 5;
     overflow: hidden;
     border-radius: var(--card-radius);
     background: var(--figure);

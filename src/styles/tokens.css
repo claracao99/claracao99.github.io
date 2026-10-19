@@ -152,7 +152,7 @@
   --pill-pad: var(--space-4); /* 16 */
   --footer-space: 150px; /* last card row → footer */
   /* Header → first card row, as yuriroga.com: 280px down on desktop, under
-   * the 56px header. Phones' lead flexes to fit (index.astro). */
+   * the 56px header. */
   --index-lead: 120px;
   /* Footer pills and bottom margin: two rows on phones, one on desktop. */
   --footer-height: calc(2 * var(--pill-height) + var(--index-gap) + var(--index-margin));
