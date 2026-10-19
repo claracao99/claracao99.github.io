@@ -25,3 +25,6 @@ pnpm-debug.log*
 
 # rendered sound previews (local reference only)
 sounds/
+
+# generated cover drafts (local reference only; site covers live in src/assets/)
+/assets/
