@@ -53,7 +53,8 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
   // square the next page's cover fills, as the tile fades, and the page goes.
   // The next page opens with the outline in place (TilePage.astro), and the
   // squares carry on where these are. The page holds still meanwhile.
-  // Modified clicks and reduced motion open as usual.
+  // A tap skips the outline: the tile just fades with the rest. Modified
+  // clicks and reduced motion open as usual.
   const root = document.documentElement;
   const chosen: HTMLElement[] = [];
   const css = (name: string) => parseFloat(getComputedStyle(root).getPropertyValue(name)) || 0;
@@ -67,6 +68,8 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
 
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const links = document.querySelectorAll<HTMLAnchorElement>('a.work-card__inner[href^="/work/"], a.about');
+    let tapped = false;
+    addEventListener('pointerdown', (e) => (tapped = e.pointerType === 'touch'), { capture: true, passive: true });
     for (const link of links) {
       link.addEventListener('click', async (e) => {
         if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -74,7 +77,7 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
         if ('leaving' in root.dataset) return;
 
         const tile = link.closest<HTMLElement>('.work-card') ?? link;
-        const outline = document.querySelector<HTMLElement>('.tile-outline');
+        const outline = tapped ? null : document.querySelector<HTMLElement>('.tile-outline');
         const grid = document.querySelector<HTMLElement>('.cards');
         window.smoothScroll?.stop();
         tile.classList.add('is-chosen');

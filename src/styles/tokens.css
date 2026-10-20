@@ -210,7 +210,7 @@
   --z-nav: 100;
   --z-overlay: 200;
   --z-cursor: 300;
-  --z-cursor-frame: 250; /* over the page and header, under the dot */
+  --z-cursor-frame: 50; /* over the page, under the header */
 }
 
 /* ── Lamp and dark mode ──────────────────────────────────────────────────────

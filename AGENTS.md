@@ -58,7 +58,10 @@ infrastructure:
   blinking loading squares, the outline grows into the cover's big square,
   and the case page opens on the same squares and outline (handed over in
   sessionStorage `tile-handoff`), then the cover fills it, then the card,
-  then the rest. Anything the next page must show from its first frame has
+  then the rest. A touch tap skips the outline (it looked bad without a
+  cursor frame leading into it): the tile just fades with the others. The
+  outline and cursor frame sit under the sticky nav (`--z-cursor-frame` <
+  `--z-nav`). Anything the next page must show from its first frame has
   to be set by an inline script *before* that element is parsed, or it fades
   in from its default instead.
 - **Crossfades must add, not stack.** View-transition crossfades use
