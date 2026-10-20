@@ -19,6 +19,21 @@ html {
   scroll-padding-top: var(--nav-height);
 }
 
+/* Pulling the lamp's cord (lib/theme.ts): colours ease to the other theme. */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-switching,
+  .theme-switching *,
+  .theme-switching *::before,
+  .theme-switching *::after {
+    transition:
+      background-color var(--duration-theme) var(--ease-standard),
+      border-color var(--duration-theme) var(--ease-standard),
+      color var(--duration-theme) var(--ease-standard),
+      fill var(--duration-theme) var(--ease-standard),
+      opacity var(--duration-theme) var(--ease-standard) !important;
+  }
+}
+
 body {
   min-height: 100svh;
   background-color: var(--surface);

@@ -10,6 +10,7 @@ import SmoothScroll from '../components/SmoothScroll.astro';
 import PageTransition from '../components/PageTransition.astro';
 import Cursor from '../components/Cursor.astro';
 import Sound from '../components/Sound.astro';
+import Lamp from '../components/Lamp.astro';
 
 import '../styles/fonts.css';
 import '../styles/tokens.css';
@@ -47,6 +48,16 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#ffffff" />
+    <!-- Theme before first paint: light unless the lamp was last pulled on
+         (lib/theme.ts). The colour is --grey-00 in dark. -->
+    <script is:inline>
+      try {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.documentElement.dataset.theme = 'dark';
+          document.querySelector('meta[name="theme-color"]').content = '#0b0b0b';
+        }
+      } catch {}
+    </script>
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
@@ -71,6 +82,7 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
       <slot />
     </main>
     <Footer />
+    <Lamp />
     <SmoothScroll />
     <Cursor />
     <Sound />

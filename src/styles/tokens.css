@@ -205,6 +205,46 @@
   --z-overlay: 200;
   --z-cursor: 300;
   --z-cursor-frame: 250; /* over the page and header, under the dot */
+  --z-lamp: 150; /* over the page and header, under overlays */
+}
+
+/* ── Lamp and dark mode ──────────────────────────────────────────────────────
+ * The lamp (Lamp.astro), floating in the corner, is the theme switch: the
+ * page opens light with the lamp off; pulling its cord turns it on, and it
+ * glows as the page goes dark. Light is the default whatever the system says
+ * (lib/theme.ts). Dark swaps the ramp, so the semantic tokens follow.
+ */
+:root {
+  color-scheme: light;
+  --lamp-shade: #fed205; /* the Figma lamp's yellow */
+  --lamp-glow: rgb(254 210 5 / 0.35); /* light under the shade */
+  --lamp-lit: 0; /* off */
+  --lamp-cord: #1b5de1;
+  --lamp-size: 80px; /* fixed in the bottom-right corner, over the page */
+  --lamp-inset: 24px; /* from the screen's right and bottom edges to the lamp itself */
+  --duration-theme: 500ms;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --grey-00: #0b0b0b; /* page */
+  --grey-03: #121212; /* loading squares */
+  --grey-05: #171717; /* Figure */
+  --grey-08: #202020; /* pill hover */
+  --grey-15: #3d3d3d; /* Icon */
+  --grey-10: #1b1b1b; /* media wells */
+  --grey-20: #262626; /* placeholder shapes */
+  --grey-30: #2c2c2c; /* hairlines */
+  --grey-60: #929292; /* muted labels — 6.2:1 on the page */
+  --grey-90: #f2f2f2; /* body copy */
+  --grey-100: #ffffff; /* titles, nav */
+  --ink-detail: rgb(255 255 255 / 0.55);
+  --pill-glass: rgb(32 32 32 / 0.5);
+  --scrim: rgb(0 0 0 / 0.6);
+  /* The cursor inverts what is under it, so it stays white. */
+  --cursor-fill: #ffffff;
+  --lamp-lit: 1; /* on */
+  --lamp-cord: #6f97ff;
 }
 
 @media (min-width: 48rem) {

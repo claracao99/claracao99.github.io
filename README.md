@@ -94,8 +94,9 @@ a pure-neutral palette on white (originally the Figma's tinted greys). Component
 only; there is no literal hex anywhere else.
 
 Tokens are two-tier: a **ramp** (`--grey-10`) and a **semantic layer**
-(`--ink`, `--surface`, `--rule`) that components actually use. The site is
-light-only by design; a dark mode would be a semantic-layer block.
+(`--ink`, `--surface`, `--rule`) that components actually use. Dark mode
+overrides the ramp under `:root[data-theme='dark']`; the lamp in the corner
+(`Lamp.astro`) is its only switch, and the site opens light.
 
 Type is self-hosted (`src/fonts/`, declared in `src/styles/fonts.css`):
 **ABC Diatype** 400/700 (body, titles), **ABC Diatype Mono** 400 (labels) —
