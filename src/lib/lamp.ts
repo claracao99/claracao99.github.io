@@ -341,6 +341,7 @@ export function mountLamp({ stage, cord, spare, onToggle }: Options) {
     const node = hitTest(p) ?? (e.pointerType === 'mouse' ? null : nodes[FREE]);
     if (!node) return;
     clearTimeout(releaseTimer);
+    releaseTimer = 0;
     // A fresh press always clicks, even while the cord is still springing
     // back from the last one (not yet up past REARM_AT).
     armed = true;
@@ -378,17 +379,30 @@ export function mountLamp({ stage, cord, spare, onToggle }: Options) {
   });
 
   const release = () => {
+    clearTimeout(releaseTimer);
+    releaseTimer = 0;
     grab.node = null;
     stage.classList.remove('is-grabbing');
   };
   // A quick tap is held as long as the keyboard's press, so it still clicks
   // the switch; a drag lets go at once.
-  stage.addEventListener('pointerup', (e) => {
+  const letGo = (e: Event, mouse: boolean) => {
+    if (!grab.node || releaseTimer) return;
     const left = KEY_PULL_MS - (e.timeStamp - downAt);
-    if (e.pointerType === 'mouse' || !grab.node || !grab.pullTarget || left <= 0) return release();
+    if (mouse || !grab.pullTarget || left <= 0) return release();
     releaseTimer = window.setTimeout(release, left);
-  });
-  stage.addEventListener('pointercancel', release);
+  };
+  // The click starts the theme's View Transition, which lays a snapshot over
+  // the page just as a tapping finger lifts, and iOS Safari can then lose the
+  // pointerup on the stage: the cord stayed held down. So any sign that the
+  // press is over lets go, wherever it lands.
+  const pointerEnd = (e: PointerEvent) => letGo(e, e.pointerType === 'mouse');
+  const touchEnd = (e: TouchEvent) => { if (!e.touches.length) letGo(e, false); };
+  window.addEventListener('pointerup', pointerEnd);
+  window.addEventListener('pointercancel', pointerEnd);
+  stage.addEventListener('lostpointercapture', pointerEnd);
+  window.addEventListener('touchend', touchEnd);
+  window.addEventListener('touchcancel', touchEnd);
   stage.addEventListener('pointerleave', () => { last = null; });
 
   render();
