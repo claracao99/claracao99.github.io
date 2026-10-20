@@ -37,9 +37,9 @@
   /* Detail text: numbers, years, "Copy". Black at 55% (4.6:1 on white). */
   --ink-detail: rgb(0 0 0 / 0.55);
 
-  /* Index chrome, after yuriroga.com: the header pill is glass (#F0F0F0 at
-   * 50% under a 50px blur); footer pills are solid
-   * Figure (.pill--filled). Every pill hovers to solid #F0F0F0. */
+  /* Index chrome, after yuriroga.com: header and footer pills are glass
+   * (#F0F0F0 at 50% under a 50px blur); Next Project is solid Figure
+   * (.pill--filled). Every pill hovers to solid #F0F0F0. */
   --figure: var(--grey-05);
   --pill-fill: var(--figure);
   --pill-fill-hover: var(--grey-08);

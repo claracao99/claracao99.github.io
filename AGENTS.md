@@ -60,6 +60,9 @@ infrastructure:
   sessionStorage `tile-handoff`), then the cover fills it, then the card,
   then the rest. A touch tap skips the outline (it looked bad without a
   cursor frame leading into it): the tile just fades with the others. The
+  header and footer are pinned on desktop and hold still through all of it
+  (named only while a page transition runs, PageTransition.astro); on phones
+  both scroll with the page and the footer fades with the tiles. The
   outline and cursor frame sit under the sticky nav (`--z-cursor-frame` <
   `--z-nav`). Anything the next page must show from its first frame has
   to be set by an inline script *before* that element is parsed, or it fades

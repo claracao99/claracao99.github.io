@@ -73,6 +73,13 @@
     view-transition-name: site-nav;
   }
 
+  /* The footer too, where it's pinned (Footer.astro). */
+  @media (min-width: 48rem) {
+    [data-vt-nav] .footer {
+      view-transition-name: site-footer;
+    }
+  }
+
   ::view-transition {
     background: var(--transition-backdrop);
   }
