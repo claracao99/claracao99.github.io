@@ -6,7 +6,8 @@
  * lamp-string experiment (Figma 570:1886) with its cord of 灯 characters.
  * Pulling the cord switches the lamp, and with it the site's theme: off is the light page, on (glowing) the dark one
  * (lib/theme.ts, tokens.css). The physics lives in lib/lamp.ts; the shade is
- * a mask over --lamp-shade. A switch for assistive tech: Enter or Space pulls
+ * a mask over --lamp-shade. A cursor pulls the cord itself; a touch anywhere
+ * on the lamp pulls it too. A switch for assistive tech: Enter or Space pulls
  * the cord.
  */
 import { getImage } from 'astro:assets';
@@ -72,6 +73,14 @@ const frame = (x: number, y: number, w: number, h: number) =>
     top: 0;
     left: 0;
     transform-origin: 0 0;
+  }
+
+  /* Touch anywhere on the lamp pulls the cord (lib/lamp.ts), not the page. */
+  @media (hover: none) {
+    .lamp__stage {
+      touch-action: none;
+      -webkit-tap-highlight-color: transparent;
+    }
   }
 
   .lamp__stage:global(.can-grab) {

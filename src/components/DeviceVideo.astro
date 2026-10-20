@@ -70,7 +70,7 @@ const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
       src={frame}
       alt=""
       widths={[400, 800, 1200]}
-      sizes={`(max-width: 32rem) min(90vw, 240px), ${wide ? 430 : 220}px`}
+      sizes={`(max-width: 32rem) 90vw, ${wide ? 430 : 220}px`}
       format="webp"
       loading={eager ? 'eager' : 'lazy'}
     />

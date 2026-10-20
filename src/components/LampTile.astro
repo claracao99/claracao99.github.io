@@ -19,5 +19,8 @@ import Lamp from './Lamp.astro';
     min-width: 0;
     border-radius: var(--radius-card);
     background: var(--figure);
+    /* The lamp's frame runs past the corner; on phones the tile reaches the
+     * screen's margin, so clip it or the page scrolls sideways. */
+    overflow-x: clip;
   }
 </style>
