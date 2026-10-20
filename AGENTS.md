@@ -49,8 +49,11 @@ infrastructure:
   tile; no `media` at all gets a default placeholder set, and `media: []`
   means the cover alone. Layout lives in
   `src/styles/case.css` (global, because MDX output has no scope).
-- **Light-only palette** from the Figma file. Tokens are `--grey-*` ramp plus a
-  semantic layer. Don't reintroduce `prefers-color-scheme` without a design.
+- **Palette** from the Figma file: a `--grey-*` ramp plus a semantic layer.
+  Dark mode is a ramp override (`:root[data-theme='dark']` in tokens.css),
+  switched only by pulling the lamp's cord (Lamp.astro, lib/theme.ts); the
+  site always opens light. Don't key it to `prefers-color-scheme`. The lamp's
+  switch only clicks while the cord is held: settling on load used to flip it.
 - **`draft: true` hides the page, not the images.** Verified: a draft's cover
   image is still emitted to `dist/_astro/` with a hashed filename, so it is
   publicly fetchable even though nothing links to it. For anything genuinely

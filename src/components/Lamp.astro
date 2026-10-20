@@ -1,0 +1,169 @@
+---
+/**
+ * The lamp, small and fixed in the bottom-right corner over every page: the
+ * yellow mushroom lamp from the lamp-string experiment (Figma 570:1886) with
+ * its cord of 灯 characters. Pulling the cord switches the lamp, and with it
+ * the site's theme: off is the light page, on (glowing) the dark one
+ * (lib/theme.ts, tokens.css). The physics lives in lib/lamp.ts; the shade is
+ * a mask over --lamp-shade. A switch for assistive tech: Enter or Space pulls
+ * the cord.
+ */
+import { getImage } from 'astro:assets';
+import mask from '../assets/lamp-mask.png';
+import { CROP, GRIP, SEG, LAMP_EDGE } from '../lib/lamp';
+
+const maskUrl = (await getImage({ src: mask, format: 'webp', width: 384 })).src;
+// Empty room inside the box past the lamp's right and bottom edges, as a
+// share of its size, so --lamp-inset is the gap to the lamp itself.
+const spareRight = (CROP.x + CROP.size - LAMP_EDGE.right) / CROP.size;
+const spareBottom = (CROP.y + CROP.size - LAMP_EDGE.bottom) / CROP.size;
+const frame = (x: number, y: number, w: number, h: number) =>
+  `left: ${x}px; top: ${y}px; width: ${w}px; height: ${h}px;`;
+---
+
+<div
+  class="lamp"
+  style={`--spare-right: ${spareRight}; --spare-bottom: ${spareBottom};`}
+  role="switch"
+  aria-checked="false"
+  aria-label="Lamp"
+  tabindex="0"
+  data-lamp
+>
+  <div class="lamp__stage" style={`width: ${CROP.size}px; height: ${CROP.size}px; --char: ${SEG}px;`}>
+    <div class="lamp__frame" style={`transform: translate(${-CROP.x}px, ${-CROP.y}px);`}>
+      <div class="lamp__glow" aria-hidden="true"></div>
+      <div
+        class="lamp__shade"
+        aria-hidden="true"
+        style={`${frame(CROP.x, CROP.y, CROP.size, CROP.size)} --mask: url(${maskUrl});`}
+      >
+      </div>
+      <div class="lamp__cord" aria-hidden="true" data-lamp-spare></div>
+      <div class="lamp__cord" aria-hidden="true" data-lamp-cord></div>
+      <div class="lamp__grip" aria-hidden="true" style={frame(GRIP.x, GRIP.y, GRIP.w, GRIP.h)}></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .lamp {
+    position: fixed;
+    right: calc(var(--lamp-inset) - var(--lamp-size) * var(--spare-right));
+    bottom: calc(var(--lamp-inset) - var(--lamp-size) * var(--spare-bottom));
+    z-index: var(--z-lamp);
+    width: var(--lamp-size);
+    aspect-ratio: 1;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .lamp:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-md);
+  }
+
+  /* The CROP square of the design frame, scaled to the lamp by lib/lamp.ts. */
+  .lamp__stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: 0 0;
+  }
+
+  .lamp__stage:global(.can-grab) {
+    cursor: grab;
+  }
+
+  .lamp__stage:global(.is-grabbing) {
+    cursor: grabbing;
+  }
+
+  .lamp__frame {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 1254px;
+    height: 1254px;
+  }
+
+  .lamp__shade,
+  .lamp__glow,
+  .lamp__cord,
+  .lamp__grip {
+    position: absolute;
+  }
+
+  .lamp__shade {
+    background: var(--lamp-shade);
+    -webkit-mask: var(--mask) center / 100% 100% no-repeat;
+    mask: var(--mask) center / 100% 100% no-repeat;
+    pointer-events: none;
+  }
+
+  /* Light under the shade while the lamp is on: the dark page. */
+  .lamp__glow {
+    left: 300px;
+    top: 520px;
+    width: 660px;
+    height: 520px;
+    background: radial-gradient(ellipse 50% 70% at 50% 0%, var(--lamp-glow), transparent);
+    opacity: var(--lamp-lit);
+    pointer-events: none;
+    transition: opacity var(--duration-theme) var(--ease-standard);
+  }
+
+  .lamp__cord {
+    inset: 0;
+    pointer-events: none; /* clip-paths set in lib/lamp.ts hide it in the shade */
+  }
+
+  /* Touch on the cord pulls it instead of scrolling the page. */
+  .lamp__grip {
+    touch-action: none;
+  }
+
+  .lamp :global(.lamp__char) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: grid;
+    place-items: center;
+    width: var(--char);
+    height: var(--char);
+    margin: calc(var(--char) / -2) 0 0 calc(var(--char) / -2);
+    /* The Figma face has no CJK glyphs: straight to the system's. */
+    font-family: 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+    font-size: var(--char);
+    font-weight: 500;
+    line-height: var(--char);
+    color: var(--lamp-cord);
+    will-change: transform;
+  }
+</style>
+
+<script>
+  import { mountLamp } from '../lib/lamp';
+  import { getTheme, setTheme } from '../lib/theme';
+  import { playSound } from '../lib/sound';
+
+  for (const lamp of document.querySelectorAll<HTMLElement>('[data-lamp]')) {
+    const sync = () => lamp.setAttribute('aria-checked', String(getTheme() === 'dark'));
+    const cord = mountLamp({
+      stage: lamp.querySelector<HTMLElement>('.lamp__stage')!,
+      cord: lamp.querySelector<HTMLElement>('[data-lamp-cord]')!,
+      spare: lamp.querySelector<HTMLElement>('[data-lamp-spare]')!,
+      onToggle: () => {
+        playSound('tap');
+        setTheme(getTheme() === 'light' ? 'dark' : 'light');
+      },
+    });
+    lamp.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      e.preventDefault();
+      if (!e.repeat) cord.pull();
+    });
+    window.addEventListener('themechange', sync);
+    sync();
+  }
+</script>
