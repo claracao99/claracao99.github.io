@@ -108,30 +108,13 @@ const linkProps = href
     pointer-events: none;
   }
 
-  /* Switching theme (lib/theme.ts): the page's crossfade snapshots lose the
-   * pill's blur, so it flashed see-through and filled in after. Each card
-   * gets its own layer instead, kept live like the lamp's, and the pill and
-   * the card's grey ease across themselves. */
-  :global(html[data-theme-switch]) .work-card__media {
-    view-transition-name: match-element;
-    view-transition-class: work-card;
-    transition: background-color var(--duration-theme) var(--ease-standard);
-  }
-
-  :global(html[data-theme-switch]) .work-card__pill {
-    transition:
-      background-color var(--duration-theme) var(--ease-standard),
-      color var(--duration-theme) var(--ease-standard),
-      opacity var(--duration-base) var(--ease-out),
-      transform var(--duration-base) var(--ease-out);
-  }
-
-  :global(html[data-theme-switch]::view-transition-old(.work-card)) {
-    display: none;
-  }
-
-  :global(html[data-theme-switch]::view-transition-new(.work-card)) {
-    animation: none;
+  /* Switching theme: the pill gets its own glass layer (base.css), but on
+   * hover screens only while it shows; a hidden pill's layer would still
+   * blur the card under it. */
+  @media (hover: hover) {
+    :global(html[data-theme-switch]) .work-card__inner:not(:hover, :focus-visible) .work-card__pill {
+      view-transition-name: none;
+    }
   }
 
   @media (hover: hover) {
