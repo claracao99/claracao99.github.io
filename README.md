@@ -50,7 +50,7 @@ draft: true               # visible in dev, excluded from the built site
 media:                    # case page tiles after the cover; omit for placeholders, [] for none
   - src: ./hero.png       # co-located image, optimised by astro:assets
     alt: ''               # '' is correct for decorative images
-    size: large           # two tiles wide at its own ratio; default small (4:5)
+    size: large           # at its own ratio; default small (square)
   - shape: phone          # …or a placeholder tile until the export exists
     label: Pick a contact # small uppercase caption inside the tile
 externalUrl: https://...  # optional: "Read more" links out, no page built

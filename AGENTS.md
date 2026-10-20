@@ -40,15 +40,33 @@ infrastructure:
   No code changes needed. The filename is the
   slug. `draft: true` entries render in `astro dev` but are excluded from
   builds. Frontmatter is documented in README.
-- **Case study pages follow yuriroga.com/work/\*.** `/work/<slug>/` sits on
-  the index grid: a Back pill (arrow first) and a sticky Figure card
-  (Information = short project name as h1, client, year; Description =
-  summary + MDX body) in the left half; the index card's own tile then the
-  frontmatter `media` as tiles in the right half (`size: small` = one 4:5
-  tile, `large` = two tiles wide). The index captions keep the full title. Media without `src` is a placeholder
-  tile; no `media` at all gets a default placeholder set, and `media: []`
-  means the cover alone. Layout lives in
+- **Index and case pages are fixed square tiles.** The tile is a fixed size
+  (`--tile-size`: 280px on phones, 240px from 32rem, two to a row), not
+  fluid; only the side space grows. Keep `TILE_PX` in `lib/media.ts` in step.
+  The index: About first, the projects, the lamp last (LampTile.astro).
+  `/work/<slug>/` and `/about/` share `TilePage.astro`: one column the grid's
+  full width, the cover (the index card's own picture), then a Figure card as
+  tall as its text (Information = short project name as h1, client, year;
+  Description = summary + MDX body), then the frontmatter `media` (`size:
+  small` = square, `large` = its own ratio). The header pill is the way back.
+  Media without `src` is a placeholder tile; no `media` at all gets a default
+  placeholder set, and `media: []` means the cover alone. Layout lives in
   `src/styles/case.css` (global, because MDX output has no scope).
+- **Opening a tile is choreographed** (index.astro, TilePage.astro, case.css
+  Entrance): the tile lingers in an outline while the index fades to the
+  blinking loading squares, the outline grows into the cover's big square,
+  and the case page opens on the same squares and outline (handed over in
+  sessionStorage `tile-handoff`), then the cover fills it, then the card,
+  then the rest. Anything the next page must show from its first frame has
+  to be set by an inline script *before* that element is parsed, or it fades
+  in from its default instead.
+- **Crossfades must add, not stack.** View-transition crossfades use
+  `mix-blend-mode: plus-lighter` (PageTransition.astro); setting `animation`
+  on `::view-transition-old/new` drops the UA's, and two 50% layers then show
+  the backdrop through as a blink. The theme switch is a same-document View
+  Transition for the same reason: per-element colour transitions restart
+  every frame on an element that sets its own colour inside one inheriting a
+  changing colour (the footer's "Copy" lagged far behind).
 - **Palette** from the Figma file: a `--grey-*` ramp plus a semantic layer.
   Dark mode is a ramp override (`:root[data-theme='dark']` in tokens.css),
   switched only by pulling the lamp's cord (Lamp.astro, lib/theme.ts); the
