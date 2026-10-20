@@ -71,10 +71,11 @@ infrastructure:
   Transition for the same reason: per-element colour transitions restart
   every frame on an element that sets its own colour inside one inheriting a
   changing colour (the footer's "Copy" lagged far behind). Its snapshots
-  drop `backdrop-filter`, so glass over content (the cards' title pills)
-  flashed see-through: each card gets its own live layer during the switch
-  (`view-transition-name: match-element`, WorkCard.astro) and its pill eases
-  its own colours.
+  drop `backdrop-filter`, so glass pills flashed see-through: each glass
+  pill gets its own live layer during the switch (`match-element`, class
+  `glass`, base.css) and the `::view-transition-group` carries the blur over
+  the crossfade beneath. Don't lift whole cards instead: their layers paint
+  over the header (which sits in the root snapshot) until the fade ends.
 - **Palette** from the Figma file: a `--grey-*` ramp plus a semantic layer.
   Dark mode is a ramp override (`:root[data-theme='dark']` in tokens.css),
   switched only by pulling the lamp's cord (Lamp.astro, lib/theme.ts); the
