@@ -16,7 +16,7 @@
  * `stageMobile` is the same for phones, measured on a 180×169 card (390 wide)
  * on "Device tile · phone positions, mobile" (558:1871). All three values
  * scale with the card's width, so the phone keeps its place from the top
- * edge on the 4:5 phone card too.
+ * edge on the square phone card too.
  *
  * Fills its parent, which must be positioned and clip its overflow.
  */
@@ -32,6 +32,8 @@ interface Props {
   eager?: boolean;
   /** Phone left, top and width in px on a 347.5×434.375 card. */
   stage?: { x: number; y: number; w: number };
+  /** On a case page: the grid's full width, two tiles on desktop. */
+  wide?: boolean;
   /** Phones: left, top and width in px on a 180×169 card. */
   stageMobile?: { x: number; y: number; w: number };
 }
@@ -39,10 +41,18 @@ interface Props {
 const CARD = { w: 347.5, h: 434.375 };
 const CARD_MOBILE_W = 180;
 
-const { video, poster, alt = '', eager = false, stage = { x: 27.8, y: 137.7, w: 291.9 }, stageMobile } = Astro.props;
+const {
+  video,
+  poster,
+  alt = '',
+  eager = false,
+  wide = false,
+  stage = { x: 27.8, y: 137.7, w: 291.9 },
+  stageMobile,
+} = Astro.props;
 const style = [
   `--x: ${(stage.x / CARD.w) * 100}%`,
-  `--y: ${(stage.y / CARD.h) * 100}%`,
+  `--y: ${(stage.y / CARD.w) * 100}cqw`,
   `--w: ${(stage.w / CARD.w) * 100}%`,
   ...(stageMobile
     ? [
@@ -74,7 +84,7 @@ const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
       src={frame}
       alt=""
       widths={[400, 800, 1200]}
-      sizes="(max-width: 48rem) 45vw, 30vw"
+      sizes={`(max-width: 32rem) min(90vw, 240px), ${wide ? 430 : 220}px`}
       format="webp"
       loading={eager ? 'eager' : 'lazy'}
     />
@@ -98,7 +108,7 @@ const posterImage = await getImage({ src: poster, width: 750, format: 'webp' });
     aspect-ratio: 450 / 920;
   }
 
-  @media (min-width: 48rem) {
+  @media (min-width: 32rem) {
     .device {
       left: var(--x);
       top: var(--y);

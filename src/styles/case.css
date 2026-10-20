@@ -106,15 +106,13 @@
 }
 
 /* ── Case study page ────────────────────────────────────────────────────────
- * After yuriroga.com/work/*, on the index grid (CaseStudyLayout.astro): the
- * text in the left half, sticky under the header on desktop; the tiles in
- * the right half. Starts where the index's first card row does: on phones
- * that is the index's lead at its 24px floor (index.astro), which is where it
- * lands on real phone heights.
+ * After yuriroga.com/work/*, on the index grid (TilePage.astro): one column
+ * the grid's full width (two tiles on desktop, one on phones). The cover,
+ * then the card as tall as its text, then the tiles. Starts one gutter under
+ * the header, as the index does.
  */
 .case-page {
-  --index-lead: var(--space-5);
-  padding-top: var(--index-lead);
+  align-items: start;
   row-gap: var(--index-gap);
 }
 
@@ -123,71 +121,12 @@
   min-width: 0;
 }
 
-@media (min-width: 48rem) {
-  .case-page {
-    --index-lead: 224px;
-    align-items: start;
-  }
-  .case-page > .case {
-    grid-column: 1 / 3;
-    position: sticky;
-    top: var(--nav-height);
-  }
-  .case-page > .case__tiles {
-    grid-column: 3 / -1;
-  }
-}
-
-.case {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--index-gap);
-}
-
-/* Back to the index: label left, arrow right (same as other pills). On phones
- * it rides up into the header's second row, in the empty track beside About
- * (Nav.astro), so the card opens the page; one track on desktop. */
-.case {
-  position: relative;
-}
-
-.case__back,
-.case__card {
-  grid-column: 1 / -1;
-}
-
-.case__back {
-  position: absolute;
-  top: calc(-1 * (var(--index-lead) + var(--index-margin) + var(--pill-height)));
-  left: 0;
-  width: calc((100% - var(--index-gap)) / 2);
-  z-index: var(--z-nav);
-}
-
-@media (min-width: 48rem) {
-  .case__back {
-    position: static;
-    width: auto;
-    grid-column: 1;
-  }
-  /* The card is one track wide, and scrolls inside itself if it is taller
-   * than the space under the pills. */
-  .case__card {
-    grid-column: 1;
-    max-height: calc(
-      100svh - var(--nav-height) - var(--pill-height) - var(--index-gap) - var(--index-margin)
-    );
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-}
-
 .case__card {
   display: flex;
   flex-direction: column;
   gap: var(--space-8);
-  padding: var(--space-4) var(--pill-pad) var(--space-7);
-  border-radius: var(--radius-sheet);
+  padding: var(--space-4) var(--pill-pad);
+  border-radius: var(--radius-card);
   background: var(--figure);
   font-size: var(--text-small);
   line-height: var(--leading-small);
@@ -198,9 +137,10 @@
   color: var(--ink-detail);
 }
 
-/* A section: a quiet uppercase label over a hairline, as in the About panel. */
+/* A section: a quiet uppercase label over a hairline, the text close
+ * beneath, exactly as on the About tile (so About hands over seamlessly). */
 .case__label {
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
   padding-bottom: var(--space-2);
   border-bottom: var(--rule-width) solid var(--rule);
   color: var(--ink-detail);
@@ -234,13 +174,11 @@
   margin-top: var(--leading-small);
 }
 
-/* Tiles: two across in the right half (and on phones). A small tile is one
- * track at 4:5; a large one spans both at its --ratio. Dense, so a small
- * tile after a large one fills the hole a lone small tile leaves before it. */
+/* Tiles: one to a row, the grid's full width. A small tile is square; a
+ * large one keeps its own --ratio. */
 .case__tiles {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-auto-flow: row dense;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--index-gap);
 }
 
@@ -251,10 +189,6 @@
   border-radius: var(--radius-card);
   background: var(--figure);
   isolation: isolate;
-}
-
-.case__tile[data-size='large'] {
-  grid-column: 1 / -1;
 }
 
 .case__tile > .media {
@@ -279,4 +213,160 @@
   font-weight: var(--weight-normal);
   line-height: inherit;
   text-transform: uppercase;
+}
+
+/* ── Entrance ───────────────────────────────────────────────────────────────── */
+
+/* While .case-page has data-reveal (set and cleared by TilePage.astro's
+ * scripts, so pages without JS never wait), the window under the header is
+ * filled with equal squares (LoadingSquares.astro: fixed, behind the page),
+ * one or two to a row, the index tiles' size and places. The index fades to
+ * the same squares while it hands over to a page (data-leaving, index.astro).
+ * Each square fades in and out on its own random delay and pace
+ * (--blink-delay, --blink-duration, set by the same scripts), so different
+ * squares show at different moments. The card and tiles stay empty until
+ * they are .is-in, then fill in over them. */
+.loading-squares {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loading-squares {
+    position: fixed;
+    inset: var(--nav-height) 0 0;
+    z-index: -1;
+    display: grid;
+    align-content: start;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--duration-reveal) var(--ease-out),
+      visibility 0s linear var(--duration-reveal);
+  }
+
+  [data-reveal] .loading-squares {
+    opacity: 1;
+    visibility: visible;
+    transition: none;
+  }
+
+  html[data-leaving] .loading-squares {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity var(--duration-reveal) var(--ease-out);
+  }
+
+  /* Squares are one tile wide: two tracks. */
+  .loading-squares > * {
+    grid-column: span 2;
+    aspect-ratio: 1;
+    border-radius: var(--radius-card);
+    animation: reveal-blink var(--blink-duration, var(--duration-blink)) var(--ease-in-out)
+      var(--blink-delay, 0s) infinite;
+  }
+
+  /* The footer and Next Project wait until the page has come in. */
+  :is(.footer, .next) {
+    transition: opacity var(--duration-reveal) var(--ease-out);
+  }
+
+  body:has([data-reveal]) :is(.footer, .next) {
+    opacity: 0;
+  }
+
+  [data-reveal] :is(.case__card, .case__tile) {
+    transition: background-color var(--duration-reveal) var(--ease-out);
+  }
+
+  [data-reveal] :is(.case__card, .case__tile) > * {
+    transition: opacity var(--duration-reveal) var(--ease-out);
+  }
+
+  /* The cover fades in more slowly than the rest. */
+  [data-reveal] .case__cover > .case__tile,
+  [data-reveal] .case__cover > .case__tile > * {
+    transition-duration: var(--duration-reveal-cover);
+  }
+
+  /* Leaving the index from a tile (index.astro): the chosen tile lingers
+   * while the other tiles and the footer fade away to the loading squares
+   * behind them, then it fades too (.is-gone), leaving its outline. */
+  html[data-leaving] :is(.work-card:not(.is-chosen), .about:not(.is-chosen), .lamp-tile, .footer, .is-gone) {
+    opacity: 0;
+    transition: opacity var(--duration-reveal) var(--ease-out);
+  }
+
+  /* Specific enough to beat the card's own hover rule. */
+  html[data-leaving] .work-card .work-card__inner .work-card__pill.pill {
+    opacity: 0;
+  }
+
+  [data-reveal] :is(.case__card, .case__tile):not(.is-in) {
+    overflow: hidden;
+    background: transparent;
+  }
+
+  [data-reveal] :is(.case__card, .case__tile):not(.is-in) > * {
+    opacity: 0;
+  }
+}
+
+/* The outline that grows from an index tile into the cover's big square
+ * (index.astro), drawn like the cursor's frame (Cursor.astro): a hairline one
+ * gap outside. On the index it is fixed and placed by the script; on the
+ * case page it waits around the cover (data-outline) while the cover fills
+ * it, then fades away with the loading screen. */
+.tile-outline,
+.case__outline {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tile-outline,
+  .case__outline {
+    display: block;
+    border: var(--rule-width) solid var(--cursor-frame-line);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--duration-reveal) var(--ease-out);
+  }
+
+  .tile-outline {
+    position: fixed;
+    z-index: var(--z-cursor-frame);
+  }
+
+  html[data-leaving] .tile-outline {
+    opacity: 1;
+    transition: none;
+  }
+
+  .case__cover {
+    position: relative;
+  }
+
+  .case__outline {
+    position: absolute;
+    inset: calc(-1 * var(--cursor-frame-gap));
+    border-radius: calc(var(--radius-card) + var(--cursor-frame-gap));
+  }
+
+  [data-outline] .case__outline {
+    opacity: 1;
+    transition: none;
+  }
+
+  /* Once the cover has filled it. */
+  [data-outline] .case__cover:has(.is-in) .case__outline {
+    opacity: 0;
+    transition: opacity var(--duration-reveal-cover) var(--ease-out);
+  }
+}
+
+@keyframes reveal-blink {
+  50% {
+    background-color: var(--reveal-fill);
+  }
 }

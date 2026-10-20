@@ -1,0 +1,14 @@
+---
+/**
+ * The loading screen: equal light-grey squares filling the window under the
+ * header, one or two to a row at the index tiles' size and places, each
+ * fading in and out at its own random pace. Hidden until a page asks for it:
+ * the case page while it loads (data-reveal), the index while it hands over
+ * to a case (data-leaving).
+ * Styles in case.css (Entrance). Twelve fill a tall window.
+ */
+---
+
+<div class="index-grid loading-squares" aria-hidden="true">
+  {Array.from({ length: 12 }, () => <div />)}
+</div>

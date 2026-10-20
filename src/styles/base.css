@@ -19,7 +19,29 @@ html {
   scroll-padding-top: var(--nav-height);
 }
 
-/* Pulling the lamp's cord (lib/theme.ts): colours ease to the other theme. */
+/* Pulling the lamp's cord (lib/theme.ts): the page crossfades to the other
+ * theme, all at once. The lamp has its own layer, so its cord keeps swinging
+ * live through the fade rather than ghosting. */
+html[data-theme-switch]::view-transition-old(root),
+html[data-theme-switch]::view-transition-new(root) {
+  animation-duration: var(--duration-theme);
+  animation-timing-function: var(--ease-standard);
+}
+
+html[data-theme-switch] .lamp {
+  view-transition-name: lamp;
+}
+
+html[data-theme-switch]::view-transition-old(lamp) {
+  display: none;
+}
+
+html[data-theme-switch]::view-transition-new(lamp) {
+  animation: none;
+}
+
+/* Without View Transitions: colours ease to the other theme, element by
+ * element. */
 @media (prefers-reduced-motion: no-preference) {
   .theme-switching,
   .theme-switching *,
@@ -79,9 +101,9 @@ main {
 }
 
 /* One-screen pages (the index): the footer sits on the bottom edge, at
- * least a row gap under main; spare height opens up between the two. */
+ * least a gutter under main; spare height opens up between the two. */
 .page-fit {
-  --footer-space: var(--index-row-gap);
+  --footer-space: var(--index-gap);
   display: flex;
   flex-direction: column;
   min-height: 100svh;
@@ -231,22 +253,24 @@ ol {
 }
 
 /*
- * The index grid (01 Index), after yuriroga.com: edge to edge with a 10px
- * margin and gutter. Four equal tracks on desktop, two on phones. Every card
- * and the small nav pills take one; the wordmark pill and the intro span two.
+ * The index grid (01 Index), after yuriroga.com: a fixed-width column,
+ * centred, one tile wide on phones and two on desktop (--index-width), with a
+ * 10px gutter. Two equal tracks on phones, four on desktop, so a tile is
+ * always two tracks and the header and footer pills can take one.
  */
 .index-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--index-gap);
-  padding-inline: var(--index-margin);
+  width: min(100% - 2 * var(--index-margin), var(--index-width));
+  margin-inline: auto;
 }
 
 .index-grid > .span-wide {
   grid-column: span 2;
 }
 
-@media (min-width: 48rem) {
+@media (min-width: 32rem) {
   .index-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }

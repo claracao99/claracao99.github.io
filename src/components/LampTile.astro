@@ -1,0 +1,23 @@
+---
+/**
+ * The lamp (Lamp.astro) at its usual size, in the lower right corner of a
+ * square tile on Figure grey, the same size as the cards beside it: the
+ * index's last tile.
+ * Pulling its cord switches the theme.
+ */
+import Lamp from './Lamp.astro';
+---
+
+<div class="lamp-tile">
+  <Lamp />
+</div>
+
+<style>
+  .lamp-tile {
+    position: relative;
+    aspect-ratio: var(--tile-ratio);
+    min-width: 0;
+    border-radius: var(--radius-card);
+    background: var(--figure);
+  }
+</style>

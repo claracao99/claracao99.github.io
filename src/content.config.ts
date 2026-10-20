@@ -11,7 +11,7 @@ import type { SchemaContext } from 'astro:content';
  * a loop, with `src` as its poster: required alongside it, because the poster
  * is what reduced-motion visitors see. On a case page, `size: large` spans
  * two tiles at the image's own ratio (16:9 for a placeholder); `small` is
- * one 4:5 tile.
+ * one square tile.
  */
 const mediaItem = ({ image }: SchemaContext) =>
   z.object({
