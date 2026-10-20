@@ -33,7 +33,11 @@ import { SITE } from '../consts';
     font-size: var(--text-small);
     line-height: var(--leading-small);
     letter-spacing: var(--tracking-small);
-    text-align: justify;
+  }
+
+  /* Lines run to the tile's edge; pretty wrapping broke them early. */
+  .about p {
+    text-wrap: wrap;
   }
 
   .about:focus-visible {
