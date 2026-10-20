@@ -267,6 +267,15 @@
       var(--blink-delay, 0s) infinite;
   }
 
+  /* The page holds still until it has come in: no scrolling past the cover
+   * while the squares still show. The gutter keeps a classic scrollbar's
+   * width, so nothing shifts when it comes back. Lenis is held too
+   * (SmoothScroll.astro). */
+  html:has(.case-page[data-reveal]) {
+    overflow: hidden;
+    scrollbar-gutter: stable;
+  }
+
   /* The footer and Next Project wait until the page has come in. */
   :is(.footer, .next) {
     transition: opacity var(--duration-reveal) var(--ease-out);
