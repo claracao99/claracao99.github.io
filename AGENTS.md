@@ -70,7 +70,11 @@ infrastructure:
   the backdrop through as a blink. The theme switch is a same-document View
   Transition for the same reason: per-element colour transitions restart
   every frame on an element that sets its own colour inside one inheriting a
-  changing colour (the footer's "Copy" lagged far behind).
+  changing colour (the footer's "Copy" lagged far behind). Its snapshots
+  drop `backdrop-filter`, so glass over content (the cards' title pills)
+  flashed see-through: each card gets its own live layer during the switch
+  (`view-transition-name: match-element`, WorkCard.astro) and its pill eases
+  its own colours.
 - **Palette** from the Figma file: a `--grey-*` ramp plus a semantic layer.
   Dark mode is a ramp override (`:root[data-theme='dark']` in tokens.css),
   switched only by pulling the lamp's cord (Lamp.astro, lib/theme.ts); the

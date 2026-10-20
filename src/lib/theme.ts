@@ -31,7 +31,11 @@ export function setTheme(theme: Theme) {
   if (!calm && document.startViewTransition) {
     root.dataset.themeSwitch = '';
     const vt = document.startViewTransition(() => apply(theme));
-    vt.finished.finally(() => delete root.dataset.themeSwitch);
+    current = vt;
+    // A quick second pull skips this fade; leave the flag to the new one.
+    vt.finished.finally(() => {
+      if (current === vt) delete root.dataset.themeSwitch;
+    });
   } else {
     // Colours ease across for a moment (base.css), unless motion is reduced.
     root.classList.add('theme-switching');
@@ -44,3 +48,4 @@ export function setTheme(theme: Theme) {
 }
 
 let switching: ReturnType<typeof setTimeout>;
+let current: ViewTransition | undefined;
