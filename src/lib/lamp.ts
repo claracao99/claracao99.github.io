@@ -42,7 +42,10 @@ const HIT_RADIUS = SEG * 0.75;
 const HIT_MIN_PX = 14; // the lamp is small on screen: never a smaller target than this
 const PRESS_PULL = 85; // pressing pulls the cord down this far while held
 const PRESS_RATE = 18; // 1/s, how quickly the press pull eases in and out
-const DRAG_THRESHOLD = 8; // past this the pointer takes over from the press pull
+// Past this the pointer takes over from the press pull. Screen px, not frame
+// px: the lamp is drawn at about a tenth of the frame, so 8 frame px was under
+// one screen pixel and a finger's wobble on a tap cancelled the pull.
+const DRAG_THRESHOLD = 10;
 const KEY_PULL_MS = 260; // Enter or Space: a press held this long
 
 const BRUSH_RADIUS = 24; // hovering past the cord nudges it
@@ -338,6 +341,9 @@ export function mountLamp({ stage, cord, spare, onToggle }: Options) {
     const node = hitTest(p) ?? (e.pointerType === 'mouse' ? null : nodes[FREE]);
     if (!node) return;
     clearTimeout(releaseTimer);
+    // A fresh press always clicks, even while the cord is still springing
+    // back from the last one (not yet up past REARM_AT).
+    armed = true;
     downAt = e.timeStamp;
     e.preventDefault();
     stage.setPointerCapture(e.pointerId);
@@ -356,7 +362,7 @@ export function mountLamp({ stage, cord, spare, onToggle }: Options) {
     const p = toFrame(e);
     if (grab.node) {
       grab.tx = p.x; grab.ty = p.y;
-      if (Math.hypot(p.x - grab.sx, p.y - grab.sy) > DRAG_THRESHOLD) grab.pullTarget = 0;
+      if (Math.hypot(p.x - grab.sx, p.y - grab.sy) > DRAG_THRESHOLD / scale) grab.pullTarget = 0;
     } else {
       stage.classList.toggle('can-grab', !!hitTest(p));
       if (last && e.pointerType === 'mouse') {
