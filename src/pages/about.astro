@@ -1,0 +1,32 @@
+---
+/**
+ * About: the case-page shell (TilePage.astro), Clara's photo first, then the
+ * intro in the card. Opened from the About tile on the index.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import TilePage from '../components/TilePage.astro';
+import Media from '../components/Media.astro';
+import { SITE } from '../consts';
+import { tileSizes } from '../lib/media';
+import photo from '../assets/clara.jpg';
+---
+
+<BaseLayout title="About" description={SITE.intro} fit>
+  <TilePage labelledby="about-title" tilesLabel="Clara Cao, photo">
+    <Fragment slot="card">
+      <section class="case__section">
+        <h1 class="case__label" id="about-title">About</h1>
+        <p>{SITE.intro}</p>
+      </section>
+    </Fragment>
+    <div class="case__tile" data-size="small" style="--ratio: 1" slot="cover">
+      <Media
+        src={photo}
+        alt="Clara Cao in a garden of pink azaleas"
+        eager
+        sizes={tileSizes(photo, 1, { wide: true })}
+        widths={[640, 960, 1440]}
+      />
+    </div>
+  </TilePage>
+</BaseLayout>

@@ -7,6 +7,8 @@
  * - The case-study text column carries `data-lenis-prevent`, so wheel events
  *   over it scroll that column, not the page behind it.
  * - Touch scrolling stays native (Lenis default), so iOS keeps its own physics.
+ * - Kept on window.smoothScroll so the index can hold the page still while
+ *   a tile slides to its next spot (index.astro).
  */
 ---
 
@@ -14,6 +16,6 @@
   import Lenis from 'lenis';
 
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    new Lenis({ lerp: 0.13, anchors: true, autoRaf: true });
+    window.smoothScroll = new Lenis({ lerp: 0.13, anchors: true, autoRaf: true });
   }
 </script>

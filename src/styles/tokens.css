@@ -11,6 +11,7 @@
    * Pure neutrals, no tint: white page, cool greys, near-black ink.
    */
   --grey-00: #ffffff; /* page — Paper */
+  --grey-03: #fbfbfb; /* loading squares, lighter than Figure */
   --grey-05: #f7f7f7; /* Figure — pills, empty states, UI-showcase cards */
   --grey-08: #f0f0f0; /* pill hover */
   --grey-15: #e1e1e1; /* Icon */
@@ -36,9 +37,9 @@
   /* Detail text: numbers, years, "Copy". Black at 55% (4.6:1 on white). */
   --ink-detail: rgb(0 0 0 / 0.55);
 
-  /* Index chrome, after yuriroga.com: header and footer pills are solid
-   * Figure (glass, #F0F0F0 at 50% under a 50px blur, is kept for .pill without
-   * --filled). Every pill hovers to solid #F0F0F0. */
+  /* Index chrome, after yuriroga.com: the header pill is glass (#F0F0F0 at
+   * 50% under a 50px blur); footer pills are solid
+   * Figure (.pill--filled). Every pill hovers to solid #F0F0F0. */
   --figure: var(--grey-05);
   --pill-fill: var(--figure);
   --pill-fill-hover: var(--grey-08);
@@ -129,10 +130,9 @@
   /* Side margin mirrors tash.work: 3% of the viewport (their 2rem page padding
    * on a 1.5vw rem), never below 16px. 38px at 1280, 43px at 1440, 58px at 1920. */
   --gutter: max(1rem, 3vw);
-  /* The header's height: margin, pill, margin — two pill rows on phones,
-   * where the wordmark has its own row. Case pages use it to size the media
+  /* The header's height: margin, pill, margin. Case pages use it to size the media
    * panels and pin the text column beneath the nav. */
-  --nav-height: calc(3 * var(--index-margin) + 2 * var(--pill-height));
+  --nav-height: calc(2 * var(--index-margin) + var(--pill-height));
   --page-max: 120rem;
   /* Media wells keep a fixed aspect ratio and scale with their column, like
    * tash.work. Ratios come from the Figma at 1440: 3-up tile 437×360, the
@@ -143,25 +143,27 @@
   --grid-gap: var(--space-5); /* 24 — text columns */
   --media-gap: var(--space-3); /* 12 — between media tiles in a row */
 
-  /* Index grid: 10px gutters and page margin. 4 equal tracks on desktop, 2 on
-   * phones (see .index-grid in base.css). */
+  /* Index grid (see .index-grid in base.css): the square tile is the unit.
+   * It is a fixed size, not fluid: one 280px column on phones (narrower only
+   * if the screen is); two 240px columns from 32rem (512px), the narrowest
+   * window where both fit with their margins. The column is centred; the
+   * margins beside it grow and shrink with the window while the tiles stay
+   * put. 4 tracks on desktop, 2 on phones, so the header and footer pills can
+   * split a tile's width. Index cards and small case tiles share one shape. */
+  --tile-ratio: 1 / 1;
+  --tile-size: 280px; /* phones; keep in step with lib/media.ts */
+  --index-cols: 1;
+  --index-width: calc(var(--index-cols) * var(--tile-size) + (var(--index-cols) - 1) * var(--index-gap));
   --index-gap: 10px;
   --index-margin: 10px;
-  --index-row-gap: var(--space-5); /* 24 between card rows */
   --pill-height: 40px;
   --pill-pad: var(--space-4); /* 16 */
   --footer-space: 150px; /* last card row → footer */
-  /* Header → first card row, as yuriroga.com: 280px down on desktop, under
-   * the 56px header. */
-  --index-lead: 120px;
   /* Footer pills and bottom margin: two rows on phones, one on desktop. */
   --footer-height: calc(2 * var(--pill-height) + var(--index-gap) + var(--index-margin));
-  --caption-height: calc(var(--leading-small) + var(--caption-gap));
-  --caption-gap: var(--space-2); /* card → caption, and within a caption */
 
   --radius-sm: 6px;
   --radius-md: 10px;
-  --radius-sheet: 28px;
   /* Work tiles on the index and case pages: flat 32px, like marco.fyi. */
   --radius-card: 32px;
 
@@ -176,15 +178,24 @@
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  /* Index ↔ case page transition (PageTransition.astro), from yuriroga.com:
-   * the page fades out dropping 15px, then the next fades in rising 30px. */
-  --duration-page-out: 150ms;
-  --duration-page-in: 250ms;
-  --ease-page-out: cubic-bezier(0.4, 0, 1, 1);
-  --ease-page-in: cubic-bezier(0, 0, 0.2, 1);
-  --page-out-shift: 15px;
-  --page-in-shift: 30px;
+  /* Index ↔ case page transition (PageTransition.astro): the pages crossfade
+   * in place, both at once, so there is never a blank frame between them. */
+  --duration-page: 300ms;
+  --ease-page: var(--ease-in-out);
   --transition-backdrop: var(--surface);
+  /* Case and About page entrance (TilePage.astro): the window fills with light
+   * grey squares (LoadingSquares.astro) that each fade in and out at their own
+   * random pace, the cover fades in slowly, then the card, then the rest. */
+  --duration-blink: 1600ms; /* one square's fade in and out, ±30% at random */
+  --duration-reveal-wait: 1000ms; /* squares show at least this long */
+  --duration-reveal-cover: 700ms; /* the cover's fade in */
+  --duration-reveal: 400ms;
+  --reveal-fill: var(--grey-03);
+  /* Opening a page from an index tile: the tile lingers in an outline while
+   * the rest of the index fades to the same loading squares, then the outline
+   * grows into the next page's big cover square as the tile fades. */
+  --duration-leave: 600ms;
+  --duration-grow: 600ms; /* the outline growing into the big square */
 
   /* Cursor.astro, after templo.co.uk: white under exclusion blending, so it
    * shows as black on the white page. One size everywhere. */
@@ -196,20 +207,14 @@
   --cursor-frame-line: var(--grey-60);
   --duration-cursor-frame: 200ms;
 
-  /* Marquee.astro: space between the text and its looping copy, and how far
-   * the edges fade while it scrolls. */
-  --marquee-gap: 2.5em;
-  --marquee-fade: 1.5em;
-
   --z-nav: 100;
   --z-overlay: 200;
   --z-cursor: 300;
   --z-cursor-frame: 250; /* over the page and header, under the dot */
-  --z-lamp: 150; /* over the page and header, under overlays */
 }
 
 /* ── Lamp and dark mode ──────────────────────────────────────────────────────
- * The lamp (Lamp.astro), floating in the corner, is the theme switch: the
+ * The lamp (Lamp.astro), in a tile on the index, is the theme switch: the
  * page opens light with the lamp off; pulling its cord turns it on, and it
  * glows as the page goes dark. Light is the default whatever the system says
  * (lib/theme.ts). Dark swaps the ramp, so the semantic tokens follow.
@@ -220,8 +225,7 @@
   --lamp-glow: rgb(254 210 5 / 0.35); /* light under the shade */
   --lamp-lit: 0; /* off */
   --lamp-cord: #1b5de1;
-  --lamp-size: 80px; /* fixed in the bottom-right corner, over the page */
-  --lamp-inset: 24px; /* from the screen's right and bottom edges to the lamp itself */
+  --lamp-size: 80px;
   --duration-theme: 500ms;
 }
 
@@ -247,16 +251,21 @@
   --lamp-cord: #6f97ff;
 }
 
+/* Two tiles to a row as soon as they fit, before the pills shrink. Keep 32rem
+ * in step with base.css, index.astro, DeviceVideo and lib/media.ts. */
+@media (min-width: 32rem) {
+  :root {
+    --footer-space: 230px;
+    --index-cols: 2; /* two tiles to a row: the desktop grid */
+    --tile-size: 240px; /* keep in step with lib/media.ts */
+    --footer-height: calc(var(--pill-height) + var(--index-margin));
+  }
+}
+
 @media (min-width: 48rem) {
   :root {
-    --index-row-gap: var(--space-6); /* 32 */
     --pill-height: 36px;
     --pill-pad: 1.25rem; /* 20 */
-    --footer-space: 230px;
-    --index-lead: 224px;
-    --footer-height: calc(var(--pill-height) + var(--index-margin));
-    --caption-gap: 10px;
-    --nav-height: calc(2 * var(--index-margin) + var(--pill-height));
   }
 }
 

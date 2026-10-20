@@ -10,8 +10,8 @@ export default defineConfig({
   site: 'https://claracao.work',
   integrations: [mdx(), sitemap()],
   build: { format: 'directory' },
-  // Routes from the previous structure. Work now lives on the landing page and
-  // contact details in the About panel, so old links still land.
+  // Routes from the previous structure. Work now lives on the landing page, so
+  // old links still land.
   redirects: {
     '/work/': '/',
   },

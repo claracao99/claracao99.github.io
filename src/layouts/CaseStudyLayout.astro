@@ -1,27 +1,23 @@
 ---
 /**
- * Case study page, after yuriroga.com/work/*, on the index grid:
+ * Case study page, after yuriroga.com/work/*, on the index grid (TilePage):
+ * one column, two tiles wide on desktop and one on phones.
  *
- *   left half  — a Back pill (label left, arrow right, links to the index),
- *                then a Figure card: Information (project, client, year),
- *                Description (summary and the MDX body). Sticky under the
- *                header on desktop.
- *   right half — the work as tiles. First the index card's own tile (the
- *                cover photo, or the phone video), so the page opens on what
- *                was clicked; then `small` media as 4:5 tiles and `large`
- *                spanning two at its own ratio.
+ *   first  — the index card's own picture (the cover photo, or the phone
+ *            video), square, so the page opens on what was clicked.
+ *   then   — a Figure card, as tall as its text: Information (project,
+ *            client, year), Description (summary and the MDX body).
+ *   then   — the frontmatter `media`: `small` as square tiles, `large` at
+ *            its own ratio.
  *
  * The project row carries the project name (the title before its colon) as
- * the page's h1.
- *
- * It starts as far down as the index's first row. Media without an image is
- * a placeholder tile, and an entry with no media gets a default set, so every
- * page reads as a full grid until the exports exist. On phones Back sits in
- * the header row beside About, then it stacks: card, then the tiles two across.
+ * the page's h1. Media without an image is a placeholder tile, and an entry
+ * with no media gets a default set, so every page reads as a full page
+ * until the exports exist.
  */
 import Media from '../components/Media.astro';
+import TilePage from '../components/TilePage.astro';
 import DeviceVideo from '../components/DeviceVideo.astro';
-import TriangleWest from '../icons/triangle-west.svg';
 import { projectName, type WorkEntry } from '../lib/work';
 import { tileSizes } from '../lib/media';
 
@@ -44,11 +40,8 @@ const placeholders: Item[] = [
 const tiles: Item[] = entry.data.media ?? placeholders;
 
 const ratio = (item: Item) =>
-  item.size === 'large' ? (item.src ? item.src.width / item.src.height : 16 / 9) : 4 / 5;
-const sizes = (item: Item) =>
-  item.size === 'large'
-    ? tileSizes(item.src, { phone: [100, ratio(item)], desktop: [50, ratio(item)] })
-    : tileSizes(item.src, { phone: [50, 4 / 5], desktop: [25, 4 / 5] });
+  item.size === 'large' ? (item.src ? item.src.width / item.src.height : 16 / 9) : 1;
+const sizes = (item: Item) => tileSizes(item.src, ratio(item), { wide: true });
 
 const info = [
   ['Client', client],
@@ -56,58 +49,48 @@ const info = [
 ].filter((row): row is [string, string] => Boolean(row[1]));
 ---
 
-<div class="index-grid case-page">
-  <aside class="case" aria-labelledby="case-title">
-    <a class="pill pill--filled case__back" href="/">
-      Back
-      <TriangleWest aria-hidden="true" data-direction="west" />
-    </a>
-
-    <article class="case__card" data-lenis-prevent>
-      {draft && <p class="case__draft">Draft, visible in development only</p>}
-      <section class="case__section">
-        <h2 class="case__label">Information</h2>
-        <dl class="case__details">
-          <div>
-            <dt>Project:</dt>
-            <dd><h1 id="case-title">{name}</h1></dd>
-          </div>
-          {
-            info.map(([term, value]) => (
-              <div>
-                <dt>{term}:</dt>
-                <dd>{value}</dd>
-              </div>
-            ))
-          }
-        </dl>
-      </section>
-      <section class="case__section">
-        <h2 class="case__label">Description</h2>
-        <p>{summary}</p>
-        <div class="case__body">
-          <slot />
+<TilePage labelledby="case-title" tilesLabel={`${name}, images`}>
+  <Fragment slot="card">
+    {draft && <p class="case__draft">Draft, visible in development only</p>}
+    <section class="case__section">
+      <h2 class="case__label">Information</h2>
+      <dl class="case__details">
+        <div>
+          <dt>Project:</dt>
+          <dd><h1 id="case-title">{name}</h1></dd>
         </div>
-      </section>
-    </article>
-  </aside>
-
-  <div class="case__tiles" role="group" aria-label={`${name}, images`}>
-    <div class="case__tile" data-size="small" style="--ratio: 0.8">
-      {
-        cover.video && cover.src ? (
-          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} eager stage={stage} />
-        ) : (
-          <Media {...cover} eager sizes={sizes({ ...cover, size: 'small' })} widths={[640, 960, 1440, 1920, 2000]} />
-        )
-      }
-    </div>
+        {
+          info.map(([term, value]) => (
+            <div>
+              <dt>{term}:</dt>
+              <dd>{value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+    <section class="case__section">
+      <h2 class="case__label">Description</h2>
+      <p>{summary}</p>
+      <div class="case__body">
+        <slot />
+      </div>
+    </section>
+  </Fragment>
+  <div class="case__tile" data-size="small" style="--ratio: 1" slot="cover">
     {
-      tiles.map((item) => (
-        <div class="case__tile" data-size={item.size} style={`--ratio: ${ratio(item)}`}>
-          <Media {...item} sizes={sizes(item)} widths={[640, 960, 1440, 1920, 2000]} />
-        </div>
-      ))
+      cover.video && cover.src ? (
+        <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} eager wide stage={stage} />
+      ) : (
+        <Media {...cover} eager sizes={sizes({ ...cover, size: 'small' })} widths={[640, 960, 1440, 1920, 2000]} />
+      )
     }
   </div>
-</div>
+  {
+    tiles.map((item) => (
+      <div class="case__tile" data-size={item.size} style={`--ratio: ${ratio(item)}`}>
+        <Media {...item} sizes={sizes(item)} widths={[640, 960, 1440, 1920, 2000]} />
+      </div>
+    ))
+  }
+</TilePage>

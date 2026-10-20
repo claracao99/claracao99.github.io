@@ -1,13 +1,14 @@
 ---
 /**
- * Index ↔ case-study page transition, after yuriroga.com: the header stays
- * put while the page under it fades out and drops a little (150ms), then the
- * next page fades in as it rises into place (250ms).
+ * Index ↔ case-study page transition: the header stays put while the pages
+ * under it crossfade in place, both at once, so there is no blank frame
+ * between them. Leaving from an index tile, both sides show the same loading
+ * squares and the tile's outline, so the swap itself is all but invisible.
  *
  * Native cross-document View Transitions, no library: pages still load in
  * full, so Lenis is untouched. Browsers without support, and
- * prefers-reduced-motion, get a plain load. Only index ↔ case and case →
- * case navigations animate; the rest are skipped.
+ * prefers-reduced-motion, get a plain load. Only index ↔ case (About counts
+ * as a case) and case → case navigations animate; the rest are skipped.
  *
  * Rendered inside <head>: the pagereveal listener has to exist before the
  * new page's first frame.
@@ -25,13 +26,13 @@
         return null;
       }
       if (path === '/') return 'work';
-      if (/^\/work\/[^/]+$/.test(path)) return 'case';
+      if (/^\/work\/[^/]+$/.test(path) || path === '/about') return 'case';
       return null;
     };
 
     // The header's transition name is only set while a transition runs: a
-    // named element is a backdrop root, which would stop the About panel's
-    // glass from blurring the work behind it. Leaving page: set before the
+    // named element is a backdrop root, which would stop backdrop-filter glass
+    // from blurring the work behind it. Leaving page: set before the
     // snapshot; cleared if the page comes back from the bfcache.
     const root = document.documentElement;
     window.addEventListener('pageswap', (e) => {
@@ -76,16 +77,26 @@
     background: var(--transition-backdrop);
   }
 
+  /* Added together, not laid one over the other: the two opacities always sum
+   * to 1, so whatever is the same on both pages (the squares, the outline handed
+   * over in place) holds perfectly still. Laid over each other, both at 50%
+   * cover only 75%, and the backdrop shows through as a blink. The UA's own
+   * crossfade does the same, but setting `animation` drops it. */
+  ::view-transition-image-pair(root) {
+    isolation: isolate;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    mix-blend-mode: plus-lighter;
+  }
+
   ::view-transition-old(root) {
-    animation:
-      vt-fade-out var(--duration-page-out) linear both,
-      vt-drop var(--duration-page-out) var(--ease-page-out) both;
+    animation: vt-fade-out var(--duration-page) var(--ease-page) both;
   }
 
   ::view-transition-new(root) {
-    animation:
-      vt-fade-in var(--duration-page-in) linear var(--duration-page-out) both,
-      vt-rise var(--duration-page-in) var(--ease-page-in) var(--duration-page-out) both;
+    animation: vt-fade-in var(--duration-page) var(--ease-page) both;
   }
 
   @keyframes vt-fade-out {
@@ -94,21 +105,9 @@
     }
   }
 
-  @keyframes vt-drop {
-    to {
-      translate: 0 var(--page-out-shift);
-    }
-  }
-
   @keyframes vt-fade-in {
     from {
       opacity: 0;
-    }
-  }
-
-  @keyframes vt-rise {
-    from {
-      translate: 0 var(--page-in-shift);
     }
   }
 </style>

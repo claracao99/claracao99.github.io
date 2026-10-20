@@ -1,13 +1,16 @@
 ---
 /**
  * The index (01 Index, Figma 487:792 / 493:825): the work as very round
- * cards, four to a row on desktop and two on phones, ordered by the entries'
- * `order`. The cards start a fixed distance down and stay 4:5 at every size,
- * like yuriroga.com; the page scrolls when they don't fit one screen. The
- * intro lives in the About panel (Nav.astro).
+ * square cards of one fixed size, two to a row from 32rem and one on narrower
+ * phones, ordered by the entries' `order`. The intro takes the first square
+ * (About.astro) and the lamp the last (LampTile.astro). The footer sits on
+ * the bottom edge.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WorkCard from '../components/WorkCard.astro';
+import About from '../components/About.astro';
+import LampTile from '../components/LampTile.astro';
+import LoadingSquares from '../components/LoadingSquares.astro';
 import { getPublishedWork } from '../lib/work';
 
 // Drafts keep their pages in dev but stay off the grid.
@@ -18,14 +21,115 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
   <h1 class="visually-hidden">Clara Cao, product designer: selected work</h1>
 
   <section class="index-grid cards" id="work" aria-label="Work">
+    <About />
     {work.map((entry, i) => <WorkCard entry={entry} eager={i === 0} />)}
+    <LampTile />
   </section>
+
+  <LoadingSquares />
+  <div class="tile-outline" aria-hidden="true"></div>
 </BaseLayout>
 
 <style>
+  /* No captions under the cards: rows sit one gutter apart, like columns.
+   * One tile to a row on phones, two from 32rem (tokens.css). */
   .cards {
-    row-gap: var(--index-row-gap);
-    /* Measured from under the header (main clears it). */
-    padding-top: var(--index-lead);
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--index-gap);
+  }
+
+  @media (min-width: 32rem) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 </style>
+
+<script>
+  // Opening a page from a tile (a project card or About): an outline, like
+  // the cursor's frame (Cursor.astro), wraps the tile, which lingers while
+  // the rest of the index fades to the loading squares the next page opens on
+  // (LoadingSquares.astro, case.css). Then the outline grows into the big
+  // square the next page's cover fills, as the tile fades, and the page goes.
+  // The next page opens with the outline in place (TilePage.astro), and the
+  // squares carry on where these are. The page holds still meanwhile.
+  // Modified clicks and reduced motion open as usual.
+  const root = document.documentElement;
+  const chosen: HTMLElement[] = [];
+  const css = (name: string) => parseFloat(getComputedStyle(root).getPropertyValue(name)) || 0;
+  const wait = (t: number) => new Promise((r) => setTimeout(r, t));
+  const store = (value: string | null) => {
+    try {
+      if (value === null) sessionStorage.removeItem('tile-handoff');
+      else sessionStorage.setItem('tile-handoff', value);
+    } catch {} // storage blocked: the next page opens without the outline, squares afresh
+  };
+
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const links = document.querySelectorAll<HTMLAnchorElement>('a.work-card__inner[href^="/work/"], a.about');
+    for (const link of links) {
+      link.addEventListener('click', async (e) => {
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        if ('leaving' in root.dataset) return;
+
+        const tile = link.closest<HTMLElement>('.work-card') ?? link;
+        const outline = document.querySelector<HTMLElement>('.tile-outline');
+        const grid = document.querySelector<HTMLElement>('.cards');
+        window.smoothScroll?.stop();
+        tile.classList.add('is-chosen');
+        chosen.push(tile);
+
+        // Each square's pace and place in its cycle, passed on so the next
+        // page's squares carry on where these are rather than starting over.
+        const blink = css('--duration-blink') || 1600;
+        const blinks = [...document.querySelectorAll<HTMLElement>('.loading-squares > *')].map((el) => {
+          const pace = blink * (0.7 + Math.random() * 0.6);
+          const delay = -Math.random() * pace;
+          el.style.setProperty('--blink-duration', `${pace}ms`);
+          el.style.setProperty('--blink-delay', `${delay}ms`);
+          return [pace, delay];
+        });
+        store(JSON.stringify({ path: link.pathname, outline: !!outline, squares: { at: Date.now(), blink: blinks } }));
+
+        // One gap outside a box, its corners grown by the same.
+        const gap = css('--cursor-frame-gap');
+        const radius = css('--radius-card') + gap;
+        const around = (r: { left: number; top: number; width: number; height: number }) => ({
+          left: `${r.left - gap}px`,
+          top: `${r.top - gap}px`,
+          width: `${r.width + 2 * gap}px`,
+          height: `${r.height + 2 * gap}px`,
+          borderRadius: `${radius}px`,
+        });
+        const from = around(tile.getBoundingClientRect());
+        if (outline) Object.assign(outline.style, from);
+
+        root.dataset.leaving = '';
+        await wait(css('--duration-leave') || 600);
+        tile.classList.add('is-gone');
+        if (outline && grid) {
+          // The big square: the grid's full width, at its top on the next
+          // page, which opens scrolled to the top.
+          const g = grid.getBoundingClientRect();
+          const to = around({ left: g.left, top: g.top + window.scrollY, width: g.width, height: g.width });
+          const easing = getComputedStyle(root).getPropertyValue('--ease-in-out').trim() || 'ease-in-out';
+          await outline.animate([from, to], { duration: css('--duration-grow') || 600, easing, fill: 'forwards' }).finished;
+        } else {
+          await wait(css('--duration-reveal') || 400);
+        }
+        location.assign(link.href);
+      });
+    }
+  }
+
+  // Back out of the bfcache: put the index back as it was.
+  window.addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    delete root.dataset.leaving;
+    window.smoothScroll?.start();
+    chosen.splice(0).forEach((el) => el.classList.remove('is-chosen', 'is-gone'));
+    document.querySelector('.tile-outline')?.getAnimations().forEach((a) => a.cancel());
+    store(null);
+  });
+</script>

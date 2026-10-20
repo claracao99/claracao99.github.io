@@ -378,6 +378,13 @@ export function mountLamp({ stage, cord, spare, onToggle }: Options) {
   wake();
 
   return {
+    /** Sets the hanging cord swaying sideways, `vx` in frame px/s, strongest
+     * at the bottom: the idle wiggle (Lamp.astro). Never moves the switch. */
+    nudge(vx: number) {
+      if (grab.node) return;
+      for (let i = 1; i < nodes.length; i++) nodes[i].vx += (vx * i) / (nodes.length - 1);
+      wake();
+    },
     /** A press held briefly on the bottom character, for the keyboard. */
     pull() {
       if (grab.node) return;

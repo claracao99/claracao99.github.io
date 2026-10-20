@@ -1,18 +1,20 @@
 ---
 /**
- * One project on the index (01 Index): a very round card, then its title.
- * Every card is one track of the index grid, 4:5 at every width, after
- * yuriroga.com. A cover photo shows full bleed; a cover video shows the
- * prototype in a phone on Figure grey, looping on its own (DeviceVideo). The case page opens on this same tile.
+ * One project on the index (01 Index): a very round card, one track of the
+ * index grid, square (--tile-ratio) at every width, after yuriroga.com. A
+ * cover photo shows full bleed; a cover video shows the prototype in a phone
+ * on Figure grey, looping on its own (DeviceVideo). The case page opens on
+ * this same tile, which slides there along the grid (index.astro).
  *
  * Cards link to their case page (or out to externalUrl); on hover the cursor
- * frames the card (Cursor.astro). Pieces with `caseStudy:
- * false` have no page and no link. A title too long for its card scrolls (Marquee).
+ * frames the card (Cursor.astro) and a glass pill with the short title
+ * (projectName) fades in at its centre. Touch screens can't hover, so
+ * there the pill always shows. The full title stays for screen readers.
+ * Pieces with `caseStudy: false` have no page and no link.
  */
 import Media from './Media.astro';
-import Marquee from './Marquee.astro';
 import DeviceVideo from './DeviceVideo.astro';
-import { caseStudyPath, type WorkEntry } from '../lib/work';
+import { caseStudyPath, projectName, type WorkEntry } from '../lib/work';
 import { tileSizes } from '../lib/media';
 
 interface Props {
@@ -21,9 +23,9 @@ interface Props {
 }
 
 const { entry, eager = false } = Astro.props;
-const { title, cover, caseStudy, externalUrl, stage, stageMobile } = entry.data;
+const { title, cover, caseStudy, externalUrl, stage } = entry.data;
 const href = externalUrl ?? (caseStudy ? caseStudyPath(entry) : undefined);
-const sizes = tileSizes(cover.src, { phone: [50, 4 / 5], desktop: [25, 4 / 5] });
+const sizes = tileSizes(cover.src);
 const Tag = href ? 'a' : 'div';
 const linkProps = href
   ? { href, ...(externalUrl ? { target: '_blank', rel: 'noopener noreferrer' } : {}) }
@@ -38,23 +40,20 @@ const linkProps = href
     >
       {
         cover.video && cover.src ? (
-          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} eager={eager} stage={stage} stageMobile={stageMobile} />
+          <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} eager={eager} stage={stage} />
         ) : (
           <Media {...cover} eager={eager} sizes={sizes} widths={[640, 960, 1440, 1920, 2000]} />
         )
       }
+      <span class="pill work-card__pill" aria-hidden="true">{projectName(entry)}</span>
     </div>
-    <p class="work-card__caption">
-      <span class="work-card__title">
-        <Marquee text={title} />
-      </span>
-    </p>
+    <span class="visually-hidden">{title}</span>
   </Tag>
 </article>
 
 <style>
-  /* 4:5 at every width, as yuriroga.com: the card's width comes from its
-   * track (2 on phones, 4 on desktop) and its height follows, so the shape
+  /* Square at every width (--tile-ratio): the card's width comes from its
+   * track and its height follows, so the shape
    * never changes with the screen. Radius is a flat 32px at every size,
    * matching marco.fyi's tiles. */
   .work-card {
@@ -63,16 +62,14 @@ const linkProps = href
   }
 
   .work-card__inner {
-    display: flex;
-    flex-direction: column;
-    gap: var(--caption-gap);
+    display: block;
     color: var(--ink);
     text-decoration: none;
   }
 
   .work-card__media {
     position: relative;
-    aspect-ratio: 4 / 5;
+    aspect-ratio: var(--tile-ratio);
     overflow: hidden;
     border-radius: var(--card-radius);
     background: var(--figure);
@@ -98,24 +95,37 @@ const linkProps = href
     outline-offset: 2px;
   }
 
-  .work-card__caption {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-2);
-    padding-inline: var(--pill-pad);
-    font-size: var(--text-small);
-    line-height: var(--leading-small);
-    letter-spacing: var(--tracking-small);
+  /* The short title, on glass, centred on the card. */
+  .work-card__pill {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    translate: -50% -50%;
+    z-index: 1;
+    max-width: calc(100% - 2 * var(--index-gap));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
   }
 
-  .work-card__title {
-    flex: 1 1 0;
-    min-width: 0;
+  @media (hover: hover) {
+    .work-card__pill {
+      opacity: 0;
+      transform: translateY(4px);
+      transition:
+        opacity var(--duration-base) var(--ease-out),
+        transform var(--duration-base) var(--ease-out);
+    }
+    .work-card__inner:hover .work-card__pill,
+    .work-card__inner:focus-visible .work-card__pill {
+      opacity: 1;
+      transform: none;
+    }
   }
 
-  @media (min-width: 48rem) {
-    .work-card__caption {
-      gap: var(--space-3);
+  @media (hover: hover) and (prefers-reduced-motion: reduce) {
+    .work-card__pill {
+      transform: none;
     }
   }
 </style>

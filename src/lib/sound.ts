@@ -30,27 +30,16 @@ type Layer = (Tone | { noise: Noise }) & {
   delay?: number;
 };
 
-// D major: D5 587.33, A5 880.
+// D major: D5 587.33.
 const D5 = 587.33;
-const A5 = 880;
 
 export const SOUNDS = {
-  /** Every link and button except About, including the email copying: a
-   * soft, deep felt tap. */
+  /** Pulling the lamp's cord (Lamp.astro): a soft, deep felt tap. Links and
+   * buttons are silent. */
   tap: [
     { noise: { filter: 'lowpass', freq: 1200, q: 0.7 }, decay: 0.014, gain: 0.35 },
     { type: 'sine', freq: [D5 / 2, 230], attack: 0.002, decay: 0.07, gain: 0.55 },
     { type: 'sine', freq: [D5, 520], attack: 0.002, decay: 0.035, gain: 0.18, delay: 0.004 },
-  ],
-  /** About opening: two glass notes stepping up a fifth. */
-  open: [
-    { type: 'sine', freq: D5, fm: [3, 6], attack: 0.003, decay: 0.09, gain: 0.32 },
-    { type: 'sine', freq: A5, fm: [3, 6], attack: 0.003, decay: 0.14, gain: 0.28, delay: 0.055 },
-  ],
-  /** About closing: the same two notes, stepping back down. */
-  close: [
-    { type: 'sine', freq: A5, fm: [3, 6], attack: 0.003, decay: 0.07, gain: 0.26 },
-    { type: 'sine', freq: D5, fm: [3, 6], attack: 0.003, decay: 0.1, gain: 0.24, delay: 0.05 },
   ],
 } satisfies Record<string, Layer[]>;
 

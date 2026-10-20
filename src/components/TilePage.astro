@@ -1,0 +1,122 @@
+---
+/**
+ * The page shell shared by case studies (CaseStudyLayout.astro) and About
+ * (pages/about.astro): one column the width of the index grid (two tiles on
+ * desktop, one on phones). First the cover (slot "cover", a .case__tile),
+ * then a Figure card as tall as its text (slot "card"), then the other tiles
+ * (default slot, each a .case__tile). Starts one gutter under the header,
+ * whose pill is the way back (Nav.astro).
+ *
+ * It opens on the loading screen and its entrance (case.css, Entrance):
+ * squares, then the cover, then the card, then the other tiles. Opened from
+ * an index tile, the outline that grew out of it waits where the cover goes,
+ * and the cover fills it.
+ */
+import LoadingSquares from './LoadingSquares.astro';
+
+interface Props {
+  /** id of the card's h1. */
+  labelledby: string;
+  /** Accessible name of the tile group. */
+  tilesLabel: string;
+}
+
+const { labelledby, tilesLabel } = Astro.props;
+---
+
+<div class="index-grid case-page">
+  <script is:inline>
+    // Before first paint, and before the cover is parsed: the window starts
+    // as squares (case.css, Entrance), and, opened from an index tile
+    // (index.astro), the outline that grew out of it is already where the
+    // cover goes. Failsafe: if the entrance script never starts, show the
+    // page anyway.
+    (() => {
+      let handoff = null;
+      try {
+        handoff = JSON.parse(sessionStorage.getItem('tile-handoff') || 'null');
+      } catch {}
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const page = document.currentScript.parentElement;
+      page.dataset.reveal = '';
+      if (handoff && handoff.path === location.pathname) {
+        page.dataset.handoff = '';
+        if (handoff.outline) page.dataset.outline = '';
+      }
+      setTimeout(() => 'revealing' in page.dataset || delete page.dataset.reveal, 4000);
+    })();
+  </script>
+  <div class="case__cover">
+    <slot name="cover" />
+    <div class="case__outline" aria-hidden="true"></div>
+  </div>
+
+  <aside class="case" aria-labelledby={labelledby}>
+    <article class="case__card">
+      <slot name="card" />
+    </article>
+  </aside>
+
+  <div class="case__tiles" role="group" aria-label={tilesLabel}>
+    <slot />
+  </div>
+  <LoadingSquares />
+  <script is:inline>
+    // Before first paint too: give each square its own random place and pace
+    // in the fade cycle (case.css, Entrance). Opened from an index tile
+    // (index.astro), whose squares were already showing, each carries on
+    // where it was there.
+    (() => {
+      const page = document.currentScript.parentElement;
+      let handoff = null;
+      try {
+        handoff = JSON.parse(sessionStorage.getItem('tile-handoff') || 'null');
+        sessionStorage.removeItem('tile-handoff');
+      } catch {}
+      if (!('reveal' in page.dataset)) return;
+      const carried = 'handoff' in page.dataset ? handoff?.squares : null;
+      const elapsed = carried ? Date.now() - carried.at : 0;
+      const base = parseFloat(getComputedStyle(page).getPropertyValue('--duration-blink')) || 1600;
+      page.querySelectorAll('.loading-squares > *').forEach((el, i) => {
+        const [pace, delay] = carried?.blink[i] ?? [base * (0.7 + Math.random() * 0.6), NaN];
+        el.style.setProperty('--blink-duration', `${pace}ms`);
+        el.style.setProperty('--blink-delay', `${Number.isNaN(delay) ? -Math.random() * pace : delay - elapsed}ms`);
+      });
+    })();
+  </script>
+</div>
+
+<script>
+  // The entrance (case.css): once the cover has loaded (or 3s have passed),
+  // and the squares have shown for a moment even if it was cached, the cover
+  // fades in; then the card; then the other tiles.
+  const page = document.querySelector<HTMLElement>('.case-page[data-reveal]');
+  if (page) reveal(page);
+
+  async function reveal(page: HTMLElement) {
+    const ms = (name: string) => parseFloat(getComputedStyle(page).getPropertyValue(name)) || 0;
+    const wait = (t: number) => new Promise((r) => setTimeout(r, t));
+    const cover = page.querySelector<HTMLElement>('.case__cover > .case__tile');
+    const card = page.querySelector<HTMLElement>('.case__card');
+    const rest = page.querySelectorAll<HTMLElement>('.case__tiles > .case__tile');
+    if (!cover || !card) return page.removeAttribute('data-reveal');
+    page.dataset.revealing = '';
+
+    // The squares show a moment first; less when handed over from the index,
+    // whose squares were already showing.
+    const pause = wait('handoff' in page.dataset ? ms('--duration-page') : ms('--duration-reveal-wait'));
+    const images = Promise.all([...cover.querySelectorAll('img')].map((img) => img.decode().catch(() => {})));
+    await Promise.all([pause, Promise.race([images, wait(3000)])]);
+
+    cover.classList.add('is-in');
+    await wait(ms('--duration-reveal-cover'));
+    card.classList.add('is-in');
+    await wait(ms('--duration-reveal'));
+    rest.forEach((tile) => tile.classList.add('is-in'));
+    await wait(ms('--duration-reveal'));
+    page.removeAttribute('data-reveal');
+    page.removeAttribute('data-revealing');
+    page.removeAttribute('data-handoff');
+    page.removeAttribute('data-outline');
+  }
+</script>

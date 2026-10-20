@@ -1,0 +1,63 @@
+---
+/**
+ * The intro, titled About, as the index's first tile: a square on Figure grey,
+ * the same size as the project cards beside it, after yuriroga.com's About.
+ * Longer text makes it two squares tall, or three (lib/snap.ts), spanning
+ * that many rows. It opens the About page (pages/about.astro), framed by the
+ * cursor on hover like the project cards. Contact lives in the footer.
+ */
+import { SITE } from '../consts';
+---
+
+<a class="about" href="/about/" data-cursor-frame data-lenis-prevent>
+  <h2 class="about__label">About</h2>
+  <p>{SITE.intro}</p>
+</a>
+
+<style>
+  .about {
+    display: block;
+    color: var(--ink);
+    text-decoration: none;
+    grid-row: span var(--snap-rows, 1);
+    /* Width from the column, like the cards, never from the snapped height:
+     * that would keep it at its old size when the window resizes. */
+    width: 100%;
+    aspect-ratio: var(--tile-ratio);
+    height: var(--snap-height, auto);
+    min-width: 0;
+    overflow-y: auto;
+    padding: var(--space-4) var(--pill-pad);
+    border-radius: var(--radius-card); /* both match the case card's */
+    background: var(--figure);
+    font-size: var(--text-small);
+    line-height: var(--leading-small);
+    letter-spacing: var(--tracking-small);
+  }
+
+  .about:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* A hairline under the title, the text close beneath it. */
+  .about__label {
+    margin-bottom: var(--space-2);
+    padding-bottom: var(--space-2);
+    border-bottom: var(--rule-width) solid var(--rule);
+    color: var(--ink-detail);
+    font-size: inherit;
+    font-weight: var(--weight-normal);
+    line-height: inherit;
+    text-transform: uppercase;
+  }
+</style>
+
+<script>
+  import { snapToSquares } from '../lib/snap';
+
+  // A square is one project card's width (the About tile is one too).
+  for (const about of document.querySelectorAll<HTMLElement>('.about')) {
+    snapToSquares(about, { square: () => about.getBoundingClientRect().width });
+  }
+</script>

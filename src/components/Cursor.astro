@@ -13,7 +13,8 @@
  * Mouse and trackpad only (fine pointer that can hover), at any window
  * width; touch screens keep the system cursor. The
  * dot stays hidden until the first move and while the pointer is outside
- * the window.
+ * the window, except that it carries over from the page before: a link
+ * followed without moving the mouse leaves it where it was.
  */
 ---
 
@@ -75,6 +76,12 @@
 
     .cursor-frame[data-visible] {
       opacity: 1;
+    }
+
+    /* Leaving the index from a tile (index.astro): the tile's own outline
+     * takes over from the frame, in the same place. */
+    :global(html[data-leaving]) .cursor-frame[data-visible] {
+      opacity: 0;
     }
   }
 </style>
@@ -138,6 +145,23 @@
       atPointer();
       frame.removeAttribute('data-visible');
     };
+
+    // Where the pointer was on the page before, if it was only just left.
+    try {
+      const last = JSON.parse(sessionStorage.getItem('cursor') || 'null');
+      if (last && Date.now() - last.at < 5000) {
+        x = last.x;
+        y = last.y;
+        cursor.style.translate = `${x}px ${y}px`;
+        cursor.toggleAttribute('data-visible', true);
+      }
+    } catch {}
+    window.addEventListener('pagehide', () => {
+      if (!cursor.hasAttribute('data-visible')) return;
+      try {
+        sessionStorage.setItem('cursor', JSON.stringify({ x, y, at: Date.now() }));
+      } catch {}
+    });
 
     document.addEventListener('pointermove', (e) => {
       if (e.pointerType !== 'mouse') return;
