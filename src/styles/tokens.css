@@ -144,14 +144,14 @@
   --media-gap: var(--space-3); /* 12 — between media tiles in a row */
 
   /* Index grid (see .index-grid in base.css): the square tile is the unit.
-   * It is a fixed size, not fluid: one 280px column on phones (narrower only
-   * if the screen is); two 240px columns from 32rem (512px), the narrowest
-   * window where both fit with their margins. The column is centred; the
-   * margins beside it grow and shrink with the window while the tiles stay
-   * put. 4 tracks on desktop, 2 on phones, so the header and footer pills can
+   * On phones it is one column the screen's width less its margins, so a
+   * tile fills the phone; from 32rem (512px) it is fixed: two 240px columns,
+   * the narrowest window where both fit with their margins. The column is
+   * centred; the margins beside it grow and shrink with the window while the
+   * tiles stay put. 4 tracks on desktop, 2 on phones, so the header and footer pills can
    * split a tile's width. Index cards and small case tiles share one shape. */
   --tile-ratio: 1 / 1;
-  --tile-size: 280px; /* phones; keep in step with lib/media.ts */
+  --tile-size: calc(100vw - 2 * var(--index-margin)); /* phones; keep in step with lib/media.ts */
   --index-cols: 1;
   --index-width: calc(var(--index-cols) * var(--tile-size) + (var(--index-cols) - 1) * var(--index-gap));
   --index-gap: 10px;

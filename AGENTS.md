@@ -40,9 +40,10 @@ infrastructure:
   No code changes needed. The filename is the
   slug. `draft: true` entries render in `astro dev` but are excluded from
   builds. Frontmatter is documented in README.
-- **Index and case pages are fixed square tiles.** The tile is a fixed size
-  (`--tile-size`: 280px on phones, 240px from 32rem, two to a row), not
-  fluid; only the side space grows. Keep `TILE_PX` in `lib/media.ts` in step.
+- **Index and case pages are square tiles.** On phones a tile is the
+  screen's width less the 10px margins, so it fills the phone; from 32rem it
+  is a fixed 240px, two to a row, and only the side space grows
+  (`--tile-size`). Keep `TILE_PX` in `lib/media.ts` in step.
   The index: About first, the projects, the lamp last (LampTile.astro).
   `/work/<slug>/` and `/about/` share `TilePage.astro`: one column the grid's
   full width, the cover (the index card's own picture), then a Figure card as

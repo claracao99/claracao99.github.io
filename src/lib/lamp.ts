@@ -330,10 +330,15 @@ export function mountLamp({ stage, cord, spare, onToggle }: Options) {
   };
 
   // Pressing pulls the cord down for as long as you hold; letting go springs it back.
+  // A cursor has to find the cord, but a finger is too big for it: a touch
+  // anywhere on the lamp takes the bottom character.
+  let downAt = 0, releaseTimer = 0;
   stage.addEventListener('pointerdown', (e) => {
     const p = toFrame(e);
-    const node = hitTest(p);
+    const node = hitTest(p) ?? (e.pointerType === 'mouse' ? null : nodes[FREE]);
     if (!node) return;
+    clearTimeout(releaseTimer);
+    downAt = e.timeStamp;
     e.preventDefault();
     stage.setPointerCapture(e.pointerId);
     Object.assign(grab, {
@@ -370,7 +375,13 @@ export function mountLamp({ stage, cord, spare, onToggle }: Options) {
     grab.node = null;
     stage.classList.remove('is-grabbing');
   };
-  stage.addEventListener('pointerup', release);
+  // A quick tap is held as long as the keyboard's press, so it still clicks
+  // the switch; a drag lets go at once.
+  stage.addEventListener('pointerup', (e) => {
+    const left = KEY_PULL_MS - (e.timeStamp - downAt);
+    if (e.pointerType === 'mouse' || !grab.node || !grab.pullTarget || left <= 0) return release();
+    releaseTimer = window.setTimeout(release, left);
+  });
   stage.addEventListener('pointercancel', release);
   stage.addEventListener('pointerleave', () => { last = null; });
 
