@@ -65,8 +65,8 @@ const work = defineCollection({
       /** False for visual pieces: no page is built and the card isn't a link. */
       caseStudy: z.boolean().default(true),
       /** The case page's tiles, after the cover. Placeholder tiles stand in
-       * when empty. */
-      media: z.array(mediaItem(ctx)).default([]),
+       * when omitted; `media: []` means the cover alone. */
+      media: z.array(mediaItem(ctx)).optional(),
       /** If set, the card links out here and no case-study page is built. */
       externalUrl: z.url().optional(),
     }),
