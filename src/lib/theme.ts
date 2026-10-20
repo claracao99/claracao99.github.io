@@ -1,6 +1,6 @@
 /**
  * Light and dark, switched by the lamp's cord (Lamp.astro). The page opens
- * light; a pull is kept in localStorage.theme, which BaseLayout reads inline
+ * dark; a pull is kept in localStorage.theme, which BaseLayout reads inline
  * before first paint. The system setting is deliberately not consulted.
  *
  * The switch crossfades the whole page at once (a same-document View

@@ -35,7 +35,7 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
 ---
 
 <!doctype html>
-<html lang={SITE.lang}>
+<html lang={SITE.lang} data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -46,14 +46,14 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <meta name="theme-color" content="#ffffff" />
-    <!-- Theme before first paint: light unless the lamp was last pulled on
-         (lib/theme.ts). The colour is --grey-00 in dark. -->
+    <meta name="theme-color" content="#0b0b0b" />
+    <!-- Theme before first paint: dark unless the lamp was last pulled off
+         (lib/theme.ts). The colour is --grey-00 in dark, white in light. -->
     <script is:inline>
       try {
-        if (localStorage.getItem('theme') === 'dark') {
-          document.documentElement.dataset.theme = 'dark';
-          document.querySelector('meta[name="theme-color"]').content = '#0b0b0b';
+        if (localStorage.getItem('theme') === 'light') {
+          document.documentElement.dataset.theme = 'light';
+          document.querySelector('meta[name="theme-color"]').content = '#ffffff';
         }
       } catch {}
     </script>
