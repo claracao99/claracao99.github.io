@@ -16,7 +16,7 @@ import photo from '../assets/clara.jpg';
     <Fragment slot="card">
       <section class="case__section">
         <h1 class="case__label" id="about-title">About</h1>
-        <p>{SITE.intro}</p>
+        <p class="about-intro">{SITE.intro}</p>
       </section>
     </Fragment>
     <div class="case__tile" data-size="small" style="--ratio: 1" slot="cover">
@@ -30,3 +30,10 @@ import photo from '../assets/clara.jpg';
     </div>
   </TilePage>
 </BaseLayout>
+
+<style>
+  /* Justified, like the About tile on the index. */
+  .about-intro {
+    text-align: justify;
+  }
+</style>
