@@ -17,6 +17,11 @@ html {
   scroll-behavior: smooth;
   /* Anchor jumps and the skip link land below the fixed header. */
   scroll-padding-top: var(--nav-height);
+  /* Always keep the scrollbar's room, scrolling or not: the column is
+   * centred, so a scrollbar coming and going (the index held still on a tile
+   * click, a case page held during its entrance) would nudge it sideways.
+   * No room is taken where scrollbars overlay the page. */
+  scrollbar-gutter: stable;
 }
 
 /* Pulling the lamp's cord (lib/theme.ts): the page crossfades to the other

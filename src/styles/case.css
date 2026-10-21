@@ -268,12 +268,11 @@
   }
 
   /* The page holds still until it has come in: no scrolling past the cover
-   * while the squares still show. The gutter keeps a classic scrollbar's
-   * width, so nothing shifts when it comes back. Lenis is held too
+   * while the squares still show. Nothing shifts when the scrollbar comes
+   * back: html keeps its room throughout (base.css). Lenis is held too
    * (SmoothScroll.astro). */
   html:has(.case-page[data-reveal]) {
     overflow: hidden;
-    scrollbar-gutter: stable;
   }
 
   /* Next Project, and on phones the footer, wait until the page has come
