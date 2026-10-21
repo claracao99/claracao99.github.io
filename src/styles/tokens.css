@@ -34,8 +34,10 @@
   --ink: var(--grey-100);
   --ink-body: var(--grey-90);
   --ink-muted: var(--grey-60);
-  /* Detail text: numbers, years, "Copy". Black at 55% (4.6:1 on white). */
-  --ink-detail: rgb(0 0 0 / 0.55);
+  /* Detail text: numbers, years, "Copy". Black at 55% (4.6:1 on white):
+   * --ink at that strength, in both themes. */
+  --ink-detail-alpha: 0.55;
+  --ink-detail: rgb(0 0 0 / var(--ink-detail-alpha));
 
   /* Index chrome, after yuriroga.com: header and footer pills are glass
    * (#F0F0F0 at 50% under a 50px blur); Next Project is solid Figure
@@ -242,7 +244,7 @@
   --grey-60: #929292; /* muted labels — 6.2:1 on the page */
   --grey-90: #f2f2f2; /* body copy */
   --grey-100: #ffffff; /* titles, nav */
-  --ink-detail: rgb(255 255 255 / 0.55);
+  --ink-detail: rgb(255 255 255 / var(--ink-detail-alpha));
   --pill-glass: rgb(32 32 32 / 0.5);
   --scrim: rgb(0 0 0 / 0.6);
   /* The cursor inverts what is under it, so it stays white. */
