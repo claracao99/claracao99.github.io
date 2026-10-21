@@ -76,7 +76,9 @@ const { labelledby, tilesLabel } = Astro.props;
       if (!('reveal' in page.dataset)) return;
       const carried = 'handoff' in page.dataset ? handoff?.squares : null;
       const elapsed = carried ? Date.now() - carried.at : 0;
-      const base = parseFloat(getComputedStyle(page).getPropertyValue('--duration-blink')) || 1600;
+      // The token in ms, minified or not (lib/css.ts; no imports inline).
+      const token = getComputedStyle(page).getPropertyValue('--duration-blink').trim();
+      const base = (parseFloat(token) || 1.6) * (token.endsWith('ms') ? 1 : 1000);
       page.querySelectorAll('.loading-squares > *').forEach((el, i) => {
         const [pace, delay] = carried?.blink[i] ?? [base * (0.7 + Math.random() * 0.6), NaN];
         el.style.setProperty('--blink-duration', `${pace}ms`);
@@ -87,6 +89,8 @@ const { labelledby, tilesLabel } = Astro.props;
 </div>
 
 <script>
+  import { cssMs } from '../lib/css';
+
   // The entrance (case.css): once the cover has loaded (or 3s have passed),
   // and the squares have shown for a moment even if it was cached, the cover
   // fades in; then the card; then the other tiles.
@@ -94,7 +98,7 @@ const { labelledby, tilesLabel } = Astro.props;
   if (page) reveal(page);
 
   async function reveal(page: HTMLElement) {
-    const ms = (name: string) => parseFloat(getComputedStyle(page).getPropertyValue(name)) || 0;
+    const ms = (name: string) => cssMs(page, name);
     const wait = (t: number) => new Promise((r) => setTimeout(r, t));
     const cover = page.querySelector<HTMLElement>('.case__cover > .case__tile');
     const card = page.querySelector<HTMLElement>('.case__card');

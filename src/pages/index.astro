@@ -46,6 +46,8 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
 </style>
 
 <script>
+  import { cssMs } from '../lib/css';
+
   // Opening a page from a tile (a project card or About): an outline, like
   // the cursor's frame (Cursor.astro), wraps the tile, which lingers while
   // the rest of the index fades to the loading squares the next page opens on
@@ -58,6 +60,7 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
   const root = document.documentElement;
   const chosen: HTMLElement[] = [];
   const css = (name: string) => parseFloat(getComputedStyle(root).getPropertyValue(name)) || 0;
+  const ms = (name: string) => cssMs(root, name);
   const wait = (t: number) => new Promise((r) => setTimeout(r, t));
   const store = (value: string | null) => {
     try {
@@ -88,7 +91,7 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
         // Here the blink has run since the page loaded, and a delay counts
         // from then: offset by that, so each square is at its place now, as
         // the next page's will be, counting from its own load.
-        const blink = css('--duration-blink') || 1600;
+        const blink = ms('--duration-blink') || 1600;
         const blinks = [...document.querySelectorAll<HTMLElement>('.loading-squares > *')].map((el) => {
           const pace = blink * (0.7 + Math.random() * 0.6);
           const place = Math.random() * pace;
@@ -113,7 +116,7 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
         if (outline) Object.assign(outline.style, from);
 
         root.dataset.leaving = '';
-        await wait(css('--duration-leave') || 600);
+        await wait(ms('--duration-leave') || 600);
         tile.classList.add('is-gone');
         if (outline && grid) {
           // The big square: the grid's full width, at its top on the next
@@ -121,9 +124,9 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
           const g = grid.getBoundingClientRect();
           const to = around({ left: g.left, top: g.top + window.scrollY, width: g.width, height: g.width });
           const easing = getComputedStyle(root).getPropertyValue('--ease-in-out').trim() || 'ease-in-out';
-          await outline.animate([from, to], { duration: css('--duration-grow') || 600, easing, fill: 'forwards' }).finished;
+          await outline.animate([from, to], { duration: ms('--duration-grow') || 600, easing, fill: 'forwards' }).finished;
         } else {
-          await wait(css('--duration-reveal') || 400);
+          await wait(ms('--duration-reveal') || 400);
         }
         location.assign(link.href);
       });
