@@ -11,6 +11,8 @@
  * behind. Browsers without View Transitions fall back to that easing.
  */
 
+import { cssMs } from './css';
+
 export type Theme = 'light' | 'dark';
 
 const root = document.documentElement;
@@ -40,7 +42,7 @@ export function setTheme(theme: Theme) {
     // Colours ease across for a moment (base.css), unless motion is reduced.
     root.classList.add('theme-switching');
     apply(theme);
-    const ms = parseFloat(getComputedStyle(root).getPropertyValue('--duration-theme')) || 500;
+    const ms = cssMs(root, '--duration-theme') || 500;
     clearTimeout(switching);
     switching = setTimeout(() => root.classList.remove('theme-switching'), ms);
   }

@@ -71,6 +71,9 @@ infrastructure:
   (the index's page load), not from when it's set: anchor it with
   `performance.now() - animation.startTime`, or every square jumps at the
   swap and the page seems to blank (`currentTime` lags a frame or more).
+  Read duration tokens in script with `cssMs` (lib/css.ts), never bare
+  `parseFloat`: the build's minifier rewrites `600ms` as `.6s`, so every
+  wait collapses to under a millisecond, live only (dev isn't minified).
 - **Crossfades must add, not stack.** View-transition crossfades use
   `mix-blend-mode: plus-lighter` (PageTransition.astro); setting `animation`
   on `::view-transition-old/new` drops the UA's, and two 50% layers then show
