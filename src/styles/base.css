@@ -45,10 +45,33 @@ html[data-theme-switch]::view-transition-new(lamp) {
   animation: none;
 }
 
+/* The cursor too, live and on top: left in the page's snapshot it would sit
+ * under the glass pills' own layers (below), and vanish behind the footer
+ * right by the cord. Its layer does the blending the dot does on the page. */
+html[data-theme-switch] .cursor {
+  view-transition-name: cursor;
+}
+
+html[data-theme-switch]::view-transition-group(cursor) {
+  z-index: 2;
+  mix-blend-mode: exclusion;
+}
+
+html[data-theme-switch]::view-transition-old(cursor) {
+  display: none;
+}
+
+html[data-theme-switch]::view-transition-new(cursor) {
+  animation: none;
+}
+
 /* Glass pills (header, footer, the cards' titles): a snapshot can't blur what's
  * behind it, so each pill gets its own live layer, the layer itself does the
  * blurring of the crossfade under it, and the pill eases its own colours.
- * The header's layer stays above the cards'. */
+ * What's inside eases with it: "Copy" takes the pill's own colour, faded to
+ * --ink-detail's strength (its own colour transition would restart every
+ * frame under the pill's and lag behind), and the arrows ease their fill
+ * alongside. The header's layer stays above the cards'. */
 html[data-theme-switch] .pill:not(.pill--filled) {
   view-transition-name: match-element;
   view-transition-class: glass;
@@ -60,7 +83,12 @@ html[data-theme-switch] .pill:not(.pill--filled) {
 }
 
 html[data-theme-switch] .pill:not(.pill--filled) .detail {
-  transition: color var(--duration-theme) var(--ease-standard);
+  color: inherit;
+  opacity: var(--ink-detail-alpha);
+}
+
+html[data-theme-switch] .pill:not(.pill--filled) > svg path {
+  transition: fill var(--duration-theme) var(--ease-standard);
 }
 
 html[data-theme-switch] .nav .pill:not(.pill--filled) {

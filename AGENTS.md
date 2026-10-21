@@ -79,6 +79,15 @@ infrastructure:
   `glass`, base.css) and the `::view-transition-group` carries the blur over
   the crossfade beneath. Don't lift whole cards instead: their layers paint
   over the header (which sits in the root snapshot) until the fade ends.
+  Lifted layers paint over everything left in the root snapshot, whatever its
+  z-index: anything that must stay on top (the cursor) needs its own named
+  layer too. Inside a glass pill, nothing may run its own colour transition
+  (same restart problem): "Copy" inherits the pill's colour at
+  `--ink-detail-alpha` opacity, and the arrows only ease `fill`.
+- **The scrollbar's room is always kept** (`scrollbar-gutter: stable` on
+  html). The column is centred, so a classic scrollbar coming and going
+  (Lenis stopped on a tile click, a case page held during its entrance)
+  nudged every column sideways.
 - **Palette** from the Figma file: a `--grey-*` ramp plus a semantic layer.
   Dark mode is a ramp override (`:root[data-theme='dark']` in tokens.css),
   switched only by pulling the lamp's cord (Lamp.astro, lib/theme.ts); the
