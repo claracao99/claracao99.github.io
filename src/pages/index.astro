@@ -85,13 +85,17 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
 
         // Each square's pace and place in its cycle, passed on so the next
         // page's squares carry on where these are rather than starting over.
+        // Here the blink has run since the page loaded, and a delay counts
+        // from then: offset by that, so each square is at its place now, as
+        // the next page's will be, counting from its own load.
         const blink = css('--duration-blink') || 1600;
         const blinks = [...document.querySelectorAll<HTMLElement>('.loading-squares > *')].map((el) => {
           const pace = blink * (0.7 + Math.random() * 0.6);
-          const delay = -Math.random() * pace;
+          const place = Math.random() * pace;
+          const since = performance.now() - Number(el.getAnimations()[0]?.startTime ?? 0);
           el.style.setProperty('--blink-duration', `${pace}ms`);
-          el.style.setProperty('--blink-delay', `${delay}ms`);
-          return [pace, delay];
+          el.style.setProperty('--blink-delay', `${(since % pace) - place - pace}ms`);
+          return [pace, -place];
         });
         store(JSON.stringify({ path: link.pathname, outline: !!outline, squares: { at: Date.now(), blink: blinks } }));
 

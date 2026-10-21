@@ -66,7 +66,11 @@ infrastructure:
   outline and cursor frame sit under the sticky nav (`--z-cursor-frame` <
   `--z-nav`). Anything the next page must show from its first frame has
   to be set by an inline script *before* that element is parsed, or it fades
-  in from its default instead.
+  in from its default instead. The squares' blink phases are handed over
+  too, and a CSS `animation-delay` counts from when the animation started
+  (the index's page load), not from when it's set: anchor it with
+  `performance.now() - animation.startTime`, or every square jumps at the
+  swap and the page seems to blank (`currentTime` lags a frame or more).
 - **Crossfades must add, not stack.** View-transition crossfades use
   `mix-blend-mode: plus-lighter` (PageTransition.astro); setting `animation`
   on `::view-transition-old/new` drops the UA's, and two 50% layers then show
