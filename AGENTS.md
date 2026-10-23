@@ -47,7 +47,7 @@ infrastructure:
   The index: About first, the projects, the lamp last (LampTile.astro).
   `/work/<slug>/` and `/about/` share `TilePage.astro`: one column the grid's
   full width, the cover (the index card's own picture), then a Figure card as
-  tall as its text (Information = short project name as h1, client, year;
+  tall as its text (Information = short project name as h1, company, year;
   Description = summary + MDX body), then the frontmatter `media` (`size:
   small` = square, `large` = its own ratio). The header pill is the way back.
   Media without `src` is a placeholder tile; no `media` at all gets a default

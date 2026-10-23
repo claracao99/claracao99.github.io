@@ -51,8 +51,9 @@ const work = defineCollection({
   schema: (ctx) =>
     z.object({
       ...common,
-      /** e.g. "Bolt". Shown with the year in the case-study caption. */
-      client: z.string().optional(),
+      /** Where the work was done, e.g. "Bolt". Information → Company on the
+       * case page (not "Client": this is in-house work, not freelance). */
+      company: z.string().optional(),
       /** The index card's visual: a cover photo, or a video with its poster. */
       cover: mediaItem(ctx),
       /** Video cards only: where the phone sits. Left, top and width in px on
