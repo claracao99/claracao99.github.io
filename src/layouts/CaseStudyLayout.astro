@@ -6,7 +6,7 @@
  *   first  — the index card's own picture (the cover photo, or the phone
  *            video), square, so the page opens on what was clicked.
  *   then   — a Figure card, as tall as its text: Information (project,
- *            client, year), Description (summary and the MDX body).
+ *            company, year), Description (summary and the MDX body).
  *   then   — the frontmatter `media`: `small` as square tiles, `large` at
  *            its own ratio.
  *
@@ -28,7 +28,7 @@ interface Props {
 type Item = NonNullable<WorkEntry['data']['media']>[number];
 
 const { entry } = Astro.props;
-const { summary, client, year, draft, cover, stage } = entry.data;
+const { summary, company, year, draft, cover, stage } = entry.data;
 const name = projectName(entry);
 
 const placeholders: Item[] = [
@@ -44,7 +44,7 @@ const ratio = (item: Item) =>
 const sizes = (item: Item) => tileSizes(item.src, ratio(item), { wide: true });
 
 const info = [
-  ['Client', client],
+  ['Company', company],
   ['Year', String(year)],
 ].filter((row): row is [string, string] => Boolean(row[1]));
 ---

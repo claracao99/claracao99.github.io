@@ -42,7 +42,7 @@ Drop one `.mdx` file into `src/content/work/`. No code changes.
 ---
 title: Order for someone else
 summary: One or two sentences. Landing description and meta description.
-client: Bolt              # optional; Information → Client on the case page
+company: Bolt             # optional; Information → Company on the case page
 date: Jun 2026            # display label, free text
 year: 2026                # sort tiebreaker
 order: 1                  # lower sorts first
