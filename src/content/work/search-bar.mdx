@@ -1,9 +1,11 @@
 ---
 title: 'Search bar: a visual revamp'
 summary: >-
-  A visual revamp of the route search bar: adding, removing and editing stops
-  in one calm field.
+  Two address fields, one trip. I joined Bolt's pickup and destination into a
+  single connected route, and made that route look the same everywhere the app
+  draws it.
 company: Bolt
+role: Lead designer
 date: '2026'
 year: 2026
 order: 2
@@ -13,3 +15,34 @@ cover:
   video: /media/search-bar.mp4
   alt: Typing a destination, adding a stop and removing it again in the route search bar
 ---
+
+import CaseSection from '../../components/CaseSection.astro';
+
+<CaseSection label="Approach">
+
+Pickup and destination sat in two separate fields, so nothing showed they
+made one trip, or which way it went. Google Maps and Uber both draw a route as
+one connected thing, a pattern riders already know. I reused the route
+styling from the order flow rather than inventing new icons, so a route now
+reads the same from search to receipt. And I left the background colour alone
+on purpose, so the route stays the most prominent thing on screen.
+
+</CaseSection>
+
+<CaseSection
+  label="Shipped"
+  items={[
+    'One connected field for pickup, stops and destination',
+    'A gradient route line, with a marker for every stop',
+    'One route component in orders, scheduled rides and history',
+  ]}
+/>
+
+<CaseSection
+  label="Results"
+  items={[
+    'Orders and GMV neutral in a no-harm A/B test, every trend positive',
+    'Session-to-finish up 0.14%, not counted: riders joined the test before search',
+    'Live for all riders since October 2026',
+  ]}
+/>
