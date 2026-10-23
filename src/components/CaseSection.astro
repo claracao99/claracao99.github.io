@@ -1,0 +1,38 @@
+---
+/**
+ * A labelled section of a case study body. Give it `items` for a numbered
+ * list (01, 02… in mono), or children for a few lines of story. Alternate
+ * the two: lists for separate points (what shipped), prose where one thing
+ * led to the next (what research changed).
+ *
+ *   <CaseSection label="Shipped" items={['Contact picker…', '…']} />
+ *
+ *   <CaseSection label="Research">
+ *
+ *   Testing changed what I thought the page was for…
+ *
+ *   </CaseSection>
+ */
+interface Props {
+  label: string;
+  items?: string[];
+}
+
+const { label, items } = Astro.props;
+const id = `section-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+---
+
+<section class="case-section" aria-labelledby={id}>
+  <h2 class="case-section__label" id={id}>{label}</h2>
+  {
+    items ? (
+      <ol class="case-section__list">
+        {items.map((item) => <li>{item}</li>)}
+      </ol>
+    ) : (
+      <div class="case-section__text">
+        <slot />
+      </div>
+    )
+  }
+</section>
