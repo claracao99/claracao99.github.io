@@ -124,8 +124,14 @@
 .case__card {
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
-  padding: var(--space-4) var(--pill-pad);
+  /* Sections 32 apart, the bottom padding and corner radius too: one
+   * measure for the card. The hairline under each label does the
+   * separating, so the gap needn't. */
+  gap: var(--space-6);
+  /* The top opens on a label and its rule, a header strip like the About
+   * tile's, so it stays tight. The bottom ends on body text, which at 16px
+   * sat inside the rounded corner and read as clipped; 32 clears it. */
+  padding: var(--space-4) var(--pill-pad) var(--space-6);
   border-radius: var(--radius-card);
   background: var(--figure);
   font-size: var(--text-small);
@@ -172,6 +178,12 @@
 .case__body > p + ul,
 .case__body > ul + p {
   margin-top: var(--leading-small);
+}
+
+/* A labelled section (CaseSection.astro) keeps the card's section gap above
+ * it, even as the body's first child. */
+.case__body > .case-section {
+  margin-top: var(--space-6);
 }
 
 /* A film's transcript: each beat's time as a chip with a play icon, a
@@ -270,13 +282,10 @@
   background: none;
 }
 
-/* "Shipped" list: another card section. */
-.shipped {
-  margin-top: var(--space-8);
-}
-
-.shipped__label {
-  margin-bottom: var(--space-3);
+/* CaseSection: a label over a hairline, like .case__label, then a numbered
+ * list or a few lines of prose. */
+.case-section__label {
+  margin-bottom: var(--space-2);
   padding-bottom: var(--space-2);
   border-bottom: var(--rule-width) solid var(--rule);
   color: var(--ink-detail);
@@ -284,6 +293,31 @@
   font-weight: var(--weight-normal);
   line-height: inherit;
   text-transform: uppercase;
+}
+
+.case-section__text > p + p {
+  margin-top: var(--leading-small);
+}
+
+/* Numbered in the mono face, a step back like the transcript's times, so
+ * the eye finds each point without a bullet's weight. */
+.case-section__list {
+  counter-reset: point;
+  list-style: none;
+}
+
+.case-section__list > li {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  counter-increment: point;
+}
+
+.case-section__list > li::before {
+  content: counter(point, decimal-leading-zero);
+  color: var(--ink-detail);
+  font-family: var(--font-mono);
+  font-size: var(--text-detail);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Entrance ───────────────────────────────────────────────────────────────── */

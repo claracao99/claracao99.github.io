@@ -74,13 +74,19 @@ media rows span the full width. Two components:
 
 ```mdx
 import MediaRow from '../../components/MediaRow.astro';
-import Shipped from '../../components/Shipped.astro';
+import CaseSection from '../../components/CaseSection.astro';
 
 <MediaRow items={[{ shape: 'phone', label: 'Pick a contact' }, { src: img, alt: '' }]} />
 
 Prose…
 
-<Shipped items={['Contact picker…', 'Rolled out in 12 countries']} />
+<CaseSection label="Research">
+
+Testing changed what I thought the page was for…
+
+</CaseSection>
+
+<CaseSection label="Shipped" items={['Contact picker…', 'Rolled out in 12 countries']} />
 ```
 
 Placeholder `shape`s: `phone`, `card`, `pill`, `bar`, `tag`, `panel`,
@@ -156,7 +162,7 @@ src/
     CaseStudyLayout.astro  the two-column case-study page
   components/
     Nav, Footer, SectionHead, ProjectEntry
-    Media, MediaRow, Shipped   used in MDX bodies too
+    Media, MediaRow, CaseSection   used in MDX bodies too
   pages/                 index, about, 404, work/[...slug]
   styles/                fonts, tokens, base, case
   fonts/                 woff2

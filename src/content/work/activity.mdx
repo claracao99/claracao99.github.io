@@ -1,33 +1,77 @@
 ---
 title: 'Activity: every ride in one place'
 summary: >-
-  Redesigning trip history around what people return for: receipts, lost items
-  and repeat routes. Real basemaps, a denser card and a route line that draws
-  itself.
+  One feed for every ride. I rebuilt Bolt's ride history around what riders
+  actually come back for: checking what they spent and finding that one ride.
+  Riders now open past trips 23% more often.
 company: Bolt
-date: '2025'
-year: 2025
+role: Lead designer
+date: '2026'
+year: 2026
 order: 3
 cover:
   src: ../../assets/covers/activity.jpg
   alt: A phone showing the Activity tab, lying on a blue surface
 media:
-  - shape: phone
-    label: 3-up
-  - shape: phone
-    label: 3-up
-  - shape: card
-    label: 3-up · mixed
+  - src: ../../assets/media/activity-scroll-poster.jpg
+    video: /media/activity-scroll.mp4
+    alt: Scrolling the Activity feed past the featured card for the latest ride
     size: large
-  - shape: card
-    label: Route line
+  - src: ../../assets/media/activity-one-feed.jpg
+    alt: One Activity feed with an upcoming ride above past rides
+    size: large
+  - src: ../../assets/media/activity-filters-poster.jpg
+    video: /media/activity-filters.mp4
+    alt: Filtering Activity by service and profile, then clearing the filters
+    size: large
+  - src: ../../assets/media/activity-ongoing.jpg
+    alt: An ongoing ride pinned to the top of the Activity feed
+    size: large
+  - src: ../../assets/media/activity-chips-poster.jpg
+    video: /media/activity-chips.mp4
+    alt: Removing a filter chip from the top of the Activity feed
+    size: large
 ---
 
-import Shipped from '../../components/Shipped.astro';
+import CaseSection from '../../components/CaseSection.astro';
 
-{/* TODO (Clara): case study body. The landing block above is complete. */}
+<CaseSection
+  label="Problem"
+  items={[
+    'Rides were split into Upcoming (mostly empty) and Past tabs',
+    'No filters, unless you had a work profile',
+    'An icon-only rebook button on every row, unclear and rarely used',
+    '"Rides" was too narrow: the tab already held scooters',
+  ]}
+/>
 
-Placeholder body. What people actually come back to trip history for, and how
-the denser card and real basemaps answer that.
+<CaseSection label="Research">
 
-<Shipped items={['Real basemaps in history', 'Denser trip card', 'Route line that draws itself']} />
+I ran usability testing on the first concepts, and it changed what I thought
+the page was for. Riders weren't there to rebook. They came to check what
+they'd spent, and business users came to find rides for their expense
+reports. When people did want a past ride again, they typed it into "Where
+to?". Analytics agreed: under 1% of rides came from rebook. So I designed the
+tab for finding things, not repeating them.
+
+</CaseSection>
+
+<CaseSection
+  label="Shipped"
+  items={[
+    'One feed for ongoing, upcoming and past rides, ordered by what matters now',
+    'Easy-to-read prices, work tags and month headings',
+    'Filters for service, profile and date, for everyone',
+    'Rebook off the list, onto a featured card for the latest ride, next to rating',
+    'Backend-driven, so the tab can change without an app release',
+  ]}
+/>
+
+<CaseSection label="Results">
+
+A two-week global A/B test came back clean: orders, GMV and cancellations held
+flat. Riders opened past trips 23% more often (23.2% of visits, up from
+18.8%), and the featured card drew more taps than every other row combined.
+Activity rolled out to all riders in August 2026.
+
+</CaseSection>
