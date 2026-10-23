@@ -54,6 +54,15 @@ media:                    # case page tiles after the cover; omit for placeholde
   - shape: phone          # …or a placeholder tile until the export exists
     label: Pick a contact # small uppercase caption inside the tile
 externalUrl: https://...  # optional: "Read more" links out, no page built
+phone: false              # a cover video full bleed (a motion cover) rather than in the phone
+film:                     # optional: the page opens on this film at 16:9, with sound and controls
+  video: /media/walkthrough.mp4   # under public/; re-encode first (H.264, +faststart)
+  poster: ./poster.jpg
+  rate: 1.25              # starting speed (default 1.25)
+transcript:               # film pages: a Transcript section; each time seeks the film
+  - at: '0:07'
+    title: Intro          # quote it if it has a colon
+    text: Hi, I'm Clara…
 ---
 ```
 

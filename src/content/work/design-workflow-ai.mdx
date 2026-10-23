@@ -1,0 +1,96 @@
+---
+title: 'Design workflow with AI: a walkthrough for the design org'
+summary: >-
+  A walkthrough I filmed for Bolt's design org, on a live project: Claude
+  turns usability findings into three directions in Figma, builds the chosen
+  one into a working prototype, then makes a design change in the app's real
+  code.
+company: Bolt
+date: '2026'
+year: 2026
+order: 5
+media: []
+phone: false
+cover:
+  src: ../../assets/covers/design-workflow-ai.jpg
+  video: /media/design-workflow-ai-cover.mp4
+  alt: The Bolt design wordmark building itself in white on black, from the film's opening
+film:
+  video: /media/design-workflow-ai.mp4
+  poster: ../../assets/media/design-workflow-ai-poster.jpg
+  rate: 1.25
+transcript:
+  - at: '0:07'
+    title: Intro
+    text: >-
+      Hi, I'm Clara, a product designer in the RiderX team. Today I'd like to
+      share how I use AI in my design workflow, using a real project I'm
+      currently working on. I'm going to ask Claude to iterate on the design
+      based on the findings from a usability study. I want to compare a few
+      directions, so I'll ask for three options placed directly into the Figma
+      file.
+  - at: '0:32'
+    title: Giving Claude context over Figma MCP
+    text: >-
+      I've written the prompt in advance. Here, I attached the usability test
+      document and included the MCP links to the Figma frames, so Claude knows
+      exactly which design to work on and where to put the new options.
+  - at: '0:47'
+    title: Research into three directions
+    text: >-
+      Now we've got the output from Claude. On the left, it's annotated the
+      tested design where the UI confused people in the usability test. On the
+      right, it's giving me three proposals that improve on these issues. In
+      real life I'd spend more time at this stage, evaluating the proposals and
+      going back and forth with Claude as we iterate and adjust. This is where
+      Claude is really powerful: helping me think outside the box and sketch
+      out ideas really quickly.
+  - at: '1:24'
+    title: Figma frame to prototype
+    text: >-
+      Now, let's say I'm really happy with option two, and I'd like to see it
+      live in the prototype: how it feels in the context of the whole flow, and
+      how it works with interaction. So I'll ask Claude to build it in my
+      playground, and attach an MCP link to this Figma frame so it knows which
+      design to build. Again, I've written the prompt in advance.
+  - at: '1:53'
+    title: Testing what it built
+    text: >-
+      Let's check out what Claude has built. As you can see, it's implemented
+      the new pickup area design, together with some other details. I can play
+      around to see how it feels, and whether there are any details I've
+      missed. For example, here I notice the pickup pin isn't consistent with
+      the pickup area design we've just implemented; it still follows the old
+      design. So that's a note to myself to update the design for this screen
+      too.
+  - at: '2:32'
+    title: Context makes it one-shot
+    text: >-
+      The reason I could go from a static Figma frame to a prototype like this
+      in one prompt is that I've already built up several flows and screens in
+      this playground. So Claude already has the context of the Rider app, and
+      with that much context it can take one screen from Figma and turn it into
+      something that resembles the live app with pretty high accuracy.
+  - at: '3:07'
+    title: Design edits in real code
+    text: >-
+      Finally, I'd like to show how I make simple visual changes to the live
+      app with the help of AI. I've got a screen here, part of this feature,
+      that I'd like to update. On the right is my proposed design, and in the
+      simulator is the current implementation. I'd like to update the title,
+      the subtitle and the numbering icons for the list of instructions. I've
+      written up a prompt here, so let's see how well it does.
+  - at: '3:46'
+    title: QA in the simulator
+    text: >-
+      That took a while, but here we go. Let's test it out. Let's put Tallinn
+      Airport as the pickup, and we'll see this Get directions screen. As we
+      asked, it's changed the icon to this Clay indicator, and updated the
+      title and subtitle. So I'd say it's done a pretty good job.
+  - at: '4:13'
+    title: Wrap-up
+    text: >-
+      And that's the end of my demo. Thank you for following along. Let me
+      know what you think, and I'd love to hear more about how you use AI in
+      your workflow.
+---

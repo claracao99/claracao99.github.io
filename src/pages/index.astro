@@ -120,9 +120,10 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
         tile.classList.add('is-gone');
         if (outline && grid) {
           // The big square: the grid's full width, at its top on the next
-          // page, which opens scrolled to the top.
+          // page, which opens scrolled to the top. A film page opens at 16:9.
           const g = grid.getBoundingClientRect();
-          const to = around({ left: g.left, top: g.top + window.scrollY, width: g.width, height: g.width });
+          const height = g.width / (Number(tile.dataset.openRatio) || 1);
+          const to = around({ left: g.left, top: g.top + window.scrollY, width: g.width, height });
           const easing = getComputedStyle(root).getPropertyValue('--ease-in-out').trim() || 'ease-in-out';
           await outline.animate([from, to], { duration: ms('--duration-grow') || 600, easing, fill: 'forwards' }).finished;
         } else {

@@ -1,0 +1,426 @@
+---
+/**
+ * A film with sound (frontmatter `film`): the case page's first tile at
+ * 16:9, in place of the cover. It waits on its poster until Play (or a
+ * transcript time), then plays at `rate` (1.25× unless set), with sound;
+ * if the browser blocks that, muted, the sound pill showing the struck-out
+ * speaker.
+ *
+ * Until it first plays (data-fresh), only one big glass Play button shows,
+ * centred on the poster; the control bar waits until then.
+ *
+ * Controls are the site's glass pills along the bottom: play, a scrubber,
+ * speed (a tap steps through RATES), sound and full screen; play, sound and
+ * full screen as round icon pills (Phosphor, Fill weight; src/icons), each
+ * showing its state's icon (aria-pressed). The speed pill keeps one width
+ * whatever the rate. They fade while
+ * it plays and the pointer rests, off the film's burned-in captions; on
+ * touch, a tap on the film brings them back rather than pausing.
+ *
+ * Transcript timestamps (CaseStudyLayout) seek it: any `[data-film-at]`
+ * button, its value in seconds. The beat playing is marked `aria-current`.
+ *
+ * Fills its parent, which must be positioned and clip its overflow.
+ */
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Play from '../icons/play-fill.svg';
+import Pause from '../icons/pause-fill.svg';
+import SpeakerOn from '../icons/speaker-high-fill.svg';
+import SpeakerOff from '../icons/speaker-slash-fill.svg';
+import CornersOut from '../icons/corners-out-fill.svg';
+import CornersIn from '../icons/corners-in-fill.svg';
+
+interface Props {
+  video: string;
+  poster: ImageMetadata;
+  /** Where the speed starts. */
+  rate?: number;
+  /** The film's name, for its accessible label. */
+  label: string;
+}
+
+const { video, poster, rate = 1.25, label } = Astro.props;
+const posterImage = await getImage({ src: poster, width: 1440, format: 'webp' });
+---
+
+<figure class="film" data-rate={rate} data-fresh>
+  <video src={video} poster={posterImage.src} playsinline preload="metadata" aria-label={label}></video>
+  <button type="button" class="film__start" data-film-start aria-label="Play">
+    <Play aria-hidden="true" />
+  </button>
+  <div class="film__controls">
+    <button type="button" class="pill film__icon" data-film-play aria-label="Play">
+      <Play class="film__off" aria-hidden="true" />
+      <Pause class="film__on" aria-hidden="true" />
+    </button>
+    <div class="pill film__bar">
+      <input
+        type="range"
+        class="film__seek"
+        data-film-seek
+        min="0"
+        max="1000"
+        step="1"
+        value="0"
+        aria-label="Seek"
+      />
+    </div>
+    <button type="button" class="pill film__rate" data-film-rate aria-label="Playback speed">
+      <span class="detail">{rate}×</span>
+    </button>
+    <button type="button" class="pill film__icon" data-film-sound aria-label="Mute">
+      <SpeakerOn class="film__off" aria-hidden="true" />
+      <SpeakerOff class="film__on" aria-hidden="true" />
+    </button>
+    <button type="button" class="pill film__icon film__full" data-film-full aria-label="Full screen">
+      <CornersOut class="film__off" aria-hidden="true" />
+      <CornersIn class="film__on" aria-hidden="true" />
+    </button>
+  </div>
+</figure>
+
+<style>
+  .film {
+    position: absolute;
+    inset: 0;
+    background: var(--film);
+  }
+
+  .film video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    cursor: pointer;
+  }
+
+  /* Along the bottom, one gap in from the card's round corners. */
+  .film__controls {
+    position: absolute;
+    inset: auto var(--index-gap) var(--index-gap);
+    display: flex;
+    gap: var(--index-gap);
+    transition: opacity var(--duration-slow) var(--ease-out);
+  }
+
+  .film__controls .pill {
+    flex: none;
+  }
+
+  .film button {
+    border: 0;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  /* Round icon pills: the state's icon shows, the other waits. */
+  .film__icon {
+    justify-content: center;
+    width: var(--pill-height);
+    padding: 0;
+  }
+
+  .film__icon > svg {
+    width: var(--icon-film);
+    height: var(--icon-film);
+  }
+
+  .film__icon > .film__on,
+  .film__icon[aria-pressed='true'] > .film__off {
+    display: none;
+  }
+
+  .film__icon[aria-pressed='true'] > .film__on {
+    display: block;
+  }
+
+  /* Icons hold still on hover (pills' arrows nudge, base.css). */
+  .film button.film__icon:hover > svg {
+    transform: none;
+  }
+
+  /* One width at every rate: room for the longest, "1.25×". */
+  .film__rate {
+    justify-content: center;
+  }
+
+  .film__rate > span {
+    display: inline-block;
+    min-width: 5ch;
+    text-align: center;
+  }
+
+  .film__controls .film__bar {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /* The scrubber: a hairline, played part in ink, a small dot to hold. */
+  .film__seek {
+    flex: 1 1 auto;
+    width: 0;
+    min-width: var(--space-6);
+    height: var(--pill-height);
+    margin: 0;
+    background: none;
+    appearance: none;
+    cursor: pointer;
+    --played: 0%;
+  }
+
+  .film__seek::-webkit-slider-runnable-track {
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(to right, var(--ink) var(--played), var(--rule) var(--played));
+  }
+
+  .film__seek::-moz-range-track {
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(to right, var(--ink) var(--played), var(--rule) var(--played));
+  }
+
+  .film__seek::-webkit-slider-thumb {
+    width: 8px;
+    height: 8px;
+    margin-top: -3px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ink);
+    appearance: none;
+  }
+
+  .film__seek::-moz-range-thumb {
+    width: 8px;
+    height: 8px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ink);
+  }
+
+  .film__seek:focus-visible {
+    outline: none;
+  }
+
+  .film__bar:has(.film__seek:focus-visible),
+  .film button:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  /* Phones: the scrubber keeps its room; full screen goes. */
+  @media (max-width: 31.99rem) {
+    .film__full {
+      display: none;
+    }
+  }
+
+  .film[data-idle] .film__controls,
+  .film[data-fresh] .film__controls {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Before the first play: the one way in, big and centred, on glass. */
+  .film__start {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: var(--film-start-size);
+    height: var(--film-start-size);
+    border: 0;
+    border-radius: 50%;
+    background: var(--pill-glass);
+    -webkit-backdrop-filter: blur(var(--pill-blur));
+    backdrop-filter: blur(var(--pill-blur));
+    color: var(--ink);
+    cursor: pointer;
+    translate: -50% -50%;
+    transition:
+      opacity var(--duration-slow) var(--ease-out),
+      scale var(--duration-base) var(--ease-out),
+      background-color var(--duration-base) var(--ease-out);
+  }
+
+  .film__start > svg {
+    width: var(--film-start-icon);
+    height: var(--film-start-icon);
+    /* No nudge: Phosphor's triangle is drawn right of its box's centre,
+     * which puts its centroid in the middle, where it looks centred. */
+  }
+
+  .film__start:hover {
+    background: var(--pill-fill-hover);
+    scale: 1.04;
+  }
+
+  .film__start:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .film:not([data-fresh]) .film__start {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity var(--duration-slow) var(--ease-out),
+      visibility 0s linear var(--duration-slow);
+  }
+
+  .film[data-idle] video {
+    cursor: none;
+  }
+
+  .film:fullscreen video {
+    object-fit: contain;
+  }
+</style>
+
+<script>
+  const RATES = [1, 1.25, 1.5, 2];
+  const IDLE_MS = 2000;
+
+  const time = (s: number) => {
+    const t = Math.max(0, Math.floor(s || 0));
+    return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}`;
+  };
+
+  document.querySelectorAll<HTMLElement>('.film').forEach((film) => {
+    const video = film.querySelector('video')!;
+    const play = film.querySelector<HTMLButtonElement>('[data-film-play]')!;
+    const seek = film.querySelector<HTMLInputElement>('[data-film-seek]')!;
+    const rateButton = film.querySelector<HTMLButtonElement>('[data-film-rate]')!;
+    const sound = film.querySelector<HTMLButtonElement>('[data-film-sound]')!;
+    const full = film.querySelector<HTMLButtonElement>('[data-film-full]')!;
+    const beats = [...document.querySelectorAll<HTMLButtonElement>('[data-film-at]')];
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const setRate = (r: number) => {
+      video.defaultPlaybackRate = r;
+      video.playbackRate = r;
+      rateButton.querySelector('span')!.textContent = `${r}×`;
+      rateButton.setAttribute('aria-label', `Playback speed ${r}×`);
+    };
+    setRate(Number(film.dataset.rate) || 1.25);
+    // Some browsers reset the rate when the source loads.
+    video.addEventListener('loadedmetadata', () => setRate(video.defaultPlaybackRate));
+
+    // Sound where allowed; muted where autoplay with sound is blocked.
+    const start = async () => {
+      try {
+        await video.play();
+      } catch {
+        video.muted = true;
+        await video.play().catch(() => {});
+      }
+    };
+
+    const toggle = () => (video.paused || video.ended ? start() : video.pause());
+    const startButton = film.querySelector<HTMLButtonElement>('[data-film-start]')!;
+    startButton.addEventListener('click', start);
+    // The first play brings the control bar in, and the big button goes;
+    // focus on it moves to the bar's Play.
+    video.addEventListener(
+      'play',
+      () => {
+        delete film.dataset.fresh;
+        if (document.activeElement === startButton) play.focus({ preventScroll: true });
+      },
+      { once: true },
+    );
+    play.addEventListener('click', toggle);
+    let touch = false;
+    video.addEventListener('pointerdown', (e) => (touch = e.pointerType === 'touch'));
+    video.addEventListener('click', () => (touch && 'idle' in film.dataset ? wake() : toggle()));
+
+    rateButton.addEventListener('click', () => {
+      const i = RATES.indexOf(video.playbackRate);
+      setRate(RATES[(i + 1) % RATES.length]);
+    });
+
+    sound.addEventListener('click', () => {
+      video.muted = !video.muted;
+    });
+
+    full.addEventListener('click', () => {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (film.requestFullscreen) film.requestFullscreen().catch(() => {});
+      else (video as HTMLVideoElement & { webkitEnterFullscreen?: () => void }).webkitEnterFullscreen?.();
+    });
+    document.addEventListener('fullscreenchange', () => {
+      const on = document.fullscreenElement === film;
+      full.setAttribute('aria-pressed', String(on));
+      full.setAttribute('aria-label', on ? 'Exit full screen' : 'Full screen');
+    });
+
+    // Dragging the scrubber seeks; the clock follows the film otherwise.
+    let scrubbing = false;
+    seek.addEventListener('input', () => {
+      scrubbing = true;
+      const t = (Number(seek.value) / 1000) * (video.duration || 0);
+      video.currentTime = t;
+      paint(t);
+    });
+    seek.addEventListener('change', () => (scrubbing = false));
+
+    const paint = (t = video.currentTime) => {
+      const d = video.duration || 0;
+      const p = d ? t / d : 0;
+      if (!scrubbing) seek.value = String(Math.round(p * 1000));
+      seek.style.setProperty('--played', `${p * 100}%`);
+      seek.setAttribute('aria-valuetext', `${time(t)} of ${time(d)}`);
+      let current: HTMLButtonElement | undefined;
+      for (const b of beats) if (Number(b.dataset.filmAt) <= t) current = b;
+      for (const b of beats) {
+        if (b === current) b.setAttribute('aria-current', 'true');
+        else b.removeAttribute('aria-current');
+      }
+    };
+    video.addEventListener('timeupdate', () => paint());
+    video.addEventListener('loadedmetadata', () => paint());
+
+    const states = () => {
+      play.setAttribute('aria-pressed', String(!video.paused));
+      play.setAttribute('aria-label', video.paused ? 'Play' : 'Pause');
+      sound.setAttribute('aria-pressed', String(video.muted));
+      sound.setAttribute('aria-label', video.muted ? 'Unmute' : 'Mute');
+      wake();
+    };
+    for (const e of ['play', 'pause', 'ended', 'volumechange']) video.addEventListener(e, states);
+
+    // The controls rest out of sight while it plays.
+    let timer = 0;
+    const wake = () => {
+      delete film.dataset.idle;
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        // Keyboard focus keeps them; a click's leftover focus doesn't.
+        if (!video.paused && !film.matches(':has(:focus-visible)')) film.dataset.idle = '';
+      }, IDLE_MS);
+    };
+    film.addEventListener('pointermove', (e) => e.pointerType === 'touch' || wake());
+    film.addEventListener('pointerleave', (e) => e.pointerType === 'touch' || video.paused || (film.dataset.idle = ''));
+    film.addEventListener('focusin', wake);
+
+    // A transcript beat: there, playing, with all of the film in view.
+    beats.forEach((b) =>
+      b.addEventListener('click', () => {
+        video.currentTime = Number(b.dataset.filmAt);
+        paint();
+        start();
+        const r = film.getBoundingClientRect();
+        // Under the header where it's pinned (desktop); on phones it scrolls away.
+        const nav = Math.max(0, document.querySelector('.nav')?.getBoundingClientRect().bottom ?? 0);
+        if (r.top < nav || r.bottom > innerHeight) {
+          if (window.smoothScroll) window.smoothScroll.scrollTo(0);
+          else scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+        }
+      }),
+    );
+  });
+</script>

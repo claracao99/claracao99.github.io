@@ -174,6 +174,77 @@
   margin-top: var(--leading-small);
 }
 
+/* A film's transcript: each beat's time as a chip with a play icon, a
+ * button that seeks the film (FilmPlayer.astro); its title and words beside
+ * it, the title in ink and the words a step back (regular weight only, as
+ * everywhere in the cards). The chip fills with ink on hover and while its
+ * beat plays. */
+.transcript {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: var(--space-3);
+  row-gap: var(--space-5);
+}
+
+.transcript > li {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: start;
+}
+
+.transcript__at {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: calc(var(--leading-small) / 2);
+  background: var(--chip-fill);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-detail);
+  line-height: var(--leading-small);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-base) var(--ease-out),
+    color var(--duration-base) var(--ease-out);
+}
+
+.transcript__at > svg {
+  width: 8px;
+  height: 8px;
+}
+
+/* The chip is small; its tap area reaches 44px. */
+.transcript__at::after {
+  content: '';
+  position: absolute;
+  inset: calc((var(--leading-small) - 44px) / 2) calc(-1 * var(--space-1));
+}
+
+.transcript__at:hover,
+.transcript__at[aria-current] {
+  background: var(--chip-fill-on);
+  color: var(--chip-ink-on);
+}
+
+.transcript__at:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.transcript__title {
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+.transcript li p {
+  color: var(--ink-detail);
+}
+
 /* Tiles: one to a row, the grid's full width. A small tile is square; a
  * large one keeps its own --ratio. */
 .case__tiles {
