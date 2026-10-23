@@ -56,6 +56,16 @@
   --link: var(--ink);
   --focus-ring: var(--ink);
   --scrim: rgb(10 10 10 / 0.5);
+  /* Behind a film (FilmPlayer.astro): black in both themes, as in full screen. */
+  --film: #000000;
+  --icon-film: 16px; /* the film's control icons */
+  --film-start-size: 60px; /* the big Play on a film's poster */
+  --film-start-icon: 20px;
+  /* Transcript time chips (case.css): grey at rest, ink when hovered or
+   * playing. */
+  --chip-fill: var(--grey-20);
+  --chip-fill-on: var(--ink);
+  --chip-ink-on: var(--surface);
 
   /* ── Type ──────────────────────────────────────────────────────────────────
    * Four roles. Two weights only: Regular reads, Bold names or navigates.

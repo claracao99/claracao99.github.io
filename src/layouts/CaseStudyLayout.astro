@@ -10,6 +10,10 @@
  *   then   — the frontmatter `media`: `small` as square tiles, `large` at
  *            its own ratio.
  *
+ * A film page (frontmatter `film`) opens on the film at 16:9 instead
+ * (FilmPlayer), and the card adds its Transcript, each beat's time seeking
+ * the film.
+ *
  * The project row carries the project name (the title before its colon) as
  * the page's h1. Media without an image is a placeholder tile, and an entry
  * with no media gets a default set, so every page reads as a full page
@@ -18,6 +22,8 @@
 import Media from '../components/Media.astro';
 import TilePage from '../components/TilePage.astro';
 import DeviceVideo from '../components/DeviceVideo.astro';
+import FilmPlayer from '../components/FilmPlayer.astro';
+import Play from '../icons/play-fill.svg';
 import { projectName, type WorkEntry } from '../lib/work';
 import { tileSizes } from '../lib/media';
 
@@ -28,7 +34,7 @@ interface Props {
 type Item = NonNullable<WorkEntry['data']['media']>[number];
 
 const { entry } = Astro.props;
-const { summary, company, year, draft, cover, stage } = entry.data;
+const { summary, company, year, draft, cover, stage, phone, film, transcript } = entry.data;
 const name = projectName(entry);
 
 const placeholders: Item[] = [
@@ -42,6 +48,11 @@ const tiles: Item[] = entry.data.media ?? placeholders;
 const ratio = (item: Item) =>
   item.size === 'large' ? (item.src ? item.src.width / item.src.height : 16 / 9) : 1;
 const sizes = (item: Item) => tileSizes(item.src, ratio(item), { wide: true });
+
+const seconds = (at: string) => {
+  const [m, s] = at.split(':').map(Number);
+  return m * 60 + s;
+};
 
 const info = [
   ['Company', company],
@@ -76,10 +87,43 @@ const info = [
         <slot />
       </div>
     </section>
-  </Fragment>
-  <div class="case__tile" data-size="small" style="--ratio: 1" slot="cover">
     {
-      cover.video && cover.src ? (
+      transcript && (
+        <section class="case__section">
+          <h2 class="case__label">Transcript</h2>
+          <ol class="transcript">
+            {transcript.map(({ at, title, text }) => (
+              <li>
+                <button
+                  type="button"
+                  class="transcript__at"
+                  data-film-at={seconds(at)}
+                  aria-label={`Play from ${at}: ${title}`}
+                >
+                  <Play aria-hidden="true" />
+                  {at}
+                </button>
+                <div>
+                  <h3 class="transcript__title">{title}</h3>
+                  <p>{text}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+  </Fragment>
+  <div
+    class="case__tile"
+    data-size={film ? 'large' : 'small'}
+    style={`--ratio: ${film ? '16 / 9' : 1}`}
+    slot="cover"
+  >
+    {
+      film ? (
+        <FilmPlayer video={film.video} poster={film.poster} rate={film.rate} label={name} />
+      ) : cover.video && cover.src && phone !== false ? (
         <DeviceVideo video={cover.video} poster={cover.src} alt={cover.alt} eager wide stage={stage} />
       ) : (
         <Media {...cover} eager sizes={sizes({ ...cover, size: 'small' })} widths={[640, 960, 1440, 1920, 2000]} />

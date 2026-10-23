@@ -60,11 +60,31 @@ const work = defineCollection({
        * the Figma board "Device tile · phone positions" (549:1867), whose
        * cards are 347.5×434.375, a card at 1440. Scaled to any card size. */
       stage: z.object({ x: z.number(), y: z.number(), w: z.number() }).optional(),
+      /** Video cards: the clip plays in the phone (DeviceVideo). False plays
+       * it full bleed on the card, like a cover photo (a motion cover). */
+      phone: z.boolean().default(true),
       /** False for visual pieces: no page is built and the card isn't a link. */
       caseStudy: z.boolean().default(true),
       /** The case page's tiles, after the cover. Placeholder tiles stand in
        * when omitted; `media: []` means the cover alone. */
       media: z.array(mediaItem(ctx)).optional(),
+      /** A film page: the case page opens on this video at 16:9 instead of
+       * the cover, playing with sound and controls (FilmPlayer.astro).
+       * `rate` is where the speed starts. */
+      film: z
+        .object({
+          video: z.string().startsWith('/'),
+          poster: ctx.image(),
+          rate: z.number().default(1.25),
+        })
+        .optional(),
+      /** Film pages: what's said, one titled paragraph per beat, each from
+       * `at` ("m:ss"); its time seeks the film. */
+      transcript: z
+        .array(
+          z.object({ at: z.string().regex(/^\d+:\d{2}$/), title: z.string(), text: z.string() }),
+        )
+        .optional(),
       /** If set, the card links out here and no case-study page is built. */
       externalUrl: z.url().optional(),
     }),
