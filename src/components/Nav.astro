@@ -2,10 +2,10 @@
 /**
  * Site header (01 Index): a bar the window's full width. The wordmark, as
  * bare text on the left, links home; off the index it is the way back. On
- * the index, an About / Work / Play switch in the middle: on the rail it
- * shows which part of the row is in view and glides the row to the one
- * pressed (index.astro listens for `index-view`); About is the intro at the
- * row's start (the about text and contacts live there, not in a panel).
+ * the index, a Work / Play switch in the middle: on the rail it shows
+ * which part of the row is in view and glides the row to the one pressed
+ * (index.astro listens for `index-view`). No About: the about text and
+ * contacts are the intro, the row's start (or the grid's top).
  * Hovering Work or Play opens it downwards into a panel, after jeton.com's
  * nav: Work lists the projects,
  * each showing a small cover beside the list while hovered, a preview
@@ -17,7 +17,8 @@
  * to the index as it was (history) when that's where we came from.
  *
  * The current page's pill does nothing when clicked rather than reloading
- * (a modified click still opens a new tab).
+ * (a modified click still opens a new tab). On the index the wordmark
+ * takes the row (or the grid) back to where it opened instead.
  *
  * Fixed on desktop so the pills ride over the work; on phones it scrolls
  * away with the page.
@@ -46,7 +47,7 @@ const projects = isHome
       }))
       .filter((p) => p.href)
   : [];
-const views = ['About', 'Work', 'Play'];
+const views = ['Work', 'Play'];
 ---
 
 <header class="nav">
@@ -66,7 +67,8 @@ const views = ['About', 'Work', 'Play'];
                   data-view={view.toLowerCase()}
                   aria-pressed={i === 0 ? 'true' : 'false'}
                   data-seam={i > 0 ? '' : undefined}
-                  {...(view === 'About' ? {} : { 'aria-expanded': 'false', 'aria-controls': `nav-${view.toLowerCase()}` })}
+                  aria-expanded="false"
+                  aria-controls={`nav-${view.toLowerCase()}`}
                 >
                   <span class="nav__label">{view}</span>
                 </button>
@@ -140,8 +142,8 @@ const views = ['About', 'Work', 'Play'];
     z-index: var(--z-nav);
   }
 
-  /* Wordmark | switch | About. On phones the switch takes the room between
-   * the two; from 48rem the outer columns share what's left, so it sits in
+  /* Wordmark | switch. On phones the switch takes the room beside the
+   * wordmark; from 48rem the outer columns share what's left, so it sits in
    * the window's middle whatever the pills' widths. */
   .nav__bar {
     display: grid;
@@ -155,7 +157,7 @@ const views = ['About', 'Work', 'Play'];
    * doesn't move when it opens over the page. */
   .nav__switch {
     position: relative;
-    z-index: 1; /* open, over the wordmark and About */
+    z-index: 1; /* open, over the wordmark */
     justify-self: center;
     width: var(--switch-w, 9rem);
     height: var(--pill-height);
@@ -273,19 +275,6 @@ const views = ['About', 'Work', 'Play'];
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  /* About's place in the bar: the closed button's size. Open, the button
-   * grows from its top right corner, down and to the left, as tall as
-   * what's inside, over the rest of the bar. */
-
-
-
-
-  /* The label and a square holding a plus, joined by a neck like the
-   * switch's halves; the plus turns to a cross while it's open. */
-
-
-
 
 
 
@@ -619,10 +608,13 @@ const views = ['About', 'Work', 'Play'];
 </style>
 
 <script>
-  // The current page's link: a plain click would only reload it.
+  // The current page's link: a plain click would only reload it. The
+  // index's wordmark goes back to the landing instead (index.astro).
   for (const link of document.querySelectorAll<HTMLAnchorElement>('.nav a[aria-current="page"]')) {
     link.addEventListener('click', (e) => {
-      if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) e.preventDefault();
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      if (link.matches('.nav__home')) document.dispatchEvent(new Event('index-home'));
     });
   }
 
@@ -657,7 +649,7 @@ const views = ['About', 'Work', 'Play'];
     });
   }
 
-  // The switch's and About's outline, after anima.ai's nav: one rounded
+  // The switch's and the crumb's outline, after anima.ai's nav: one rounded
   // rectangle per part, joined where they meet (each [data-seam]'s left
   // edge) by a neck that dips in from the top and bottom edges. Drawn as a
   // clip path, so the glass blur is clipped too.
@@ -709,7 +701,7 @@ const views = ['About', 'Work', 'Play'];
     history.back();
   });
 
-  // About / Work / Play: press one, and the index goes there; its part
+  // Work / Play: press one, and the index goes there; its part
   // widens for its dot as the others narrow (CSS).
   const views = [...document.querySelectorAll<HTMLButtonElement>('.nav__view')];
   const group = document.querySelector<HTMLElement>('.nav__views');
@@ -788,12 +780,6 @@ const views = ['About', 'Work', 'Play'];
 
     for (const button of views) {
       const view = button.dataset.view!;
-      // About has no panel: hovering it closes the others'.
-      if (!menus.some((m) => m.dataset.menu === view)) {
-        button.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && hide());
-        button.addEventListener('focus', () => hide());
-        continue;
-      }
       button.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && show(view));
       button.addEventListener('focus', () => !touch && show(view));
       button.addEventListener('click', () => {

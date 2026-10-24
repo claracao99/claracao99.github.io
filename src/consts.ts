@@ -13,13 +13,13 @@ export const SITE = {
     'Product designer at Bolt, raising the quality bar for the ride-hailing experience. Selected work and case studies.',
   /** Used for OG locale and the <html lang> attribute. */
   lang: 'en',
-  /** The intro in the About pop-up (Nav.astro). */
+  /** The about text in the index's intro (index.astro). */
   intro:
     'Clara Cao is a product designer at Bolt, shaping the app millions of people use to get around their city. She finds the problem worth solving, builds the answer in real code with AI, and turns messy flows into calm, effortless experiences.',
 } as const;
 
 /**
- * Public contact links, shown in the About pop-up (Nav.astro). Static links only — a contact form
+ * Public contact links, shown in the index's intro (index.astro). Static links only — a contact form
  * would need a server or third-party endpoint, which this site avoids.
  * public/cv.pdf is a copy of cv/Clara-Cao-CV.pdf (WIP); re-copy after ./build.sh.
  */

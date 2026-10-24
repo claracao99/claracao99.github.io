@@ -12,7 +12,7 @@
  * Cards. The intro, then Work, an arrow, then Play on its own white ground.
  * Reduced motion keeps the grid.
  *
- * The header's About / Work / Play switch (Nav.astro) follows the row and
+ * The header's Work / Play switch (Nav.astro) follows the row and
  * glides it to the part pressed; on the grid, Work and Play swap the tiles.
  * Play is the side projects, so far the lamp (LampTile.astro) and
  * placeholders.
@@ -370,9 +370,10 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
   // its big name hands over to the header's small one as it leaves),
   // Work's projects,
   // an arrow in a tile's room, then Play's. It opens on its first project
-  // in the middle, the intro beside it, and goes from the intro in the
-  // middle to its last tile in the middle: whatever the row brings to the
-  // middle (the switch, the keys, focus, a tap) lands dead centre. The
+  // in the middle, the intro beside it, and goes from there (no further
+  // back than the intro in line with the wordmark) to its last tile in the
+  // middle: whatever the row brings to the middle (the switch, the keys,
+  // focus, a tap) lands dead centre. The
   // header's switch shows which half is in the middle and glides the row
   // to the other. Several stand in view at
   // once and the next is cut off by the window's edge, the sign there's more. Each turns by
@@ -401,8 +402,9 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
       let width = 0; // the window
       let size = 0; // a tile
       let step = 0; // a tile and the gap after it
-      // How far the row moves: from the intro in the middle to its last
-      // tile in the middle.
+      // How far the row moves: from where it opens (or, if the intro is cut
+      // off there, the intro at the wordmark's left edge) to its last tile
+      // in the middle.
       let lo = 0;
       let end = 0;
       const clamp = (v: number) => Math.max(lo, Math.min(end, v));
@@ -431,19 +433,16 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
       // Where the row is when `el` stands in the middle.
       const centreOf = (el: HTMLElement) =>
         el === intro ? lo : introSpace + Math.max(0, tiles.indexOf(el)) * step;
-      // A view's place in the row: its first tile in the middle (About's is
-      // the intro).
+      // A view's place in the row: its first tile in the middle.
       const placeOf = (v: string) =>
-        v === 'play' && divider
-          ? clamp(introSpace + (all.indexOf(divider) + 1) * step)
-          : v === 'work'
-            ? clamp(introSpace) // the first project
-            : lo; // About: the intro
+        v === 'play' && divider ? clamp(introSpace + (all.indexOf(divider) + 1) * step) : clamp(introSpace);
       let opening = true;
       let playEdge = -1;
       let playSpeed = 1; // --play-speed
       // The wordmark's right edge: once Play's ground reaches it, it turns dark.
-      const wordmark = document.querySelector('.nav__home')?.getBoundingClientRect().right ?? 0;
+      const mark = document.querySelector('.nav__home')?.getBoundingClientRect();
+      const wordmark = mark?.right ?? 0;
+      const wordmarkLeft = mark?.left ?? 0;
 
       const measure = () => {
         on = wide.matches;
@@ -472,8 +471,10 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
         playSpeed = parseFloat(style.getPropertyValue('--play-speed')) || 1;
         // The intro: its width and a gap either side, before the tiles.
         introSpace = intro ? intro.offsetWidth + 2 * (step - size) : 0;
-        // The ends: the intro in the middle, the last tile in the middle.
-        lo = intro ? (intro.offsetWidth - size) / 2 : 0;
+        // The ends: the landing, or the intro in line with the wordmark if
+        // that's further back (never an empty half screen before it); the
+        // last tile in the middle.
+        lo = intro ? Math.min(introSpace, (width - size) / 2 - wordmarkLeft) : 0;
         end = Math.max(lo, introSpace + (tiles.length - 1) * step);
         // The big name's place in the intro.
         if (slot) slotAt = { x: slot.offsetLeft, w: slot.offsetWidth || 1 };
@@ -551,7 +552,7 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
         // middle, or at its end.
         if (divider) {
           const arrow = first + introSpace + all.indexOf(divider) * step + size / 2;
-          showView(arrow < width / 2 || at >= end - 1 ? 'play' : at < (lo + placeOf('work')) / 2 ? 'about' : 'work');
+          showView(arrow < width / 2 || at >= end - 1 ? 'play' : 'work');
           // Play's own ground comes in behind the row, faster than it
           // (parallax): its edge enters at the window's right with the arrow
           // and sweeps left --play-speed times as fast as the row, so it
@@ -569,8 +570,19 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
         if (at !== to) frame = requestAnimationFrame(draw);
       };
 
+      // The tweens below (the dolly's, the jumps'): only the latest moves
+      // the row, one started over another takes over from it. A jump
+      // (`jumping`, its tween) gives way to the wheel or a drag.
+      let tweening = 0;
+      let jumping = 0;
+      const stopJump = () => {
+        if (jumping === tweening) tweening++;
+        jumping = 0;
+      };
+
       const go = (by: number) => {
         if ('leaving' in document.documentElement.dataset) return;
+        stopJump();
         to = clamp(to + by);
         frame ||= requestAnimationFrame(draw);
       };
@@ -604,25 +616,28 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
       // when it's done.
       const dollyPush = 0.05; // the chosen tile's growth, pushed in
       const dollySink = 520; // px away
+      // Ease in and out, cubic: a camera's move, no lurch in the middle (and
+      // never the wheel's lurch at the start).
+      const easeInOut = (k: number) => (k < 0.5 ? 4 * k ** 3 : 1 - (-2 * k + 2) ** 3 / 2);
       // `speed`: how fast the row is already going (px/ms), so a glide
       // picks it up where it is instead of stopping it dead first.
       const tween = (target: number, from: number, by: number, delay: number, duration: number, speed = 0) =>
         new Promise<void>((done) => {
           cancelAnimationFrame(frame);
           frame = 0;
+          const id = ++tweening;
           const t0 = performance.now() + delay;
           const d0 = dolly;
-          // Ease in and out, cubic: a camera's move, no lurch in the middle.
-          const ease = (k: number) => (k < 0.5 ? 4 * k ** 3 : 1 - (-2 * k + 2) ** 3 / 2);
           // From a moving start: a Hermite curve leaving at that speed and
           // settling at rest.
           const m = speed * duration;
           const place = speed
             ? (k: number) => by * (3 * k ** 2 - 2 * k ** 3) + m * (k ** 3 - 2 * k ** 2 + k)
-            : (k: number) => by * ease(k);
+            : (k: number) => by * easeInOut(k);
           const tick = () => {
+            if (id !== tweening) return done();
             const k = Math.min(1, Math.max(0, (performance.now() - t0) / duration));
-            const e = ease(k);
+            const e = easeInOut(k);
             at = to = from + place(k);
             dolly = d0 + (target - d0) * e;
             draw();
@@ -702,6 +717,7 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
         Object.assign(drag, { x: e.clientX, y: e.clientY, t: e.timeStamp });
         // A press that wobbles a little is still a tap: the row stays put.
         if (drag.moved <= 8) return;
+        stopJump();
         // Caught where it is (still gliding, perhaps), and carried from there.
         at = clamp(at + by);
         to = at;
@@ -721,24 +737,41 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
       rail.addEventListener('pointercancel', release);
 
       const ms = (name: string) => cssMs(document.documentElement, name);
+      // A jump along the row (the switch, the wordmark): one eased glide,
+      // --duration-row whatever the distance.
+      const jump = (place: number) => {
+        if ('leaving' in document.documentElement.dataset) return;
+        const by = place - at;
+        if (Math.abs(by) <= 1) return;
+        tween(0, at, by, 0, ms('--duration-row') || 900);
+        jumping = tweening;
+      };
       // The header's switch: on the rail it glides the row to that half; on
       // the grid the tiles fade out, change, and fade back.
-      document.addEventListener('index-view', async (e) => {
+      document.addEventListener('index-view', (e) => {
         const chosen = (e as CustomEvent<string>).detail;
-        if (on) {
-          go(placeOf(chosen) - to);
-          return;
-        }
-        // The grid: About is the intro at the top; Work and Play swap tiles.
-        if (chosen === 'about') {
-          window.smoothScroll ? window.smoothScroll.scrollTo(0) : window.scrollTo({ top: 0, behavior: 'smooth' });
-          return;
-        }
+        if (on) jump(placeOf(chosen));
+        else swap(chosen);
+      });
+
+      // The grid: Work and Play swap tiles, fading out and back.
+      const swap = async (chosen: string) => {
         view = chosen;
         rail.toggleAttribute('data-switching', true);
         await new Promise((r) => setTimeout(r, ms('--duration-base') || 200));
         measure();
         rail.removeAttribute('data-switching');
+      };
+
+      // The wordmark: back to the landing. The row glides to its first
+      // project; the grid goes back to Work and up to the top.
+      document.addEventListener('index-home', () => {
+        if (on) return jump(placeOf('work'));
+        switches.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === 'work')));
+        if (view !== 'work') swap('work');
+        window.smoothScroll
+          ? window.smoothScroll.scrollTo(0, { duration: (ms('--duration-row') || 900) / 1000, easing: easeInOut })
+          : window.scrollTo(0, 0); // reduced motion: straight there
       });
 
       addEventListener('resize', measure);

@@ -66,7 +66,7 @@
   --chip-fill: var(--grey-20);
   --chip-fill-on: var(--ink);
   --chip-ink-on: var(--surface);
-  /* The header's About / Work / Play switch (Nav.astro): a dot, round like the
+  /* The header's Work / Play switch (Nav.astro): a dot, round like the
    * cursor, after the chosen label; the same dot after a hovered project's
    * name. */
   --nav-mark: 4px;
@@ -246,6 +246,10 @@
   /* A tile tapped off to the side glides to the middle first, then the
    * dolly pushes in; further tiles take longer, up to 1.6 times this. */
   --duration-centre: 550ms;
+  /* The index's jumps, in one eased glide the same time from anywhere: the
+   * wordmark back to the landing (the row, or the grid's scroll) and the
+   * header's Work / Play switch along the row. */
+  --duration-row: 900ms;
   --duration-travel: 700ms;
   /* A word rolling in or out of its clipped box (the wordmark's handoff,
    * after partizan.com's nav). */

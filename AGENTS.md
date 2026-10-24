@@ -61,11 +61,17 @@ infrastructure:
   rolls up into its clipped box, partizan.com-style, once the big name is
   mostly off-screen: `data-name-in` on html), then Work's projects, an arrow in a tile's room
   (`.rail-divider`), then Play's — opening with the first project dead
-  centre, the intro beside it. Its ends are the intro centred and the last
-  tile centred, and everything the row brings to the middle (switch, arrow
+  centre, the intro beside it. Its ends are that landing (it never goes
+  back further, so there's no empty half screen before the intro, unless
+  the intro is cut off there: then it goes back until the intro lines up
+  with the wordmark) and the last tile centred, and every tile the row brings to the middle (switch, arrow
   keys, focus, a tap) lands exactly centred; free scrolling doesn't snap;
   the header switch follows which half is centred and glides the row to
-  the other. Play has its own white ground (`.rail__play-bg`): a clean-cut
+  the other, and the wordmark (on the index) glides it back to the
+  landing (on the grid: back to Work, scrolled to the top). Those jumps are
+  one cubic in-out tween, `--duration-row` whatever the distance, never
+  the wheel's lerp (that lurches at the start and trails off); a wheel
+  turn or a drag takes over from one mid-glide. Play has its own white ground (`.rail__play-bg`): a clean-cut
   layer that sweeps in behind the row faster than it (parallax,
   `--play-speed`), from the arrow reaching the window's right. Tiles turn in 3D by their distance
   from the middle (after details.so's Perspective Cards). The page itself
@@ -78,12 +84,13 @@ infrastructure:
   `getPropertyValue` returns the unresolved string. On the rail there is no
   cursor frame and no open-tile choreography (below): tiles open straight
   away. Phones and reduced motion keep the grid.
-- **The header** (Nav.astro): wordmark as bare text and the About / Work /
-  Play switch (About = the rail's intro; no About panel any more). Its
+- **The header** (Nav.astro): wordmark as bare text and the Work / Play
+  switch (no About: the intro at the row's start, or the grid's top, is
+  the about). Its
   pills are rounded rectangles joined by a pinched neck, after
   anima.ai, drawn as a clip-path from each `[data-seam]`'s left edge (so the
-  glass blur is clipped too) and redrawn as parts resize. The switch and
-  About each open into a panel (Jeton-style) by animating the box's width
+  glass blur is clipped too) and redrawn as parts resize. Each half of the
+  switch opens into a panel (Jeton-style) by animating the box's width
   and height in px; their contents keep the open width and are uncovered.
   A `.pill` is `display: flex` with a gap: a pill used as a column container
   needs `gap: 0`, or the panel's measured height comes up short and the
