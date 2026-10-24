@@ -56,7 +56,16 @@ infrastructure:
   placeholder set, and `media: []` means the cover alone. Layout lives in
   `src/styles/case.css` (global, because MDX output has no scope).
 - **From 48rem the index is the rail** (index.astro): a fixed, vertically
-  centred, endlessly looping row of tiles that turn in 3D by their distance
+  centred row with two ends — first the intro (`.rail-intro`, flat: big
+  name, SITE.intro, CONTACT; the header wordmark is hidden on landing and
+  rolls up into its clipped box, partizan.com-style, once the big name is
+  mostly off-screen: `data-name-in` on html), then Work's projects, an arrow in a tile's room
+  (`.rail-divider`), then Play's — opening with the first project at the left edge (in line with the
+  wordmark, `--rail-inset`);
+  the header switch follows which half is centred and glides the row to
+  the other. Play has its own white ground (`.rail__play-bg`): a clean-cut
+  layer that sweeps in behind the row faster than it (parallax,
+  `--play-speed`), from the arrow reaching the window's right. Tiles turn in 3D by their distance
   from the middle (after details.so's Perspective Cards). The page itself
   never scrolls there (`html:has(.rail[data-active])` is overflow hidden,
   Lenis stopped); the wheel, arrow keys, focus and touch drags move the row.
@@ -67,8 +76,9 @@ infrastructure:
   `getPropertyValue` returns the unresolved string. On the rail there is no
   cursor frame and no open-tile choreography (below): tiles open straight
   away. Phones and reduced motion keep the grid.
-- **The header** (Nav.astro): wordmark as bare text, the Work / Play switch,
-  About. Its pills are rounded rectangles joined by a pinched neck, after
+- **The header** (Nav.astro): wordmark as bare text and the About / Work /
+  Play switch (About = the rail's intro; no About panel any more). Its
+  pills are rounded rectangles joined by a pinched neck, after
   anima.ai, drawn as a clip-path from each `[data-seam]`'s left edge (so the
   glass blur is clipped too) and redrawn as parts resize. The switch and
   About each open into a panel (Jeton-style) by animating the box's width
@@ -77,24 +87,23 @@ infrastructure:
   needs `gap: 0`, or the panel's measured height comes up short and the
   bottom is clipped. Phones' pills get a 44px tap layer (`.pill::after`),
   which must be off on pills that contain other controls.
-- **Opening a tile is choreographed** on the grid (phones; index.astro, TilePage.astro, case.css
-  Entrance): the tile lingers in an outline while the index fades to the
-  blinking loading squares, the outline grows into the cover's big square,
-  and the case page opens on the same squares and outline (handed over in
-  sessionStorage `tile-handoff`), then the cover fills it, then the card,
-  then the rest. A touch tap skips the outline (it looked bad without a
-  cursor frame leading into it): the tile just fades with the others. The
-  header is pinned on desktop and holds still through page changes (named
-  only while a page transition runs, PageTransition.astro); on phones it
-  scrolls with the page. The
-  outline and cursor frame sit under the sticky nav (`--z-cursor-frame` <
-  `--z-nav`). Anything the next page must show from its first frame has
-  to be set by an inline script *before* that element is parsed, or it fades
-  in from its default instead. The squares' blink phases are handed over
-  too, and a CSS `animation-delay` counts from when the animation started
-  (the index's page load), not from when it's set: anchor it with
-  `performance.now() - animation.startTime`, or every square jumps at the
-  swap and the page seems to blank (`currentTime` lags a frame or more).
+- **Opening a tile: dolly in, then one View Transition** (index.astro,
+  PageTransition.astro). On the rail, `dollyIn` tweens the row's place and
+  a `dolly` 0→1 together (one camera move, cubic in-out,
+  `--duration-dolly`): the chosen tile glides to the middle and grows a
+  touch (as `scale`, never `translateZ`: the transition captures tiles
+  without the stage's perspective, so a z push jumps at hand-off), the rest
+  sink back in z, part, turn further and blur/dim. Then the page opens and
+  the tile (`case-tile`, named only while `data-vt-cover` marks it and
+  `data-vt-tile` is on html) grows into the cover; only the bigger snapshot
+  shows (`data-vt-dir` open/close), the group rounds the corners. Back
+  reverses it: the rail opens pushed in on that tile and `dollyOut` gathers
+  the drum live under the transition. Phones: the others just blur out.
+  Case → case crossfades. No loading screen. Case pages are prefetched
+  eagerly and prerendered on hover (speculation rules) so there's no hold.
+  The header is pinned on desktop and holds still through page changes;
+  on phones it scrolls with the page. Cross-document view-transition
+  pseudos are styled by the *new* page.
   Read duration tokens in script with `cssMs` (lib/css.ts), never bare
   `parseFloat`: the build's minifier rewrites `600ms` as `.6s`, so every
   wait collapses to under a millisecond, live only (dev isn't minified).
@@ -108,10 +117,9 @@ infrastructure:
   nudged every column sideways.
 - **Palette** from the Figma file: a `--grey-*` ramp plus a semantic layer.
   The site is dark only: `<html data-theme="dark">` applies the ramp override
-  in tokens.css. The lamp's cord turns only the lamp's glow on and off. The
-  one colour is `--accent` (scarlet), used sparingly and only for what the
-  pointer is acting on (the project list's gliding dot, About's cross),
-  never as a fill; where you are (the switch's dot) stays ink. The lamp's
+  in tokens.css. The lamp's cord turns only the lamp's glow on and off.
+  No accent colour: the UI is ink and greys only (the scarlet went once its
+  last use, the project list's gliding dot, turned ink). The lamp's
   switch only clicks while the cord is held: settling on load used to flip it.
 - **`draft: true` hides the page, not the images.** Verified: a draft's cover
   image is still emitted to `dist/_astro/` with a hashed filename, so it is

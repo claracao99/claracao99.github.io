@@ -22,6 +22,9 @@ html {
    * click, a case page held during its entrance) would nudge it sideways.
    * No room is taken where scrollbars overlay the page. */
   scrollbar-gutter: stable;
+  /* The page colour on the root too, not only the body, so no frame between
+   * pages or past the page's edge is ever the browser's white. */
+  background-color: var(--surface);
 }
 
 body {

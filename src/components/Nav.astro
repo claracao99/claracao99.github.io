@@ -1,17 +1,20 @@
 ---
 /**
  * Site header (01 Index): a bar the window's full width. The wordmark, as
- * bare text on the left, links home; off the index it is the way back. About,
- * a pill on glass (yuriroga.com's About-panel frost: #F0F0F0 at 50% under a
- * 50px blur), on the right, opens down and out into a panel the same way
- * the switch does: the intro and contact (the address copies; LinkedIn and
- * CV open in a new tab). On the index, a Work / Play switch in the middle
- * chooses which tiles the index shows
- * (index.astro listens for `index-view`). Hovering either half opens it
- * downwards into a panel, after jeton.com's nav: Work lists the projects,
+ * bare text on the left, links home; off the index it is the way back. On
+ * the index, an About / Work / Play switch in the middle: on the rail it
+ * shows which part of the row is in view and glides the row to the one
+ * pressed (index.astro listens for `index-view`); About is the intro at the
+ * row's start (the about text and contacts live there, not in a panel).
+ * Hovering Work or Play opens it downwards into a panel, after jeton.com's
+ * nav: Work lists the projects,
  * each showing a small cover beside the list while hovered, a preview
  * rather than a control; a film is tagged [Video] and plays its preview cut
  * there instead.
+ *
+ * On a case page the middle holds the way back instead: a square with a
+ * back arrow (Phosphor's arrow-left, bold) joined, by the same neck, to the project's name. Back returns
+ * to the index as it was (history) when that's where we came from.
  *
  * The current page's pill does nothing when clicked rather than reloading
  * (a modified click still opens a new tab).
@@ -20,10 +23,15 @@
  * away with the page.
  */
 import { Image } from 'astro:assets';
-import { SITE, CONTACT } from '../consts';
-import TriangleEast from '../icons/triangle-east.svg';
+import ArrowLeft from '../icons/arrow-left.svg';
 import { caseStudyPath, getPublishedWork, projectName } from '../lib/work';
 
+interface Props {
+  /** On a case page: the project's short name, shown beside Back. */
+  project?: string;
+}
+
+const { project } = Astro.props;
 const isHome = Astro.url.pathname === '/';
 // The switch's Work list: the index's projects that open somewhere.
 const projects = isHome
@@ -38,15 +46,13 @@ const projects = isHome
       }))
       .filter((p) => p.href)
   : [];
-const email = CONTACT.find((c) => c.href.startsWith('mailto:'))!;
-const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
-const views = ['Work', 'Play'];
+const views = ['About', 'Work', 'Play'];
 ---
 
 <header class="nav">
   <nav class="nav__bar" aria-label="Main">
     <a class="nav__home" href="/" aria-current={isHome ? 'page' : undefined}>
-      <span class="logotype">Clara Cao</span>
+      <span class="logotype"><span class="logotype__roll">Clara Cao</span></span>
     </a>
     {
       isHome && (
@@ -60,8 +66,7 @@ const views = ['Work', 'Play'];
                   data-view={view.toLowerCase()}
                   aria-pressed={i === 0 ? 'true' : 'false'}
                   data-seam={i > 0 ? '' : undefined}
-                  aria-expanded="false"
-                  aria-controls={`nav-${view.toLowerCase()}`}
+                  {...(view === 'About' ? {} : { 'aria-expanded': 'false', 'aria-controls': `nav-${view.toLowerCase()}` })}
                 >
                   <span class="nav__label">{view}</span>
                 </button>
@@ -108,44 +113,20 @@ const views = ['Work', 'Play'];
         </div>
       )
     }
-    <div class="nav__about-place">
-      <div class="pill nav__about" data-fused>
-        <button class="nav__about-toggle" type="button" aria-expanded="false" aria-controls="nav-about">
-          <span>About</span>
-          <span class="nav__plus" aria-hidden="true" data-seam></span>
-        </button>
-        <div class="nav__about-menu" id="nav-about" hidden>
-          <section>
-            <h2 class="nav__heading">About</h2>
-            <p class="nav__intro">{SITE.intro}</p>
-          </section>
-          <section>
-            <h2 class="nav__heading">Contact</h2>
-            <ul class="nav__contact">
-              <li>
-                <button class="nav__contact-row" type="button" data-copy={email.label}>
-                  <span>{email.label}</span>
-                  <span class="detail" aria-live="polite" data-copy-status>Copy</span>
-                </button>
-              </li>
-              {
-                links.map((link) => (
-                  <li>
-                    <a class="nav__contact-row" href={link.href} target="_blank" rel="noopener noreferrer">
-                      <span>
-                        {link.label}
-                        <span class="visually-hidden"> (opens in a new tab)</span>
-                      </span>
-                      <TriangleEast aria-hidden="true" />
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
-          </section>
+    {
+      project && (
+        <div class="nav__crumb-place">
+          <div class="pill nav__crumb" data-fused>
+            <a class="nav__back" href="/" aria-label="Back to work">
+              <ArrowLeft aria-hidden="true" />
+            </a>
+            <span class="nav__title" data-seam>
+              <span class="nav__title-text">{project}</span>
+            </span>
+          </div>
         </div>
-      </div>
-    </div>
+      )
+    }
   </nav>
 </header>
 
@@ -197,133 +178,124 @@ const views = ['Work', 'Play'];
     text-decoration: none;
   }
 
+  /* The name in a clipped box, so it can roll in and out of it, after
+   * partizan.com's nav: on the index rail it rolls up into place once the
+   * intro's big name has mostly gone (data-name-in on html, index.astro),
+   * and back down out of sight when the intro returns. Hidden from the
+   * first paint there, so it never shows and then leaves. */
+  .nav__home .logotype {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: top;
+  }
+
+  /* Quiet: short, a soft ease, and it fades up as it rolls rather than
+   * arriving at full strength. */
+  .logotype__roll {
+    display: inline-block;
+    transition:
+      translate var(--duration-roll) var(--ease-roll),
+      opacity var(--duration-roll) var(--ease-roll);
+  }
+
+  @media (min-width: 48rem) and (prefers-reduced-motion: no-preference) {
+    :global(html:has(.rail-intro):not([data-name-in])) .logotype__roll {
+      translate: 0 100%;
+      opacity: 0;
+    }
+  }
+
   .nav__home:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
 
-  /* About's place in the bar: the closed button's size. Open, the button
-   * grows from its top right corner, down and to the left, as tall as
-   * what's inside, over the rest of the bar. */
-  .nav__about-place {
-    position: relative;
-    z-index: 1;
-    grid-column: 3;
-    justify-self: end;
-    width: var(--about-w, 7rem);
-    height: var(--pill-height);
+  /* A case page's way back, in the switch's place: the arrow's square,
+   * then the name, joined by a neck. Only the square is a link. */
+  .nav__crumb-place {
+    grid-column: 2;
+    justify-self: center;
+    min-width: 0;
+    max-width: 100%;
   }
 
-  .nav__about {
-    position: absolute;
-    top: 0;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: flex-start;
+  .nav__crumb {
     gap: 0;
-    width: var(--about-w, 7rem);
-    height: var(--pill-height);
     padding: 0;
-    overflow: hidden;
-    transition:
-      width var(--duration-slow) var(--ease-out),
-      height var(--duration-slow) var(--ease-out),
-      background-color var(--duration-base) var(--ease-out);
+    border-radius: var(--nav-radius);
   }
 
-  .nav__about:not([data-open]):hover {
+  .nav__back {
+    display: grid;
+    place-items: center;
+    flex: none;
+    align-self: stretch;
+    width: var(--pill-height);
+    border-radius: var(--nav-radius);
+    color: var(--ink);
+    transition: background-color var(--duration-base) var(--ease-out);
+  }
+
+  .nav__back:hover {
     background: var(--pill-fill-hover);
   }
 
-  .nav__about::after {
-    content: none;
+  .nav__back :global(svg) {
+    width: var(--icon-back);
+    height: var(--icon-back);
+    transition: translate var(--duration-base) var(--ease-out);
   }
 
-  /* The label and a square holding a plus, joined by a neck like the
-   * switch's halves; the plus turns to a cross while it's open. */
-  .nav__about-toggle {
-    flex: none;
-    display: flex;
-    align-items: center;
-    height: var(--pill-height);
-    padding: 0 0 0 var(--pill-pad);
-    border: 0;
-    border-radius: var(--nav-radius);
-    background: none;
-    color: var(--ink);
-    font: inherit;
-    white-space: nowrap;
-    cursor: pointer;
+  .nav__back:hover :global(svg) {
+    translate: -2px 0;
   }
 
-  .nav__about-toggle:focus-visible {
+  .nav__back:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
   }
 
-  .nav__plus {
-    position: relative;
+  /* The pill's full height, so its text has a box to tick over in between
+   * pages (PageTransition.astro). */
+  .nav__title {
     align-self: stretch;
-    width: var(--pill-height);
-    margin-left: var(--pill-pad);
-    transition:
-      rotate var(--duration-slow) var(--ease-out),
-      color var(--duration-base) var(--ease-out);
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    overflow: hidden;
+    padding: 0 var(--pill-pad);
+    white-space: nowrap;
   }
 
-  .nav__plus::before,
-  .nav__plus::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: var(--nav-plus);
-    height: var(--nav-plus-line);
-    translate: -50% -50%;
-    background: currentColor;
+  .nav__title-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .nav__plus::after {
-    rotate: 90deg;
-  }
+  /* About's place in the bar: the closed button's size. Open, the button
+   * grows from its top right corner, down and to the left, as tall as
+   * what's inside, over the rest of the bar. */
 
-  .nav__about-toggle[aria-expanded='true'] .nav__plus {
-    rotate: 45deg;
-    color: var(--accent);
-  }
+
+
+
+  /* The label and a square holding a plus, joined by a neck like the
+   * switch's halves; the plus turns to a cross while it's open. */
+
+
+
+
+
 
   /* What's inside, the panel's width from the start: the intro, then
    * contact, each under a quiet label and its hairline. */
-  .nav__about-menu {
-    flex: none;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-    width: var(--panel-w, var(--nav-panel-width));
-    padding: var(--space-2) var(--pill-pad) var(--space-4);
-    font-size: var(--text-small);
-    line-height: var(--leading-small);
-    letter-spacing: var(--tracking-small);
-    white-space: normal;
-    opacity: 0;
-    transition: opacity var(--duration-base) var(--ease-out);
-  }
 
-  .nav__about[data-open] .nav__about-menu {
-    opacity: 1;
-    transition-delay: calc(var(--duration-base) / 2);
-  }
 
-  .nav__about-menu[hidden] {
-    display: none;
-  }
 
   /* anima.ai's shape: small corners, not round ends. The switch is clipped
    * to its two halves joined by a neck once the script has measured it. */
-  .nav__about,
   .nav__views {
     border-radius: var(--nav-radius);
   }
@@ -350,10 +322,6 @@ const views = ['Work', 'Play'];
   }
 
   /* Open, the panel is solid Figure grey, to read on. */
-  .nav__views[data-open],
-  .nav__about[data-open] {
-    background: var(--figure);
-  }
 
   /* Phones' pills reach for a 44px tap with a layer over them (base.css);
    * over the switch it would take its halves' taps. */
@@ -364,14 +332,12 @@ const views = ['Work', 'Play'];
   /* Two halves, both in ink, each as wide as its label; a dot after the
    * chosen label marks it (the labels themselves don't change), and that
    * half widens to hold it as the other narrows, the neck sliding between.
-   * The dot stays ink, like the cursor, open or not: it says where you are,
-   * and the accent is kept for what the pointer is on (the list's dot,
-   * About's cross). */
+   * The dot is ink, like the cursor, open or not: it says where you are. */
   .nav__row {
     position: relative;
     flex: none;
     display: grid;
-    grid-template-columns: auto auto;
+    grid-template-columns: auto auto auto;
     width: var(--switch-w, max-content);
     height: var(--pill-height);
     margin-inline: auto;
@@ -416,8 +382,8 @@ const views = ['Work', 'Play'];
     list-style: none;
   }
 
-  /* Full ink, all of them. The hovered one is marked by one dot in the
-   * accent that glides to sit after its name, from wherever it last was,
+  /* Full ink, all of them. The hovered one is marked by one ink dot that
+   * glides to sit after its name, from wherever it last was,
    * after recent.design's nav. */
   .nav__item {
     display: flex;
@@ -444,7 +410,7 @@ const views = ['Work', 'Play'];
     height: var(--nav-mark);
     margin: calc(var(--nav-mark) / -2) 0 0 0;
     border-radius: 50%;
-    background: var(--accent);
+    background: var(--ink);
     scale: 0;
     pointer-events: none;
     transition:
@@ -660,70 +626,30 @@ const views = ['Work', 'Play'];
     });
   }
 
-  // About: the button opens the panel and closes it again; so do Escape, a
-  // click anywhere outside it, and tabbing out of it.
-  {
-    const place = document.querySelector<HTMLElement>('.nav__about-place');
-    const shape = place?.querySelector<HTMLElement>('.nav__about');
-    const toggle = shape?.querySelector<HTMLButtonElement>('.nav__about-toggle');
-    const menu = shape?.querySelector<HTMLElement>('.nav__about-menu');
-    if (place && shape && toggle && menu) {
-      const root = document.documentElement;
-      const px = (name: string) => parseFloat(getComputedStyle(root).getPropertyValue(name)) || 0;
-      let open = false;
-
-      const size = () => {
-        place.style.setProperty('--about-w', `${Math.ceil(toggle.scrollWidth)}px`);
-        const panel = Math.min(px('--nav-panel-width'), root.clientWidth - 2 * px('--index-margin'));
-        shape.style.setProperty('--panel-w', `${Math.max(panel, toggle.scrollWidth)}px`);
-        if (open) show();
-      };
-      const show = () => {
-        open = true;
-        menu.hidden = false;
-        toggle.setAttribute('aria-expanded', 'true');
-        shape.toggleAttribute('data-open', true);
-        shape.style.width = shape.style.getPropertyValue('--panel-w');
-        shape.style.height = `${px('--pill-height') + menu.offsetHeight}px`;
-      };
-      const hide = () => {
-        if (!open) return;
-        open = false;
-        toggle.setAttribute('aria-expanded', 'false');
-        shape.removeAttribute('data-open');
-        shape.style.width = '';
-        shape.style.height = '';
-      };
-      shape.addEventListener('transitionend', (e) => {
-        if (e.target === shape && e.propertyName === 'height' && !open) menu.hidden = true;
-      });
-      toggle.addEventListener('click', () => (open ? hide() : show()));
-      addEventListener('pointerdown', (e) => open && !shape.contains(e.target as Node) && hide(), { capture: true });
-      shape.addEventListener('focusout', (e) => !shape.contains(e.relatedTarget as Node) && hide());
-      addEventListener('keydown', (e) => {
-        if (e.key !== 'Escape' || !open) return;
-        hide();
-        toggle.focus({ preventScroll: true });
-      });
-      addEventListener('resize', size);
-      document.fonts?.ready.then(size);
-      size();
+  // Copy the address (here and in the index intro); say so for a moment,
+  // then put "Copy" back. Never opens a mail app: without the clipboard API
+  // (insecure context, old browser) it copies the old way, through a
+  // selected, unseen text field.
+  const copyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const field = Object.assign(document.createElement('textarea'), { value: text });
+      field.setAttribute('readonly', '');
+      field.style.cssText = 'position:fixed;opacity:0;pointer-events:none';
+      document.body.append(field);
+      field.select();
+      const ok = document.execCommand('copy');
+      field.remove();
+      return ok;
     }
-  }
-
-  // Copy the address; say so for a moment, then put "Copy" back. Without the
-  // clipboard API (insecure context, old browser) fall back to mailto.
+  };
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
     const status = button.querySelector<HTMLElement>('[data-copy-status]');
     let timer = 0;
     button.addEventListener('click', async () => {
-      const address = button.dataset.copy ?? '';
-      try {
-        await navigator.clipboard.writeText(address);
-      } catch {
-        window.location.href = `mailto:${address}`;
-        return;
-      }
+      if (!(await copyText(button.dataset.copy ?? ''))) return;
       if (!status) return;
       status.textContent = 'Copied';
       clearTimeout(timer);
@@ -767,8 +693,24 @@ const views = ['Work', 'Play'];
     document.fonts?.ready.then(draw);
   }
 
-  // Work / Play: press one, and the index shows its tiles; its half widens
-  // for its dot as the other's narrows (CSS).
+  // Back, from a case page opened from the index: go back in history, so
+  // the index comes back as it was (the rail where it was, from the
+  // bfcache) and the cover travels home. Otherwise just go to the index.
+  const backLink = document.querySelector<HTMLAnchorElement>('.nav__back');
+  backLink?.addEventListener('click', (e) => {
+    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    let from = '';
+    try {
+      const ref = new URL(document.referrer);
+      if (ref.origin === location.origin) from = ref.pathname;
+    } catch {}
+    if (from !== '/' || history.length < 2) return;
+    e.preventDefault();
+    history.back();
+  });
+
+  // About / Work / Play: press one, and the index goes there; its part
+  // widens for its dot as the others narrow (CSS).
   const views = [...document.querySelectorAll<HTMLButtonElement>('.nav__view')];
   const group = document.querySelector<HTMLElement>('.nav__views');
 
@@ -807,7 +749,7 @@ const views = ['Work', 'Play'];
       clearTimeout(timer);
       open = view;
       menus.forEach((m) => (m.hidden = m.dataset.menu !== view));
-      views.forEach((b) => b.setAttribute('aria-expanded', String(b.dataset.view === view)));
+      views.forEach((b) => b.hasAttribute('aria-expanded') && b.setAttribute('aria-expanded', String(b.dataset.view === view)));
       const menu = menus.find((m) => m.dataset.menu === view);
       // The cover from the first name's top to the last's bottom.
       const names = [...(menu?.querySelectorAll<HTMLElement>('.nav__name') ?? [])];
@@ -826,7 +768,7 @@ const views = ['Work', 'Play'];
       clearTimeout(timer);
       if (!open) return;
       open = null;
-      views.forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      views.forEach((b) => b.hasAttribute('aria-expanded') && b.setAttribute('aria-expanded', 'false'));
       group.removeAttribute('data-open');
       group.style.width = '';
       group.style.height = '';
@@ -846,6 +788,12 @@ const views = ['Work', 'Play'];
 
     for (const button of views) {
       const view = button.dataset.view!;
+      // About has no panel: hovering it closes the others'.
+      if (!menus.some((m) => m.dataset.menu === view)) {
+        button.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && hide());
+        button.addEventListener('focus', () => hide());
+        continue;
+      }
       button.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && show(view));
       button.addEventListener('focus', () => !touch && show(view));
       button.addEventListener('click', () => {
@@ -859,6 +807,8 @@ const views = ['Work', 'Play'];
     group.addEventListener('focusout', (e) => {
       if (!group.contains(e.relatedTarget as Node)) hide();
     });
+    // The index closes it as a project opens from its list (index.astro).
+    document.addEventListener('nav-close', () => open && hide());
     addEventListener('keydown', (e) => {
       if (e.key !== 'Escape' || !open) return;
       const back = views.find((b) => b.dataset.view === open);

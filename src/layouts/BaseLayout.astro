@@ -22,9 +22,11 @@ interface Props {
   ogImage?: string;
   /** One screen tall at least (the index). */
   fit?: boolean;
+  /** On a case page: the project's short name, for the header. */
+  project?: string;
 }
 
-const { title, description = SITE.description, ogImage, fit = false } = Astro.props;
+const { title, description = SITE.description, ogImage, fit = false, project } = Astro.props;
 
 // Landing page uses the bare site title; inner pages get a suffix.
 const pageTitle = title ? `${title} — ${SITE.name}` : SITE.title;
@@ -46,6 +48,9 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <meta name="theme-color" content="#0b0b0b" />
+    <!-- Dark before any CSS: the browser's own page colour, painted between
+         pages (some browsers show a frame of it), is then dark, not white. -->
+    <meta name="color-scheme" content="dark" />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={SITE.name} />
@@ -65,7 +70,7 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.site) : undefined;
 
   <body class:list={{ 'page-fit': fit }}>
     <a class="skip-link" href="#main">Skip to content</a>
-    <Nav />
+    <Nav project={project} />
     <main id="main">
       <slot />
     </main>

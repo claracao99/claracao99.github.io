@@ -4,7 +4,7 @@
  * index grid, square (--tile-ratio) at every width, after yuriroga.com. A
  * cover photo shows full bleed; a cover video shows the prototype in a phone
  * on Figure grey, looping on its own (DeviceVideo). The case page opens on
- * this same tile, which slides there along the grid (index.astro).
+ * this same tile, which rises there as the others fall away (index.astro).
  *
  * Cards link to their case page (or out to externalUrl); on hover the cursor
  * frames the card (Cursor.astro) and a glass pill with the short title
@@ -39,9 +39,7 @@ const linkProps = href
   : {};
 ---
 
-{/* data-open-ratio: the case page's first tile, 16:9 on a film page; the
-    outline grows to it (index.astro). */}
-<article class="work-card" data-open-ratio={film ? 16 / 9 : undefined}>
+<article class="work-card">
   <Tag class="work-card__inner" {...linkProps}>
     <div
       class="work-card__media"

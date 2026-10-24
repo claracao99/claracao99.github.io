@@ -19,7 +19,7 @@ const { entry } = Astro.props;
 const { Content } = await render(entry);
 ---
 
-<BaseLayout title={projectName(entry)} description={entry.data.summary}>
+<BaseLayout title={projectName(entry)} description={entry.data.summary} project={projectName(entry)}>
   <CaseStudyLayout entry={entry}>
     <Content />
   </CaseStudyLayout>

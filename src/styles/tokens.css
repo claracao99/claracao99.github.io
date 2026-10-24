@@ -11,7 +11,6 @@
    * Pure neutrals, no tint: white page, cool greys, near-black ink.
    */
   --grey-00: #ffffff; /* page — Paper */
-  --grey-03: #fbfbfb; /* loading squares, lighter than Figure */
   --grey-05: #f7f7f7; /* Figure — pills, empty states, UI-showcase cards */
   --grey-08: #f0f0f0; /* pill hover */
   --grey-15: #e1e1e1; /* Icon */
@@ -67,7 +66,7 @@
   --chip-fill: var(--grey-20);
   --chip-fill-on: var(--ink);
   --chip-ink-on: var(--surface);
-  /* The header's Work / Play switch (Nav.astro): a dot, round like the
+  /* The header's About / Work / Play switch (Nav.astro): a dot, round like the
    * cursor, after the chosen label; the same dot after a hovered project's
    * name. */
   --nav-mark: 4px;
@@ -81,15 +80,10 @@
    * pills, and side by side, joined by a pinched neck (Nav.astro draws it). */
   --nav-radius: 10px;
   --nav-neck: 7px; /* how far the edge dips in where two meet */
+  --icon-back: 16px; /* the arrow in a case page's Back */
   /* Open, the switch is a panel (after jeton.com's nav): this wide, at most,
    * with the hovered project's cover this size in its top right corner. */
   --nav-panel-width: 380px;
-  /* The site's one colour beside the work, used sparingly and for one thing,
-   * what the pointer is acting on: the hovered project's dot, About's cross.
-   * Where you are (the switch's dot) stays ink; the panels stay grey. */
-  --accent: #ff2400; /* scarlet */
-  --nav-plus: 10px; /* About's plus */
-  --nav-plus-line: 1.5px;
   --nav-cover: 96px; /* until the script matches it to the list's height */
 
   /* ── Type ──────────────────────────────────────────────────────────────────
@@ -131,6 +125,7 @@
   --text-body: 1.0625rem; /* 17 */
   --text-title: 1.375rem; /* 22 — project titles */
   --text-display: clamp(3rem, 1.5rem + 3.4vw, 4.5rem); /* 48 → 72 */
+  --text-intro-name: clamp(1.75rem, 1rem + 1.6vw, 2.5rem); /* 28 → 40: the index intro's big name */
 
   --leading-none: 1;
   --leading-display: 1;
@@ -198,12 +193,31 @@
 
   /* Index rail (index.astro, from 48rem): the tiles in one row, pinned while
    * the page scrolls, sliding sideways and turning away as they leave the
-   * middle, after details.so's Perspective Cards. Bigger than the grid's
-   * tiles, to fill the screen; keep the 420 in step with lib/media.ts. */
-  --rail-tile: clamp(240px, 46svh, 420px);
+   * middle, after details.so's Perspective Cards. As big as leaves the
+   * next tile peeking in at the window's edge, the sign there's more: from
+   * the inset, 3.4 steps (a tile and its eighth of a gap) fill the width, so
+   * the fourth shows four tenths of itself. No taller than 46svh. Keep the
+   * 520 in step with lib/media.ts. */
+  --rail-tile: clamp(260px, min(46svh, calc((100vw - 2rem) / 3.825)), 520px);
   --rail-gap: calc(var(--rail-tile) / 8);
-  --rail-angle: 34deg; /* a tile's turn at the window's edge */
-  --rail-perspective: 1400px;
+  --rail-intro: var(--rail-tile); /* the intro at the row's start, a tile wide */
+  --rail-angle: 36deg; /* a tile's turn at the window's edge */
+  --rail-perspective: 1000px; /* nearer, so the turned tiles foreshorten more */
+  /* Play's own ground on the rail, sliding in behind it: white, with dark
+   * ink for the wordmark while it's on it. */
+  --play-bg: #ffffff;
+  --play-ink: #000000;
+  /* Play's tiles are light whatever the page: a pale card (after the white
+   * reference) with placeholder shapes a step darker. */
+  --play-speed: 1.6; /* its edge sweeps in this many times as fast as the row */
+  --play-figure: #f0f0ef;
+  --play-shape: #dededc;
+  --icon-rail-arrow: 24px; /* between Work and Play on the rail, for now */
+  /* The row's ends stop in line with the wordmark (Nav.astro). */
+  --rail-inset: calc(var(--index-margin) + var(--pill-pad));
+  /* Once a visit the drum drifts a little way on and back, to show it moves. */
+  --delay-nudge: 900ms;
+  --duration-nudge: 1400ms;
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -226,19 +240,22 @@
   --duration-page: 300ms;
   --ease-page: var(--ease-in-out);
   --transition-backdrop: var(--surface);
-  /* Case and About page entrance (TilePage.astro): the window fills with light
-   * grey squares (LoadingSquares.astro) that each fade in and out at their own
-   * random pace, the cover fades in slowly, then the card, then the rest. */
-  --duration-blink: 1600ms; /* one square's fade in and out, ±30% at random */
-  --duration-reveal-wait: 1000ms; /* squares show at least this long */
-  --duration-reveal-cover: 700ms; /* the cover's fade in */
-  --duration-reveal: 400ms;
-  --reveal-fill: var(--grey-03);
-  /* Opening a page from an index tile: the tile lingers in an outline while
-   * the rest of the index fades to the same loading squares, then the outline
-   * grows into the next page's big cover square as the tile fades. */
-  --duration-leave: 600ms;
-  --duration-grow: 600ms; /* the outline growing into the big square */
+  /* Opening a case from an index tile (index.astro, PageTransition.astro):
+   * on the rail the camera dollies in, gliding the tile to the middle as the
+   * rest of the drum sinks back into shadow; then the tile grows into the
+   * case page's cover as the page arrives under it. Back, the reverse. */
+  --duration-dolly: 750ms;
+  --duration-travel: 700ms;
+  /* A word rolling in or out of its clipped box (the wordmark's handoff,
+   * after partizan.com's nav). */
+  --duration-roll: 450ms;
+  --ease-roll: cubic-bezier(0.25, 0.1, 0.25, 1); /* soft, no snap */
+  /* The header's middle between pages: its pill's shape morphs, its text
+   * ticks over (PageTransition.astro). */
+  --duration-nav-morph: 520ms;
+  --duration-nav-tick: 420ms;
+  --delay-nav-tick: 80ms;
+  --ease-travel: cubic-bezier(0.45, 0, 0.15, 1); /* a gentle start, a long settle */
 
   /* Cursor.astro, after templo.co.uk: white under exclusion blending, so it
    * shows as black on the white page. One size everywhere. */
@@ -273,7 +290,6 @@
 :root[data-theme='dark'] {
   color-scheme: dark;
   --grey-00: #0b0b0b; /* page */
-  --grey-03: #121212; /* loading squares */
   --grey-05: #171717; /* Figure */
   --grey-08: #202020; /* pill hover */
   --grey-15: #3d3d3d; /* Icon */

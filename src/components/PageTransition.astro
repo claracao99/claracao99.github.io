@@ -2,8 +2,11 @@
 /**
  * Index ↔ case-study page transition: the header stays put while the pages
  * under it crossfade in place, both at once, so there is no blank frame
- * between them. Leaving from an index tile, both sides show the same loading
- * squares and the tile's outline, so the swap itself is all but invisible.
+ * between them. Between the index and a case, the project's tile and the
+ * case's cover are one element (case-tile): it travels from the one place
+ * to the other, growing or shrinking, while the rest crossfades. On the
+ * index the camera has already dollied in on it (index.astro), so it sets
+ * off flat and centred, the rest of the drum sunk back in shadow.
  *
  * Native cross-document View Transitions, no library: pages still load in
  * full, so Lenis is untouched. Browsers without support, and
@@ -34,11 +37,26 @@
     // named element is a backdrop root, which would stop backdrop-filter glass
     // from blurring the work behind it. Leaving page: set before the
     // snapshot; cleared if the page comes back from the bfcache.
+    // The travelling tile is named only between the index and a case
+    // (data-vt-tile), so case → case just crossfades. On the index it is the
+    // tile marked data-vt-cover: the one clicked, or, coming back, the one
+    // whose case we came from.
     const root = document.documentElement;
+    const between = (a, b) => (a === 'work' && b === 'case') || (a === 'case' && b === 'work');
     window.addEventListener('pageswap', (e) => {
-      if (e.viewTransition) root.dataset.vtNav = '';
+      if (!e.viewTransition) return;
+      root.dataset.vtNav = '';
+      if (between(kind(location.href), kind(e.activation?.entry?.url))) root.dataset.vtTile = '';
     });
-    window.addEventListener('pageshow', () => delete root.dataset.vtNav);
+    // Only for the old page coming back from the bfcache: on a fresh load
+    // pageshow fires mid-transition, and clearing the names there drops the
+    // cover out of the transition, showing it unloaded (a grey blink).
+    window.addEventListener('pageshow', (e) => {
+      if (!e.persisted) return;
+      delete root.dataset.vtNav;
+      delete root.dataset.vtTile;
+      delete root.dataset.vtDir;
+    });
 
     window.addEventListener('pagereveal', (e) => {
       const vt = e.viewTransition;
@@ -50,7 +68,30 @@
         return;
       }
       root.dataset.vtNav = '';
-      vt.finished.finally(() => delete root.dataset.vtNav);
+      if (between(from, to)) {
+        root.dataset.vtTile = '';
+        root.dataset.vtDir = to === 'case' ? 'open' : 'close';
+        if (to === 'work') {
+          let path = '';
+          try {
+            path = new URL(navigation?.activation?.from?.url ?? document.referrer).pathname.replace(/\/+$/, '');
+          } catch {}
+          // One card only: two with the name would cancel the transition.
+          // Back out of the bfcache, the card that was clicked (perhaps one
+          // of the drum's copies) is still marked; otherwise the original.
+          if (!document.querySelector('.work-card[data-vt-cover]')) {
+            const a = [...document.querySelectorAll('.work-card:not([data-rail-copy]) a.work-card__inner')].find(
+              (a) => a.pathname.replace(/\/+$/, '') === path,
+            );
+            if (a) a.closest('.work-card').dataset.vtCover = '';
+          }
+        }
+      }
+      vt.finished.finally(() => {
+        delete root.dataset.vtNav;
+        delete root.dataset.vtTile;
+        delete root.dataset.vtDir;
+      });
     });
   })();
 </script>
@@ -77,10 +118,181 @@
     background: var(--transition-backdrop);
   }
 
+  /* The header's middle changes between pages (the About / Work / Play switch, a
+   * case's Back and name) in two parts. The pill's shape (nav-pill, drawn
+   * without its text, which is named apart) morphs from the one to the
+   * other, stretching to its new width and place, the neck crossfading. The
+   * text (nav-label) ticks over inside its box, clipped: the old scrolls up
+   * and out as the new scrolls up and in; back to the index, both scroll
+   * down. Neither text stretches as its box changes size. */
+  [data-vt-nav] :is(.nav__views, .nav__crumb) {
+    view-transition-name: nav-pill;
+  }
+
+  [data-vt-nav] :is(.nav__views .nav__row, .nav__title) {
+    view-transition-name: nav-label;
+  }
+
+  ::view-transition-group(nav-pill),
+  ::view-transition-group(nav-label) {
+    animation-duration: var(--duration-nav-morph);
+    animation-timing-function: var(--ease-travel);
+  }
+
+  ::view-transition-old(nav-pill),
+  ::view-transition-new(nav-pill) {
+    height: 100%;
+    object-fit: fill;
+    animation-duration: var(--duration-nav-morph);
+    animation-timing-function: var(--ease-travel);
+  }
+
+  ::view-transition-image-pair(nav-label) {
+    overflow: clip;
+  }
+
+  ::view-transition-old(nav-label),
+  ::view-transition-new(nav-label) {
+    height: 100%;
+    object-fit: none;
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-old(nav-label) {
+    animation: vt-tick-out var(--duration-nav-tick) var(--ease-in-out) both;
+  }
+
+  ::view-transition-new(nav-label) {
+    animation: vt-tick-in var(--duration-nav-tick) var(--ease-travel) var(--delay-nav-tick) both;
+  }
+
+  [data-vt-dir='close']::view-transition-old(nav-label) {
+    animation-name: vt-tick-out-down;
+  }
+
+  [data-vt-dir='close']::view-transition-new(nav-label) {
+    animation-name: vt-tick-in-down;
+  }
+
+  @keyframes vt-tick-out {
+    to {
+      translate: 0 -100%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes vt-tick-in {
+    from {
+      translate: 0 100%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes vt-tick-out-down {
+    to {
+      translate: 0 100%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes vt-tick-in-down {
+    from {
+      translate: 0 -100%;
+      opacity: 0;
+    }
+  }
+
+  /* The tile that travels: the index tile and the case cover. */
+  [data-vt-tile] .work-card[data-vt-cover] .work-card__media,
+  [data-vt-tile] .case__cover > .case__tile {
+    view-transition-name: case-tile;
+  }
+
+  /* It keeps its corners as it grows or shrinks: the group, which changes
+   * size rather than scale, does the rounding. */
+  ::view-transition-group(case-tile) {
+    overflow: hidden;
+    border-radius: var(--radius-card);
+    animation-duration: var(--duration-travel);
+    animation-timing-function: var(--ease-travel);
+  }
+
+  ::view-transition-old(case-tile),
+  ::view-transition-new(case-tile) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* No crossfade between the two pictures, which are the same. Opening,
+   * the tile's picture stays underneath the whole way and the cover lies
+   * over it; the cover's empty well is see-through until its picture has
+   * loaded, so if it's late the tile shows through instead of a blank
+   * (that was a blink). Closing, only the cover shows, shrinking: the
+   * bigger, sharper of the two. */
+  ::view-transition-old(case-tile),
+  ::view-transition-new(case-tile) {
+    animation: none;
+    opacity: 1;
+    mix-blend-mode: normal;
+  }
+
+  [data-vt-dir='close']::view-transition-new(case-tile) {
+    display: none;
+  }
+
+  [data-vt-dir='open'] .case__cover > .case__tile,
+  [data-vt-dir='open'] .case__cover :is(.film, video) {
+    background: transparent;
+  }
+
+  /* Between the index and a case the page under the tile comes in a beat
+   * later than the plain crossfade, rising a little, once the tile is on
+   * its way. */
+  [data-vt-dir='open']::view-transition-old(root) {
+    animation: vt-fade-out calc(var(--duration-travel) * 0.5) var(--ease-out) both;
+  }
+
+  [data-vt-dir='open']::view-transition-new(root) {
+    animation:
+      vt-fade-in calc(var(--duration-travel) * 0.6) var(--ease-out) calc(var(--duration-travel) * 0.45) both,
+      vt-rise var(--duration-travel) var(--ease-travel) calc(var(--duration-travel) * 0.2) both;
+  }
+
+  /* Closing, the case page goes first and the index, whose drum gathers
+   * round the tile live under the transition (index.astro), comes in. */
+  [data-vt-dir='close']::view-transition-old(root) {
+    animation: vt-fade-out calc(var(--duration-travel) * 0.45) var(--ease-out) both;
+  }
+
+  [data-vt-dir='close']::view-transition-new(root) {
+    animation: vt-fade-in calc(var(--duration-travel) * 0.6) var(--ease-out) calc(var(--duration-travel) * 0.15) both;
+  }
+
+  /* These two pages differ everywhere and go one after the other, so they
+   * lie over each other rather than add: added, wherever both still show
+   * (text over text, the drum over the card) the light doubles, a flash.
+   * Between them is only the backdrop, the page's own colour. */
+  [data-vt-dir]::view-transition-old(root),
+  [data-vt-dir]::view-transition-new(root) {
+    mix-blend-mode: normal;
+  }
+
+  /* Opened from somewhere without the tile (the header's Work list), the
+   * cover has nothing to travel from: it fades in with its page, rather
+   * than appear at once. Likewise it fades out if it has nowhere to go. */
+  ::view-transition-new(case-tile):only-child {
+    animation: vt-fade-in calc(var(--duration-travel) * 0.6) var(--ease-out) calc(var(--duration-travel) * 0.3) both;
+  }
+
+  ::view-transition-old(case-tile):only-child {
+    animation: vt-fade-out calc(var(--duration-travel) * 0.45) var(--ease-out) both;
+  }
+
   /* Added together, not laid one over the other: the two opacities always sum
-   * to 1, so whatever is the same on both pages (the squares, the outline handed
-   * over in place) holds perfectly still. Laid over each other, both at 50%
-   * cover only 75%, and the backdrop shows through as a blink. The UA's own
+   * to 1, so whatever is the same on both pages holds perfectly still. Laid
+   * over each other, both at 50% cover only 75%, and the backdrop shows
+   * through as a blink. The UA's own
    * crossfade does the same, but setting `animation` drops it. */
   ::view-transition-image-pair(root) {
     isolation: isolate;
@@ -108,6 +320,12 @@
   @keyframes vt-fade-in {
     from {
       opacity: 0;
+    }
+  }
+
+  @keyframes vt-rise {
+    from {
+      translate: 0 24px;
     }
   }
 </style>

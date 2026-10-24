@@ -15,7 +15,7 @@ import type { ImageMetadata } from 'astro';
  */
 const TILE_PX = 240; // desktop --tile-size
 const GAP_PX = 10; // --index-gap
-const RAIL_PX = 420; // --rail-tile at its largest
+const RAIL_PX = 520; // --rail-tile at its largest
 
 export function tileSizes(src: ImageMetadata | undefined, tileRatio = 1, { wide = false } = {}): string {
   const ratio = src ? src.width / src.height : 1;

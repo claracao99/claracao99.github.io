@@ -7,8 +7,6 @@
  * - The case-study text column carries `data-lenis-prevent`, so wheel events
  *   over it scroll that column, not the page behind it.
  * - Touch scrolling stays native (Lenis default), so iOS keeps its own physics.
- * - Ignores the wheel while a case page is still coming in (data-reveal,
- *   TilePage.astro); case.css holds native scrolling still meanwhile.
  * - Kept on window.smoothScroll so the index can hold the page still while
  *   a tile slides to its next spot (index.astro).
  */
@@ -22,7 +20,6 @@
       lerp: 0.13,
       anchors: true,
       autoRaf: true,
-      virtualScroll: () => !document.querySelector('.case-page[data-reveal]'),
     });
   }
 </script>
