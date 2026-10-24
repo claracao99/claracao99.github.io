@@ -113,6 +113,15 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
   :global(html[data-on-play] .nav__home) {
     color: var(--play-ink);
   }
+  /* The switch and the arrow each turn once Play's white is under them. */
+  :global(html[data-on-play-nav] .nav__views) {
+    --ink: var(--play-ink);
+    --ink-detail: var(--play-ink-detail);
+    --pill-glass: var(--play-pill-glass);
+  }
+  :global(.rail-divider[data-on-play]) {
+    --ink-detail: var(--play-ink-detail);
+  }
 
   /* Play's tiles are light (a pale card, darker placeholder shapes),
    * whatever the page around them. */
@@ -567,6 +576,8 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
             playEdge = edge;
             document.documentElement.style.setProperty('--play-edge', `${edge}px`);
             document.documentElement.toggleAttribute('data-on-play', edge < wordmark);
+            document.documentElement.toggleAttribute('data-on-play-nav', edge < width / 2);
+            divider.toggleAttribute('data-on-play', edge < arrowAt - size / 2);
           }
         }
         if (at !== to) frame = requestAnimationFrame(draw);
@@ -640,37 +651,6 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
           focus = null;
           draw();
         });
-      };
-
-      // Once a visit, a moment after the index opens: the drum drifts a
-      // little way on and settles back, to show that it moves and that
-      // there's more beyond the edge. Any wheel, drag or key stops it where
-      // it is. Not when back from a case (the drum gathers then) or with
-      // reduced motion (no rail).
-      const nudge = () => {
-        if (!on || focus || tiles.length < 2 || 'leaving' in document.documentElement.dataset) return;
-        try {
-          if (sessionStorage.getItem('rail-nudged')) return;
-          sessionStorage.setItem('rail-nudged', '1');
-        } catch {}
-        const from = at;
-        const reach = step * 0.4;
-        const duration = cssMs(document.documentElement, '--duration-nudge') || 1400;
-        const t0 = performance.now();
-        let alive = true;
-        const stop = () => (alive = false);
-        addEventListener('wheel', stop, { once: true, passive: true });
-        addEventListener('keydown', stop, { once: true });
-        rail.addEventListener('pointerdown', stop, { once: true });
-        const tick = () => {
-          if (!alive || focus) return;
-          const k = Math.min(1, (performance.now() - t0) / duration);
-          // Out and back, at rest at both ends.
-          at = to = from + (reach * (1 - Math.cos(2 * Math.PI * k))) / 2;
-          draw();
-          if (k < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
       };
 
       // Tabbing to a tile brings it to the middle.
@@ -753,9 +733,7 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
       addEventListener('pageshow', (e) => e.persisted && measure());
       // Again once Lenis is up (SmoothScroll.astro), to hold it still too.
       addEventListener('load', measure);
-      const back = !!start;
       measure();
-      if (!back) setTimeout(nudge, cssMs(document.documentElement, '--delay-nudge') || 900);
     }
   }
 

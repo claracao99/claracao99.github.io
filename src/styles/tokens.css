@@ -207,17 +207,18 @@
    * ink for the wordmark while it's on it. */
   --play-bg: #ffffff;
   --play-ink: #000000;
+  --play-ink-detail: rgb(0 0 0 / var(--ink-detail-alpha));
+  /* The header's switch over it: light glass, like the index's own pills on
+   * white, rather than the dark glass going muddy grey. */
+  --play-pill-glass: rgb(240 240 240 / 0.6);
   /* Play's tiles are light whatever the page: a pale card (after the white
    * reference) with placeholder shapes a step darker. */
   --play-speed: 1.6; /* its edge sweeps in this many times as fast as the row */
-  --play-figure: #f0f0ef;
-  --play-shape: #dededc;
+  --play-figure: #f0f0f0;
+  --play-shape: #dedede;
   --icon-rail-arrow: 24px; /* between Work and Play on the rail, for now */
   /* The row's ends stop in line with the wordmark (Nav.astro). */
   --rail-inset: calc(var(--index-margin) + var(--pill-pad));
-  /* Once a visit the drum drifts a little way on and back, to show it moves. */
-  --delay-nudge: 900ms;
-  --duration-nudge: 1400ms;
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -289,18 +290,20 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --grey-00: #0b0b0b; /* page */
-  --grey-05: #171717; /* Figure */
-  --grey-08: #202020; /* pill hover */
-  --grey-15: #3d3d3d; /* Icon */
-  --grey-10: #1b1b1b; /* media wells */
-  --grey-20: #262626; /* placeholder shapes */
-  --grey-30: #2c2c2c; /* hairlines */
-  --grey-60: #929292; /* muted labels — 6.2:1 on the page */
-  --grey-90: #f2f2f2; /* body copy */
-  --grey-100: #ffffff; /* titles, nav */
-  --ink-detail: rgb(255 255 255 / var(--ink-detail-alpha));
-  --pill-glass: rgb(32 32 32 / 0.5);
+  /* A dark grey rather than black: softer under light type, and Play's
+   * white arrives as a step, not a flash. Tiles and pills a step lighter. */
+  --grey-00: #181818; /* page */
+  --grey-05: #222222; /* Figure */
+  --grey-08: #2a2a2a; /* pill hover */
+  --grey-15: #474747; /* Icon */
+  --grey-10: #252525; /* media wells */
+  --grey-20: #2f2f2f; /* placeholder shapes */
+  --grey-30: #363636; /* hairlines */
+  --grey-60: #9a9a9a; /* muted labels — 6.3:1 on the page */
+  --grey-90: #ebebeb; /* body copy */
+  --grey-100: #f2f2f2; /* titles, nav — off-white, not pure */
+  --ink-detail: rgb(242 242 242 / var(--ink-detail-alpha));
+  --pill-glass: rgb(42 42 42 / 0.55);
   --scrim: rgb(0 0 0 / 0.6);
   /* The cursor inverts what is under it, so it stays white. */
   --cursor-fill: #ffffff;

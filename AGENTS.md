@@ -117,7 +117,11 @@ infrastructure:
   nudged every column sideways.
 - **Palette** from the Figma file: a `--grey-*` ramp plus a semantic layer.
   The site is dark only: `<html data-theme="dark">` applies the ramp override
-  in tokens.css. The lamp's cord turns only the lamp's glow on and off.
+  in tokens.css; its page is a dark grey (#181818), not black, with
+  off-white ink. Anything sitting on Play's white ground (wordmark, header
+  switch, the Work→Play arrow) swaps to the `--play-*` ink/glass tokens via
+  a `data-on-play*` attribute set as the white's edge passes it.
+  The lamp's cord turns only the lamp's glow on and off.
   No accent colour: the UI is ink and greys only (the scarlet went once its
   last use, the project list's gliding dot, turned ink). The lamp's
   switch only clicks while the cord is held: settling on load used to flip it.
