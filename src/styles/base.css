@@ -327,6 +327,7 @@ button.pill[aria-expanded='true'] > svg[data-direction='south'] {
 .logotype {
   font-family: var(--font-logo);
   font-size: var(--text-small);
+  font-weight: var(--weight-bold);
   line-height: 1;
   letter-spacing: var(--tracking-logo);
   text-transform: uppercase;

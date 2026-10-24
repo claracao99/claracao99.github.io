@@ -27,8 +27,8 @@ infrastructure:
   silently be the work one.
 - **Self-host fonts** as woff2 in `src/fonts/` with `font-display: swap`. No
   Google Fonts CDN, and no typeface licensed through an employer. Current
-  faces, all SIL OFL: Special Gothic Expanded One (wordmark), Mona Sans
-  (body), Fragment Mono (numbers, years) and Instrument Serif (case titles).
+  faces, all SIL OFL: Mona Sans (body, and the wordmark in bold caps),
+  Fragment Mono (numbers, years) and Instrument Serif (case titles).
 
 ## Conventions
 

@@ -112,11 +112,11 @@
   --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
   /* Labels, dates and "Read more" — per the Figma. */
   --font-mono: 'Fragment Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-  /* The wordmark, and nothing else. */
-  --font-logo: 'Special Gothic Expanded One', var(--font-sans);
+  /* The wordmark: the body face, set bold in caps. */
+  --font-logo: var(--font-sans);
 
   /* Index type (01 Index): one size for nearly everything.
-   *   Logotype — 11, uppercase, tracking +10%
+   *   Logotype — Mona Sans Bold 11, uppercase, tracking +7%
    *   Body     — Mona Sans 11 / 14, tracking +2% (nav, captions, footer);
    *              a step up from yuriroga.com's 10 / 13, for legibility
    *   Detail   — Fragment Mono 11 / 14, --ink-detail
@@ -125,7 +125,7 @@
   --text-detail: 0.6875rem; /* 11 */
   --leading-small: 0.875rem; /* 14px */
   --tracking-small: 0.02em;
-  --tracking-logo: 0.1em;
+  --tracking-logo: 0.07em;
 
   --text-label: 0.75rem; /* 12 */
   --text-body: 1.0625rem; /* 17 */
