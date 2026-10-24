@@ -392,10 +392,9 @@ export function mountLamp({ stage, cord, spare, onToggle }: Options) {
     if (mouse || !grab.pullTarget || left <= 0) return release();
     releaseTimer = window.setTimeout(release, left);
   };
-  // The click starts the theme's View Transition, which lays a snapshot over
-  // the page just as a tapping finger lifts, and iOS Safari can then lose the
-  // pointerup on the stage: the cord stayed held down. So any sign that the
-  // press is over lets go, wherever it lands.
+  // iOS Safari can lose the pointerup on the stage as a tapping finger lifts
+  // (it did under the old theme switch's View Transition): the cord stayed
+  // held down. So any sign that the press is over lets go, wherever it lands.
   const pointerEnd = (e: PointerEvent) => letGo(e, e.pointerType === 'mouse');
   const touchEnd = (e: TouchEvent) => { if (!e.touches.length) letGo(e, false); };
   window.addEventListener('pointerup', pointerEnd);

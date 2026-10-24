@@ -44,8 +44,10 @@ infrastructure:
   screen's width less the 10px margins, so it fills the phone; from 32rem it
   is a fixed 240px, two to a row, and only the side space grows
   (`--tile-size`). Keep `TILE_PX` in `lib/media.ts` in step.
-  The index: About first, the projects, the lamp last (LampTile.astro).
-  `/work/<slug>/` and `/about/` share `TilePage.astro`: one column the grid's
+  The index's tiles are the header switch's view: Work (the projects) or
+  Play (side projects, so far the lamp, LampTile.astro with
+  `data-view="play"`); index.astro listens for `index-view`.
+  `/work/<slug>/` pages use `TilePage.astro`: one column the grid's
   full width, the cover (the index card's own picture), then a Figure card as
   tall as its text (Information = short project name as h1, company, year;
   Description = summary + MDX body), then the frontmatter `media` (`size:
@@ -53,16 +55,38 @@ infrastructure:
   Media without `src` is a placeholder tile; no `media` at all gets a default
   placeholder set, and `media: []` means the cover alone. Layout lives in
   `src/styles/case.css` (global, because MDX output has no scope).
-- **Opening a tile is choreographed** (index.astro, TilePage.astro, case.css
+- **From 48rem the index is the rail** (index.astro): a fixed, vertically
+  centred, endlessly looping row of tiles that turn in 3D by their distance
+  from the middle (after details.so's Perspective Cards). The page itself
+  never scrolls there (`html:has(.rail[data-active])` is overflow hidden,
+  Lenis stopped); the wheel, arrow keys, focus and touch drags move the row.
+  The row is `preserve-3d` with `pointer-events: none` and only the tiles
+  take the pointer: otherwise the row's plane, level with the middle tile,
+  swallows its clicks. Read `calc()` tokens in script through a property
+  that resolves them (the rail reads `--rail-gap` via `column-gap`);
+  `getPropertyValue` returns the unresolved string. On the rail there is no
+  cursor frame and no open-tile choreography (below): tiles open straight
+  away. Phones and reduced motion keep the grid.
+- **The header** (Nav.astro): wordmark as bare text, the Work / Play switch,
+  About. Its pills are rounded rectangles joined by a pinched neck, after
+  anima.ai, drawn as a clip-path from each `[data-seam]`'s left edge (so the
+  glass blur is clipped too) and redrawn as parts resize. The switch and
+  About each open into a panel (Jeton-style) by animating the box's width
+  and height in px; their contents keep the open width and are uncovered.
+  A `.pill` is `display: flex` with a gap: a pill used as a column container
+  needs `gap: 0`, or the panel's measured height comes up short and the
+  bottom is clipped. Phones' pills get a 44px tap layer (`.pill::after`),
+  which must be off on pills that contain other controls.
+- **Opening a tile is choreographed** on the grid (phones; index.astro, TilePage.astro, case.css
   Entrance): the tile lingers in an outline while the index fades to the
   blinking loading squares, the outline grows into the cover's big square,
   and the case page opens on the same squares and outline (handed over in
   sessionStorage `tile-handoff`), then the cover fills it, then the card,
   then the rest. A touch tap skips the outline (it looked bad without a
   cursor frame leading into it): the tile just fades with the others. The
-  header and footer are pinned on desktop and hold still through all of it
-  (named only while a page transition runs, PageTransition.astro); on phones
-  both scroll with the page and the footer fades with the tiles. The
+  header is pinned on desktop and holds still through page changes (named
+  only while a page transition runs, PageTransition.astro); on phones it
+  scrolls with the page. The
   outline and cursor frame sit under the sticky nav (`--z-cursor-frame` <
   `--z-nav`). Anything the next page must show from its first frame has
   to be set by an inline script *before* that element is parsed, or it fades
@@ -77,28 +101,17 @@ infrastructure:
 - **Crossfades must add, not stack.** View-transition crossfades use
   `mix-blend-mode: plus-lighter` (PageTransition.astro); setting `animation`
   on `::view-transition-old/new` drops the UA's, and two 50% layers then show
-  the backdrop through as a blink. The theme switch is a same-document View
-  Transition for the same reason: per-element colour transitions restart
-  every frame on an element that sets its own colour inside one inheriting a
-  changing colour (the footer's "Copy" lagged far behind). Its snapshots
-  drop `backdrop-filter`, so glass pills flashed see-through: each glass
-  pill gets its own live layer during the switch (`match-element`, class
-  `glass`, base.css) and the `::view-transition-group` carries the blur over
-  the crossfade beneath. Don't lift whole cards instead: their layers paint
-  over the header (which sits in the root snapshot) until the fade ends.
-  Lifted layers paint over everything left in the root snapshot, whatever its
-  z-index: anything that must stay on top (the cursor) needs its own named
-  layer too. Inside a glass pill, nothing may run its own colour transition
-  (same restart problem): "Copy" inherits the pill's colour at
-  `--ink-detail-alpha` opacity, and the arrows only ease `fill`.
+  the backdrop through as a blink.
 - **The scrollbar's room is always kept** (`scrollbar-gutter: stable` on
   html). The column is centred, so a classic scrollbar coming and going
   (Lenis stopped on a tile click, a case page held during its entrance)
   nudged every column sideways.
 - **Palette** from the Figma file: a `--grey-*` ramp plus a semantic layer.
-  Dark mode is a ramp override (`:root[data-theme='dark']` in tokens.css),
-  switched only by pulling the lamp's cord (Lamp.astro, lib/theme.ts); the
-  site always opens light. Don't key it to `prefers-color-scheme`. The lamp's
+  The site is dark only: `<html data-theme="dark">` applies the ramp override
+  in tokens.css. The lamp's cord turns only the lamp's glow on and off. The
+  one colour is `--accent` (scarlet), used sparingly and only for what the
+  pointer is acting on (the project list's gliding dot, About's cross),
+  never as a fill; where you are (the switch's dot) stays ink. The lamp's
   switch only clicks while the cord is held: settling on load used to flip it.
 - **`draft: true` hides the page, not the images.** Verified: a draft's cover
   image is still emitted to `dist/_astro/` with a hashed filename, so it is

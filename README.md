@@ -56,6 +56,8 @@ media:                    # case page tiles after the cover; omit for placeholde
 externalUrl: https://...  # optional: "Read more" links out, no page built
 phone: false              # a cover video full bleed (a motion cover) rather than in the phone
 film:                     # optional: the page opens on this film at 16:9, with sound and controls
+                          #   preview: /media/x-preview.mp4 — a short muted cut the card (and the
+                          #   header's list) plays only while hovered; the card rests on the cover
   video: /media/walkthrough.mp4   # under public/; re-encode first (H.264, +faststart)
   poster: ./poster.jpg
   rate: 1.25              # starting speed (default 1.25)

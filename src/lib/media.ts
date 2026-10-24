@@ -15,6 +15,7 @@ import type { ImageMetadata } from 'astro';
  */
 const TILE_PX = 240; // desktop --tile-size
 const GAP_PX = 10; // --index-gap
+const RAIL_PX = 420; // --rail-tile at its largest
 
 export function tileSizes(src: ImageMetadata | undefined, tileRatio = 1, { wide = false } = {}): string {
   const ratio = src ? src.width / src.height : 1;
@@ -22,4 +23,11 @@ export function tileSizes(src: ImageMetadata | undefined, tileRatio = 1, { wide 
   const px = (size: number) => `${Math.ceil(size * scale)}px`;
   const desktop = wide ? 2 * TILE_PX + GAP_PX : TILE_PX;
   return `(max-width: 32rem) ${Math.ceil(100 * scale)}vw, ${px(desktop)}`;
+}
+
+/** An index tile: the grid's square up to 48rem, the rail's bigger one beyond. */
+export function railSizes(src: ImageMetadata | undefined): string {
+  const scale = Math.max(1, src ? src.width / src.height : 1);
+  const px = (size: number) => `${Math.ceil(size * scale)}px`;
+  return `(max-width: 32rem) ${Math.ceil(100 * scale)}vw, (max-width: 48rem) ${px(TILE_PX)}, ${px(RAIL_PX)}`;
 }

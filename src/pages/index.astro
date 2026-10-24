@@ -2,13 +2,20 @@
 /**
  * The index (01 Index, Figma 487:792 / 493:825): the work as very round
  * square cards of one fixed size, two to a row from 32rem and one on narrower
- * phones, ordered by the entries' `order`. The intro takes the first square
- * (About.astro) and the lamp the last (LampTile.astro). The footer sits on
- * the bottom edge.
+ * phones, ordered by the entries' `order`. The intro and contact live in the
+ * header's About panel (Nav.astro).
+ *
+ * From 48rem the tiles stand in one endless row instead (the rail), across
+ * the middle of the screen: the page doesn't scroll, the wheel (or a swipe)
+ * slides the row sideways, round and round, and each tile turns away as it
+ * leaves the middle, as if on the inside of a drum, after details.so's
+ * Perspective Cards. Reduced motion keeps the grid.
+ *
+ * The header's Work / Play switch (Nav.astro) chooses the tiles: Work is the
+ * projects; Play the side projects, so far the lamp (LampTile.astro).
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import WorkCard from '../components/WorkCard.astro';
-import About from '../components/About.astro';
 import LampTile from '../components/LampTile.astro';
 import LoadingSquares from '../components/LoadingSquares.astro';
 import { getPublishedWork } from '../lib/work';
@@ -20,10 +27,15 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
 <BaseLayout fit>
   <h1 class="visually-hidden">Clara Cao, product designer: selected work</h1>
 
-  <section class="index-grid cards" id="work" aria-label="Work">
-    <About />
-    {work.map((entry, i) => <WorkCard entry={entry} eager={i === 0} />)}
-    <LampTile />
+  {/* Where the grid starts, and the next page's cover: the outline grows here. */}
+  <div class="index-grid cards-anchor" aria-hidden="true"></div>
+  <section class="rail" id="work" aria-label="Work">
+    <div class="rail__stage">
+      <div class="index-grid cards">
+        {work.map((entry, i) => <WorkCard entry={entry} eager={i === 0} />)}
+        <LampTile data-view="play" hidden />
+      </div>
+    </div>
   </section>
 
   <LoadingSquares />
@@ -43,10 +55,229 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
+
+  .cards > :global([hidden]) {
+    display: none;
+  }
+
+  /* Switching Work / Play: the tiles fade out, change, and fade back. */
+  .cards {
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  .rail[data-switching] .cards {
+    opacity: 0;
+  }
+
+  /* The rail: the page holds still and the stage fills the window, the row
+   * across its middle. The tiles stand on one spot and the script slides each
+   * along (index.astro below); the stage lends them one vanishing point, its
+   * centre. */
+  @media (min-width: 48rem) and (prefers-reduced-motion: no-preference) {
+    :global(html:has(.rail[data-active])) {
+      overflow: hidden;
+    }
+
+    .rail__stage {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      perspective: var(--rail-perspective);
+      touch-action: none;
+    }
+
+    .rail .cards {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: var(--rail-tile);
+      margin: 0;
+      column-gap: var(--rail-gap); /* not laid out: the script reads it in px */
+      transform-style: preserve-3d;
+      /* In 3D the row shares the middle tile's plane and would take its
+       * pointer: only the tiles catch it. */
+      pointer-events: none;
+    }
+
+    .rail .cards > :global(*) {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: var(--rail-tile);
+      height: var(--rail-tile);
+      backface-visibility: hidden;
+      pointer-events: auto;
+      will-change: transform;
+    }
+  }
 </style>
 
 <script>
   import { cssMs } from '../lib/css';
+
+  // The rail (from 48rem): the wheel, a trackpad or a swipe moves the row,
+  // eased towards where it's sent (Lenis's lerp, SmoothScroll.astro). The
+  // tiles stand one step apart round a loop, the first in the middle; one
+  // leaving on one side comes back on the other, out of sight. Each turns by
+  // how far its centre is from the window's: flat in the middle, its outer
+  // edge swinging in towards the edges, the drum's inside.
+  {
+    const rail = document.querySelector<HTMLElement>('.rail');
+    const row = rail?.querySelector<HTMLElement>('.cards');
+    const wide = matchMedia('(min-width: 48rem) and (prefers-reduced-motion: no-preference)');
+    if (rail && row) {
+      // Every tile is Work's unless marked otherwise; the shown view's stand
+      // in the row, the rest are hidden.
+      const all = [...row.children].filter((el) => !(el instanceof HTMLScriptElement)) as HTMLElement[];
+      const viewOf = (el: HTMLElement) => el.dataset.view ?? 'work';
+      let tiles = all.filter((el) => viewOf(el) === 'work');
+      const lerp = 0.13;
+      let on = false;
+      let width = 0; // the window
+      let size = 0; // a tile
+      let step = 0; // a tile and the gap after it
+      let loop = 0; // once round
+      let angle = 0;
+      let at = 0; // how far the row has moved
+      let to = 0; // where it's going
+      let frame = 0;
+
+      const measure = () => {
+        on = wide.matches;
+        // Marks the row live: the page doesn't scroll, the cursor doesn't
+        // frame its turned tiles (Cursor.astro), they open without the outline.
+        rail.toggleAttribute('data-active', on);
+        if (!on) {
+          window.smoothScroll?.start();
+          tiles.forEach((t) => (t.style.transform = ''));
+          return;
+        }
+        window.smoothScroll?.stop();
+        window.scrollTo(0, 0);
+        const style = getComputedStyle(rail);
+        width = document.documentElement.clientWidth;
+        size = tiles[0].offsetWidth;
+        step = size + (parseFloat(getComputedStyle(row).columnGap) || 0);
+        // Long enough that a tile wraps round off screen, even on a very
+        // wide window, where the loop leaves a gap rather than show a jump.
+        loop = Math.max(tiles.length * step, width + 2 * step);
+        angle = parseFloat(style.getPropertyValue('--rail-angle')) || 0;
+        draw();
+      };
+
+      const draw = () => {
+        frame = 0;
+        if (!on) return;
+        at += (to - at) * lerp;
+        if (Math.abs(to - at) < 0.1) at = to;
+        // About's left edge, with About in the middle before the row moves.
+        const first = (width - size) / 2 - at;
+        tiles.forEach((tile, i) => {
+          const x = ((((first + i * step + step) % loop) + loop) % loop) - step;
+          // -1 at the left edge, 0 in the middle, 1 at the right edge.
+          const d = Math.max(-1.25, Math.min(1.25, (x + size / 2 - width / 2) / (width / 2)));
+          // Eased, so the middle stays flat and the turn gathers at the edges.
+          const turn = -Math.sign(d) * Math.abs(d) ** 1.6 * angle;
+          tile.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0) rotateY(${turn.toFixed(2)}deg)`;
+        });
+        if (at !== to) frame = requestAnimationFrame(draw);
+      };
+
+      const go = (by: number) => {
+        to += by;
+        frame ||= requestAnimationFrame(draw);
+      };
+
+      // Either way the wheel turns: down and right go on, up and left back.
+      addEventListener(
+        'wheel',
+        (e) => {
+          if (!on || e.ctrlKey || document.querySelector('.nav__about[data-open]')) return; // ctrl: pinch zoom
+          e.preventDefault();
+          const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? width : 1;
+          go((Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY) * unit);
+        },
+        { passive: false },
+      );
+
+      addEventListener('keydown', (e) => {
+        if (!on || e.metaKey || e.ctrlKey || e.altKey || document.querySelector('.nav__about[data-open]')) return;
+        const by = { ArrowRight: step, ArrowDown: step, ArrowLeft: -step, ArrowUp: -step }[e.key];
+        if (!by) return;
+        e.preventDefault();
+        go(by);
+      });
+
+      // Tabbing to a tile brings it to the middle.
+      row.addEventListener('focusin', (e) => {
+        if (!on) return;
+        const tile = tiles.find((t) => t.contains(e.target as Node));
+        if (!tile) return;
+        const x = new DOMMatrix(getComputedStyle(tile).transform).m41;
+        go(x + size / 2 - width / 2);
+      });
+
+      // Touch and pen: drag the row, and let go with a fling. A drag doesn't
+      // open the tile it started on. The lamp's cord keeps its own drag.
+      let drag: { id: number; x: number; y: number; moved: number; v: number; t: number } | null = null;
+      let dragged = 0; // when the last drag ended, if it moved
+      rail.addEventListener(
+        'click',
+        (c) => {
+          if (c.timeStamp - dragged > 400) return;
+          c.preventDefault();
+          c.stopPropagation();
+        },
+        { capture: true },
+      );
+      rail.addEventListener('pointerdown', (e) => {
+        if (!on || e.pointerType === 'mouse' || (e.target as Element).closest('.lamp-tile')) return;
+        drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: 0, v: 0, t: e.timeStamp };
+      });
+      rail.addEventListener('pointermove', (e) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const dx = e.clientX - drag.x;
+        const dy = e.clientY - drag.y;
+        const by = -(Math.abs(dx) > Math.abs(dy) ? dx : dy);
+        drag.moved += Math.abs(by);
+        drag.v = by / Math.max(1, e.timeStamp - drag.t);
+        Object.assign(drag, { x: e.clientX, y: e.clientY, t: e.timeStamp });
+        to += by;
+        at = to;
+        frame ||= requestAnimationFrame(draw);
+      });
+      const release = (e: PointerEvent) => {
+        if (!drag || e.pointerId !== drag.id) return;
+        if (drag.moved > 8) dragged = e.timeStamp;
+        go(drag.v * 180);
+        drag = null;
+      };
+      rail.addEventListener('pointerup', release);
+      rail.addEventListener('pointercancel', release);
+
+      const ms = (name: string) => cssMs(document.documentElement, name);
+      document.addEventListener('index-view', async (e) => {
+        const view = (e as CustomEvent<string>).detail;
+        rail.toggleAttribute('data-switching', true);
+        await new Promise((r) => setTimeout(r, ms('--duration-base') || 200));
+        all.forEach((el) => (el.hidden = viewOf(el) !== view));
+        tiles = all.filter((el) => !el.hidden);
+        at = to = 0; // the view's first tile in the middle
+        measure();
+        rail.removeAttribute('data-switching');
+      });
+
+      addEventListener('resize', measure);
+      wide.addEventListener('change', measure);
+      // Back out of the bfcache: the page there still holds still.
+      addEventListener('pageshow', (e) => e.persisted && measure());
+      // Again once Lenis is up (SmoothScroll.astro), to hold it still too.
+      addEventListener('load', measure);
+      measure();
+    }
+  }
 
   // Opening a page from a tile (a project card or About): an outline, like
   // the cursor's frame (Cursor.astro), wraps the tile, which lingers while
@@ -70,18 +301,19 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
   };
 
   if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const links = document.querySelectorAll<HTMLAnchorElement>('a.work-card__inner[href^="/work/"], a.about');
+    const links = document.querySelectorAll<HTMLAnchorElement>('a.work-card__inner[href^="/work/"]');
     let tapped = false;
     addEventListener('pointerdown', (e) => (tapped = e.pointerType === 'touch'), { capture: true, passive: true });
     for (const link of links) {
       link.addEventListener('click', async (e) => {
         if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        if (link.closest('.rail[data-active]')) return;
         e.preventDefault();
         if ('leaving' in root.dataset) return;
 
         const tile = link.closest<HTMLElement>('.work-card') ?? link;
         const outline = tapped ? null : document.querySelector<HTMLElement>('.tile-outline');
-        const grid = document.querySelector<HTMLElement>('.cards');
+        const grid = document.querySelector<HTMLElement>('.cards-anchor');
         window.smoothScroll?.stop();
         tile.classList.add('is-chosen');
         chosen.push(tile);
@@ -138,7 +370,7 @@ const work = (await getPublishedWork()).filter((e) => !e.data.draft);
   window.addEventListener('pageshow', (e) => {
     if (!e.persisted) return;
     delete root.dataset.leaving;
-    window.smoothScroll?.start();
+    if (!document.querySelector('.rail[data-active]')) window.smoothScroll?.start();
     chosen.splice(0).forEach((el) => el.classList.remove('is-chosen', 'is-gone'));
     document.querySelector('.tile-outline')?.getAnimations().forEach((a) => a.cancel());
     store(null);

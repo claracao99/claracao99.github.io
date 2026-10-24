@@ -168,7 +168,9 @@
       x = e.clientX;
       y = e.clientY;
       cursor.style.translate = `${x}px ${y}px`;
-      const over = (e.target as Element).closest?.<HTMLElement>('[data-cursor-frame]') ?? null;
+      let over = (e.target as Element).closest?.<HTMLElement>('[data-cursor-frame]') ?? null;
+      // The index rail's tiles turn in 3D: a flat frame doesn't fit them.
+      if (over?.closest('.rail[data-active]')) over = null;
       if (over !== target) (over ? enter(over) : leave());
       cursor.toggleAttribute('data-visible', true);
     });

@@ -144,7 +144,7 @@
 }
 
 /* A section: a quiet uppercase label over a hairline, the text close
- * beneath, exactly as on the About tile (so About hands over seamlessly). */
+ * beneath, as in the header's About panel. */
 .case__label {
   margin-bottom: var(--space-2);
   padding-bottom: var(--space-2);
@@ -380,24 +380,13 @@
     overflow: hidden;
   }
 
-  /* Next Project, and on phones the footer, wait until the page has come
-   * in. Pinned on desktop (Footer.astro), the footer stays throughout. */
+  /* Next Project waits until the page has come in. */
   .next {
     transition: opacity var(--duration-reveal) var(--ease-out);
   }
 
   body:has([data-reveal]) .next {
     opacity: 0;
-  }
-
-  @media (max-width: 47.99rem) {
-    .footer {
-      transition: opacity var(--duration-reveal) var(--ease-out);
-    }
-
-    body:has([data-reveal]) .footer {
-      opacity: 0;
-    }
   }
 
   [data-reveal] :is(.case__card, .case__tile) {
@@ -416,18 +405,10 @@
 
   /* Leaving the index from a tile (index.astro): the chosen tile lingers
    * while the other tiles fade away to the loading squares behind them,
-   * then it fades too (.is-gone), leaving its outline. The footer goes with
-   * them on phones only. */
-  html[data-leaving] :is(.work-card:not(.is-chosen), .about:not(.is-chosen), .lamp-tile, .is-gone) {
+   * then it fades too (.is-gone), leaving its outline. */
+  html[data-leaving] :is(.work-card:not(.is-chosen), .lamp-tile, .is-gone) {
     opacity: 0;
     transition: opacity var(--duration-reveal) var(--ease-out);
-  }
-
-  @media (max-width: 47.99rem) {
-    html[data-leaving] .footer {
-      opacity: 0;
-      transition: opacity var(--duration-reveal) var(--ease-out);
-    }
   }
 
   /* Specific enough to beat the card's own hover rule. */

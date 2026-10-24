@@ -24,111 +24,6 @@ html {
   scrollbar-gutter: stable;
 }
 
-/* Pulling the lamp's cord (lib/theme.ts): the page crossfades to the other
- * theme, all at once. The lamp has its own layer, so its cord keeps swinging
- * live through the fade rather than ghosting. */
-html[data-theme-switch]::view-transition-old(root),
-html[data-theme-switch]::view-transition-new(root) {
-  animation-duration: var(--duration-theme);
-  animation-timing-function: var(--ease-standard);
-}
-
-html[data-theme-switch] .lamp {
-  view-transition-name: lamp;
-}
-
-html[data-theme-switch]::view-transition-old(lamp) {
-  display: none;
-}
-
-html[data-theme-switch]::view-transition-new(lamp) {
-  animation: none;
-}
-
-/* The cursor too, live and on top: left in the page's snapshot it would sit
- * under the glass pills' own layers (below), and vanish behind the footer
- * right by the cord. Its layer does the blending the dot does on the page. */
-html[data-theme-switch] .cursor {
-  view-transition-name: cursor;
-}
-
-html[data-theme-switch]::view-transition-group(cursor) {
-  z-index: 2;
-  mix-blend-mode: exclusion;
-}
-
-html[data-theme-switch]::view-transition-old(cursor) {
-  display: none;
-}
-
-html[data-theme-switch]::view-transition-new(cursor) {
-  animation: none;
-}
-
-/* Glass pills (header, footer, the cards' titles): a snapshot can't blur what's
- * behind it, so each pill gets its own live layer, the layer itself does the
- * blurring of the crossfade under it, and the pill eases its own colours.
- * What's inside eases with it: "Copy" takes the pill's own colour, faded to
- * --ink-detail's strength (its own colour transition would restart every
- * frame under the pill's and lag behind), and the arrows ease their fill
- * alongside. The header's layer stays above the cards'. */
-html[data-theme-switch] .pill:not(.pill--filled) {
-  view-transition-name: match-element;
-  view-transition-class: glass;
-  transition:
-    background-color var(--duration-theme) var(--ease-standard),
-    color var(--duration-theme) var(--ease-standard),
-    opacity var(--duration-base) var(--ease-out),
-    transform var(--duration-base) var(--ease-out);
-}
-
-html[data-theme-switch] .pill:not(.pill--filled) .detail {
-  color: inherit;
-  opacity: var(--ink-detail-alpha);
-}
-
-html[data-theme-switch] .pill:not(.pill--filled) > svg path {
-  transition: fill var(--duration-theme) var(--ease-standard);
-}
-
-html[data-theme-switch] .nav .pill:not(.pill--filled) {
-  view-transition-class: glass nav;
-}
-
-html[data-theme-switch]::view-transition-group(.glass) {
-  border-radius: calc(var(--pill-height) / 2);
-  -webkit-backdrop-filter: blur(var(--pill-blur));
-  backdrop-filter: blur(var(--pill-blur));
-}
-
-html[data-theme-switch]::view-transition-group(.nav) {
-  z-index: 1;
-}
-
-html[data-theme-switch]::view-transition-old(.glass) {
-  display: none;
-}
-
-html[data-theme-switch]::view-transition-new(.glass) {
-  animation: none;
-}
-
-/* Without View Transitions: colours ease to the other theme, element by
- * element. */
-@media (prefers-reduced-motion: no-preference) {
-  .theme-switching,
-  .theme-switching *,
-  .theme-switching *::before,
-  .theme-switching *::after {
-    transition:
-      background-color var(--duration-theme) var(--ease-standard),
-      border-color var(--duration-theme) var(--ease-standard),
-      color var(--duration-theme) var(--ease-standard),
-      fill var(--duration-theme) var(--ease-standard),
-      opacity var(--duration-theme) var(--ease-standard) !important;
-  }
-}
-
 body {
   min-height: 100svh;
   background-color: var(--surface);
@@ -173,10 +68,9 @@ main {
   padding-top: var(--nav-height);
 }
 
-/* One-screen pages (the index): the footer sits on the bottom edge, at
- * least a gutter under main; spare height opens up between the two. */
+/* One-screen pages (the index): at least the window's height, main taking
+ * the spare. */
 .page-fit {
-  --footer-space: var(--index-gap);
   display: flex;
   flex-direction: column;
   min-height: 100svh;
@@ -349,7 +243,7 @@ ol {
   }
 }
 
-/* Pill: the index's chrome — nav, footer. Label left, detail or icon right,
+/* Pill: the index's chrome, the header's. Label left, detail or icon right,
  * on glass or solid Figure. min-height keeps phones' 40px pills a comfortable tap. */
 .pill {
   display: flex;

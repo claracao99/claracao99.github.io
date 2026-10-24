@@ -39,7 +39,7 @@
   --ink-detail-alpha: 0.55;
   --ink-detail: rgb(0 0 0 / var(--ink-detail-alpha));
 
-  /* Index chrome, after yuriroga.com: header and footer pills are glass
+  /* Index chrome, after yuriroga.com: the header's pills are glass
    * (#F0F0F0 at 50% under a 50px blur); Next Project is solid Figure
    * (.pill--filled). Every pill hovers to solid #F0F0F0. */
   --figure: var(--grey-05);
@@ -61,11 +61,36 @@
   --icon-film: 16px; /* the film's control icons */
   --film-start-size: 60px; /* the big Play on a film's poster */
   --film-start-icon: 20px;
+  --icon-pill-play: 9px; /* before a film's title in its card's pill, on touch */
   /* Transcript time chips (case.css): grey at rest, ink when hovered or
    * playing. */
   --chip-fill: var(--grey-20);
   --chip-fill-on: var(--ink);
   --chip-ink-on: var(--surface);
+  /* The header's Work / Play switch (Nav.astro): a dot, round like the
+   * cursor, after the chosen label; the same dot after a hovered project's
+   * name. */
+  --nav-mark: 4px;
+  --nav-mark-gap: 6px; /* from the text */
+  /* The list's dot: its drop leads (quick, then settling) and its slide
+   * follows (slow to start), which curves its path. */
+  --duration-glide: 320ms;
+  --ease-glide-lead: cubic-bezier(0.2, 0, 0, 1);
+  --ease-glide-follow: cubic-bezier(0.6, 0, 0.2, 1);
+  /* The header's pills, after anima.ai's nav: rounded rectangles rather than
+   * pills, and side by side, joined by a pinched neck (Nav.astro draws it). */
+  --nav-radius: 10px;
+  --nav-neck: 7px; /* how far the edge dips in where two meet */
+  /* Open, the switch is a panel (after jeton.com's nav): this wide, at most,
+   * with the hovered project's cover this size in its top right corner. */
+  --nav-panel-width: 380px;
+  /* The site's one colour beside the work, used sparingly and for one thing,
+   * what the pointer is acting on: the hovered project's dot, About's cross.
+   * Where you are (the switch's dot) stays ink; the panels stay grey. */
+  --accent: #ff2400; /* scarlet */
+  --nav-plus: 10px; /* About's plus */
+  --nav-plus-line: 1.5px;
+  --nav-cover: 96px; /* until the script matches it to the list's height */
 
   /* ── Type ──────────────────────────────────────────────────────────────────
    * Four roles. Two weights only: Regular reads, Bold names or navigates.
@@ -160,8 +185,8 @@
    * tile fills the phone; from 32rem (512px) it is fixed: two 240px columns,
    * the narrowest window where both fit with their margins. The column is
    * centred; the margins beside it grow and shrink with the window while the
-   * tiles stay put. 4 tracks on desktop, 2 on phones, so the header and footer pills can
-   * split a tile's width. Index cards and small case tiles share one shape. */
+   * tiles stay put. 4 tracks on desktop, 2 on phones, so a pill can split a
+   * tile's width. Index cards and small case tiles share one shape. */
   --tile-ratio: 1 / 1;
   --tile-size: calc(100vw - 2 * var(--index-margin)); /* phones; keep in step with lib/media.ts */
   --index-cols: 1;
@@ -170,9 +195,15 @@
   --index-margin: 10px;
   --pill-height: 40px;
   --pill-pad: var(--space-4); /* 16 */
-  --footer-space: 150px; /* last card row → footer */
-  /* Footer pills and bottom margin: two rows on phones, one on desktop. */
-  --footer-height: calc(2 * var(--pill-height) + var(--index-gap) + var(--index-margin));
+
+  /* Index rail (index.astro, from 48rem): the tiles in one row, pinned while
+   * the page scrolls, sliding sideways and turning away as they leave the
+   * middle, after details.so's Perspective Cards. Bigger than the grid's
+   * tiles, to fill the screen; keep the 420 in step with lib/media.ts. */
+  --rail-tile: clamp(240px, 46svh, 420px);
+  --rail-gap: calc(var(--rail-tile) / 8);
+  --rail-angle: 34deg; /* a tile's turn at the window's edge */
+  --rail-perspective: 1400px;
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -225,20 +256,18 @@
   --z-cursor-frame: 50; /* over the page, under the header */
 }
 
-/* ── Lamp and dark mode ──────────────────────────────────────────────────────
- * The lamp (Lamp.astro), in a tile on the index, is the theme switch: the
- * page opens light with the lamp off; pulling its cord turns it on, and it
- * glows as the page goes dark. Light is the default whatever the system says
- * (lib/theme.ts). Dark swaps the ramp, so the semantic tokens follow.
+/* ── Lamp and the dark page ──────────────────────────────────────────────────
+ * The site is dark only: <html data-theme="dark"> swaps the ramp above, so
+ * the semantic tokens follow. The lamp (Lamp.astro, a project under Play)
+ * no longer switches it; its cord turns only the lamp on and off.
  */
 :root {
   color-scheme: light;
   --lamp-shade: #fed205; /* the Figma lamp's yellow */
   --lamp-glow: rgb(254 210 5 / 0.35); /* light under the shade */
-  --lamp-lit: 0; /* off */
   --lamp-cord: #1b5de1;
   --lamp-size: 80px;
-  --duration-theme: 500ms;
+  --duration-lamp: 500ms; /* the glow fading on or off */
 }
 
 :root[data-theme='dark'] {
@@ -259,7 +288,6 @@
   --scrim: rgb(0 0 0 / 0.6);
   /* The cursor inverts what is under it, so it stays white. */
   --cursor-fill: #ffffff;
-  --lamp-lit: 1; /* on */
   --lamp-cord: #6f97ff;
 }
 
@@ -267,10 +295,8 @@
  * in step with base.css, index.astro, DeviceVideo and lib/media.ts. */
 @media (min-width: 32rem) {
   :root {
-    --footer-space: 230px;
     --index-cols: 2; /* two tiles to a row: the desktop grid */
     --tile-size: 240px; /* keep in step with lib/media.ts */
-    --footer-height: calc(var(--pill-height) + var(--index-margin));
   }
 }
 

@@ -78,6 +78,9 @@ const work = defineCollection({
           video: z.string().startsWith('/'),
           poster: ctx.image(),
           rate: z.number().default(1.25),
+          /** A short muted cut (a path under public/) its card plays while
+           * hovered; at rest the card shows the cover's still. */
+          preview: z.string().startsWith('/').optional(),
         })
         .optional(),
       /** Film pages: what's said, one titled paragraph per beat, each from

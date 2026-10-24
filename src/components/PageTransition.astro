@@ -7,8 +7,8 @@
  *
  * Native cross-document View Transitions, no library: pages still load in
  * full, so Lenis is untouched. Browsers without support, and
- * prefers-reduced-motion, get a plain load. Only index ↔ case (About counts
- * as a case) and case → case navigations animate; the rest are skipped.
+ * prefers-reduced-motion, get a plain load. Only index ↔ case and case →
+ * case navigations animate; the rest are skipped.
  *
  * Rendered inside <head>: the pagereveal listener has to exist before the
  * new page's first frame.
@@ -26,7 +26,7 @@
         return null;
       }
       if (path === '/') return 'work';
-      if (/^\/work\/[^/]+$/.test(path) || path === '/about') return 'case';
+      if (/^\/work\/[^/]+$/.test(path)) return 'case';
       return null;
     };
 
@@ -71,13 +71,6 @@
    * transition; see the pageswap listener. */
   [data-vt-nav] .nav {
     view-transition-name: site-nav;
-  }
-
-  /* The footer too, where it's pinned (Footer.astro). */
-  @media (min-width: 48rem) {
-    [data-vt-nav] .footer {
-      view-transition-name: site-footer;
-    }
   }
 
   ::view-transition {

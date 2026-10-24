@@ -1,23 +1,151 @@
 ---
 /**
- * Site header (01 Index): one glass pill across the index grid (yuriroga.com's
- * About-panel frost: #F0F0F0 at 50% under a 50px blur), the
- * wordmark, linking home. Off the index it is the way back.
+ * Site header (01 Index): a bar the window's full width. The wordmark, as
+ * bare text on the left, links home; off the index it is the way back. About,
+ * a pill on glass (yuriroga.com's About-panel frost: #F0F0F0 at 50% under a
+ * 50px blur), on the right, opens down and out into a panel the same way
+ * the switch does: the intro and contact (the address copies; LinkedIn and
+ * CV open in a new tab). On the index, a Work / Play switch in the middle
+ * chooses which tiles the index shows
+ * (index.astro listens for `index-view`). Hovering either half opens it
+ * downwards into a panel, after jeton.com's nav: Work lists the projects,
+ * each showing a small cover beside the list while hovered, a preview
+ * rather than a control; a film is tagged [Video] and plays its preview cut
+ * there instead.
  *
- * On the index the pill is the current page: clicking it does nothing rather
- * than reloading (a modified click still opens a new tab).
+ * The current page's pill does nothing when clicked rather than reloading
+ * (a modified click still opens a new tab).
  *
- * Fixed on desktop so the pill rides over the work; on phones it scrolls
+ * Fixed on desktop so the pills ride over the work; on phones it scrolls
  * away with the page.
  */
+import { Image } from 'astro:assets';
+import { SITE, CONTACT } from '../consts';
+import TriangleEast from '../icons/triangle-east.svg';
+import { caseStudyPath, getPublishedWork, projectName } from '../lib/work';
+
 const isHome = Astro.url.pathname === '/';
+// The switch's Work list: the index's projects that open somewhere.
+const projects = isHome
+  ? (await getPublishedWork())
+      .filter((e) => !e.data.draft)
+      .map((e) => ({
+        name: projectName(e),
+        href: e.data.externalUrl ?? (e.data.caseStudy ? caseStudyPath(e) : undefined),
+        external: !!e.data.externalUrl,
+        cover: e.data.cover.src,
+        preview: e.data.film?.preview,
+      }))
+      .filter((p) => p.href)
+  : [];
+const email = CONTACT.find((c) => c.href.startsWith('mailto:'))!;
+const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
+const views = ['Work', 'Play'];
 ---
 
 <header class="nav">
-  <nav class="index-grid nav__grid" aria-label="Main">
-    <a class="pill nav__pill" href="/" aria-current={isHome ? 'page' : undefined}>
+  <nav class="nav__bar" aria-label="Main">
+    <a class="nav__home" href="/" aria-current={isHome ? 'page' : undefined}>
       <span class="logotype">Clara Cao</span>
     </a>
+    {
+      isHome && (
+        <div class="nav__switch">
+          <div class="pill nav__views" data-fused>
+            <div class="nav__row" role="group" aria-label="Show">
+              {views.map((view, i) => (
+                <button
+                  class="nav__view"
+                  type="button"
+                  data-view={view.toLowerCase()}
+                  aria-pressed={i === 0 ? 'true' : 'false'}
+                  data-seam={i > 0 ? '' : undefined}
+                  aria-expanded="false"
+                  aria-controls={`nav-${view.toLowerCase()}`}
+                >
+                  <span class="nav__label">{view}</span>
+                </button>
+              ))}
+            </div>
+            <div class="nav__menu" id="nav-work" data-menu="work" hidden>
+              <ul class="nav__list" aria-label="Work">
+                <li class="nav__pointer" role="presentation" aria-hidden="true"></li>
+                {projects.map((p, i) => (
+                  <li>
+                    <a
+                      class="nav__item"
+                      href={p.href}
+                      data-cover={i}
+                      {...(p.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                    >
+                      <span class="nav__name">
+                        {p.name}
+                        {p.preview && <span class="nav__tag">[Video]</span>}
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <div class="nav__cover" aria-hidden="true">
+                {projects.map((p, i) =>
+                  p.preview ? (
+                    <video src={p.preview} muted loop playsinline preload="none" data-cover={i} />
+                  ) : p.cover ? (
+                    <Image src={p.cover} alt="" width={240} format="webp" loading="lazy" data-cover={i} />
+                  ) : null,
+                )}
+              </div>
+            </div>
+            <div class="nav__menu" id="nav-play" data-menu="play" hidden>
+              <ul class="nav__list" aria-label="Play">
+                <li class="nav__pointer" role="presentation" aria-hidden="true"></li>
+                <li>
+                  <button class="nav__item" type="button" data-show="play"><span class="nav__name">Lamp</span></button>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      )
+    }
+    <div class="nav__about-place">
+      <div class="pill nav__about" data-fused>
+        <button class="nav__about-toggle" type="button" aria-expanded="false" aria-controls="nav-about">
+          <span>About</span>
+          <span class="nav__plus" aria-hidden="true" data-seam></span>
+        </button>
+        <div class="nav__about-menu" id="nav-about" hidden>
+          <section>
+            <h2 class="nav__heading">About</h2>
+            <p class="nav__intro">{SITE.intro}</p>
+          </section>
+          <section>
+            <h2 class="nav__heading">Contact</h2>
+            <ul class="nav__contact">
+              <li>
+                <button class="nav__contact-row" type="button" data-copy={email.label}>
+                  <span>{email.label}</span>
+                  <span class="detail" aria-live="polite" data-copy-status>Copy</span>
+                </button>
+              </li>
+              {
+                links.map((link) => (
+                  <li>
+                    <a class="nav__contact-row" href={link.href} target="_blank" rel="noopener noreferrer">
+                      <span>
+                        {link.label}
+                        <span class="visually-hidden"> (opens in a new tab)</span>
+                      </span>
+                      <TriangleEast aria-hidden="true" />
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+        </div>
+      </div>
+    </div>
   </nav>
 </header>
 
@@ -31,18 +159,496 @@ const isHome = Astro.url.pathname === '/';
     z-index: var(--z-nav);
   }
 
-  .nav__grid {
-    padding-block: var(--index-margin);
+  /* Wordmark | switch | About. On phones the switch takes the room between
+   * the two; from 48rem the outer columns share what's left, so it sits in
+   * the window's middle whatever the pills' widths. */
+  .nav__bar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--index-gap);
+    padding: var(--index-margin);
   }
 
-  .nav__pill {
-    grid-column: 1 / -1;
+  /* The switch's place in the bar: the closed switch's size, so the bar
+   * doesn't move when it opens over the page. */
+  .nav__switch {
+    position: relative;
+    z-index: 1; /* open, over the wordmark and About */
+    justify-self: center;
+    width: var(--switch-w, 9rem);
+    height: var(--pill-height);
+  }
+
+  @media (min-width: 48rem) {
+    .nav__bar {
+      grid-template-columns: 1fr auto 1fr;
+    }
+  }
+
+  .nav__home {
+    justify-self: start;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    height: var(--pill-height);
+    padding-inline: var(--pill-pad);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .nav__home:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* About's place in the bar: the closed button's size. Open, the button
+   * grows from its top right corner, down and to the left, as tall as
+   * what's inside, over the rest of the bar. */
+  .nav__about-place {
+    position: relative;
+    z-index: 1;
+    grid-column: 3;
+    justify-self: end;
+    width: var(--about-w, 7rem);
+    height: var(--pill-height);
+  }
+
+  .nav__about {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 0;
+    width: var(--about-w, 7rem);
+    height: var(--pill-height);
+    padding: 0;
+    overflow: hidden;
+    transition:
+      width var(--duration-slow) var(--ease-out),
+      height var(--duration-slow) var(--ease-out),
+      background-color var(--duration-base) var(--ease-out);
+  }
+
+  .nav__about:not([data-open]):hover {
+    background: var(--pill-fill-hover);
+  }
+
+  .nav__about::after {
+    content: none;
+  }
+
+  /* The label and a square holding a plus, joined by a neck like the
+   * switch's halves; the plus turns to a cross while it's open. */
+  .nav__about-toggle {
+    flex: none;
+    display: flex;
+    align-items: center;
+    height: var(--pill-height);
+    padding: 0 0 0 var(--pill-pad);
+    border: 0;
+    border-radius: var(--nav-radius);
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .nav__about-toggle:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+  }
+
+  .nav__plus {
+    position: relative;
+    align-self: stretch;
+    width: var(--pill-height);
+    margin-left: var(--pill-pad);
+    transition:
+      rotate var(--duration-slow) var(--ease-out),
+      color var(--duration-base) var(--ease-out);
+  }
+
+  .nav__plus::before,
+  .nav__plus::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: var(--nav-plus);
+    height: var(--nav-plus-line);
+    translate: -50% -50%;
+    background: currentColor;
+  }
+
+  .nav__plus::after {
+    rotate: 90deg;
+  }
+
+  .nav__about-toggle[aria-expanded='true'] .nav__plus {
+    rotate: 45deg;
+    color: var(--accent);
+  }
+
+  /* What's inside, the panel's width from the start: the intro, then
+   * contact, each under a quiet label and its hairline. */
+  .nav__about-menu {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    width: var(--panel-w, var(--nav-panel-width));
+    padding: var(--space-2) var(--pill-pad) var(--space-4);
+    font-size: var(--text-small);
+    line-height: var(--leading-small);
+    letter-spacing: var(--tracking-small);
+    white-space: normal;
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  .nav__about[data-open] .nav__about-menu {
+    opacity: 1;
+    transition-delay: calc(var(--duration-base) / 2);
+  }
+
+  .nav__about-menu[hidden] {
+    display: none;
+  }
+
+  /* anima.ai's shape: small corners, not round ends. The switch is clipped
+   * to its two halves joined by a neck once the script has measured it. */
+  .nav__about,
+  .nav__views {
+    border-radius: var(--nav-radius);
+  }
+
+  /* The switch hangs from the top of its place and opens down and out from
+   * the middle (the script sets the open size); what's inside keeps its
+   * width and is uncovered as it grows. Solid while open, to read on. */
+  .nav__views {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50% 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* not the pills' gap: the panel's height counts row + list */
+    width: var(--switch-w, 9rem);
+    height: var(--pill-height);
+    padding: 0;
+    overflow: hidden;
+    transition:
+      width var(--duration-slow) var(--ease-out),
+      height var(--duration-slow) var(--ease-out),
+      background-color var(--duration-base) var(--ease-out);
+  }
+
+  /* Open, the panel is solid Figure grey, to read on. */
+  .nav__views[data-open],
+  .nav__about[data-open] {
+    background: var(--figure);
+  }
+
+  /* Phones' pills reach for a 44px tap with a layer over them (base.css);
+   * over the switch it would take its halves' taps. */
+  .nav__views::after {
+    content: none;
+  }
+
+  /* Two halves, both in ink, each as wide as its label; a dot after the
+   * chosen label marks it (the labels themselves don't change), and that
+   * half widens to hold it as the other narrows, the neck sliding between.
+   * The dot stays ink, like the cursor, open or not: it says where you are,
+   * and the accent is kept for what the pointer is on (the list's dot,
+   * About's cross). */
+  .nav__row {
+    position: relative;
+    flex: none;
+    display: grid;
+    grid-template-columns: auto auto;
+    width: var(--switch-w, max-content);
+    height: var(--pill-height);
+    margin-inline: auto;
+  }
+
+  /* The open panel's contents: the list, and the hovered project's cover at
+   * its top right, under the switch. As wide as the panel opens, from the
+   * start. */
+  .nav__menu {
+    position: relative;
+    flex: none;
+    width: var(--panel-w, var(--nav-panel-width));
+    margin-inline: auto;
+    padding: var(--space-2) calc(var(--nav-cover) + var(--space-4)) var(--pill-pad) var(--pill-pad);
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  .nav__views[data-open] .nav__menu {
+    opacity: 1;
+    transition-delay: calc(var(--duration-base) / 2);
+  }
+
+  .nav__menu[hidden] {
+    display: none;
+  }
+
+  /* No hover, no cover: the list alone. */
+  @media (hover: none) {
+    .nav__menu {
+      padding-right: var(--pill-pad);
+    }
+
+    .nav__cover {
+      display: none;
+    }
+  }
+
+  .nav__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Full ink, all of them. The hovered one is marked by one dot in the
+   * accent that glides to sit after its name, from wherever it last was,
+   * after recent.design's nav. */
+  .nav__item {
+    display: flex;
+    align-items: center;
+    padding-block: var(--space-1);
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .nav__list {
+    position: relative;
+  }
+
+  /* Down and across on different curves, one leading and the other a beat
+   * behind, so the dot swings rather than cutting straight across. Which
+   * leads keeps it outside the names: heading for a name that ends further
+   * out, it slides out first (data-out); for one that ends further in, it
+   * drops first. Either way it bows outward, never across the text. */
+  .nav__pointer {
+    position: absolute;
+    left: var(--to-x, 0);
+    top: var(--to-y, 0);
+    width: var(--nav-mark);
+    height: var(--nav-mark);
+    margin: calc(var(--nav-mark) / -2) 0 0 0;
+    border-radius: 50%;
+    background: var(--accent);
+    scale: 0;
+    pointer-events: none;
+    transition:
+      top var(--duration-glide) var(--ease-glide-lead),
+      left var(--duration-glide) var(--ease-glide-follow),
+      scale var(--duration-base) var(--ease-out);
+  }
+
+  .nav__pointer[data-out] {
+    transition:
+      top var(--duration-glide) var(--ease-glide-follow),
+      left var(--duration-glide) var(--ease-glide-lead),
+      scale var(--duration-base) var(--ease-out);
+  }
+
+  .nav__pointer[data-on] {
+    scale: 1;
+  }
+
+  /* Its first showing: in place, no glide from the corner. */
+  .nav__pointer:not([data-on]) {
+    transition: scale var(--duration-base) var(--ease-out);
+  }
+
+
+
+  .nav__item:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* A film's tag after its name, in the numbers' face, a step back. */
+  .nav__tag {
+    margin-left: var(--nav-mark-gap);
+    font-family: var(--font-mono);
+    font-size: var(--text-detail);
+    color: var(--ink-detail);
+  }
+
+  /* A square beside the list, from its first name's top to its last's
+   * bottom (the script sets --nav-cover to that): a preview, not a card to
+   * press. */
+  .nav__cover {
+    position: absolute;
+    top: var(--cover-top, var(--space-2));
+    right: var(--pill-pad);
+    width: var(--nav-cover);
+    aspect-ratio: var(--tile-ratio);
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: var(--film);
+    pointer-events: none;
+    transition: opacity var(--duration-base) var(--ease-out);
+  }
+
+  /* Nothing hovered yet: no box at all, rather than an empty black one. */
+  .nav__cover:not(:has([data-on])) {
+    opacity: 0;
+  }
+
+  .nav__cover :is(img, video) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    scale: 1.06;
+    transition:
+      opacity var(--duration-base) var(--ease-out),
+      scale var(--duration-slow) var(--ease-out);
+  }
+
+  /* A film's preview: the whole frame, on the film's black. */
+  .nav__cover video {
+    object-fit: contain;
+  }
+
+  .nav__cover :is(img, video)[data-on] {
+    opacity: 1;
+    scale: 1;
+  }
+
+  .nav__item[data-show] {
+    padding-inline: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    letter-spacing: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .nav__view {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding-inline: var(--pill-pad);
+    border: 0;
+    border-radius: var(--nav-radius);
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  /* After the chosen label, on its line: it grows in as its half widens to
+   * hold it, and shrinks away as the other takes it. The two halves together
+   * stay the same width, so only the neck moves. */
+  .nav__label::after {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: var(--nav-mark);
+    margin-left: 0;
+    vertical-align: 0.15em;
+    border-radius: 50%;
+    background: var(--ink);
+    scale: 0;
+    transition:
+      width var(--duration-slow) var(--ease-in-out),
+      margin-left var(--duration-slow) var(--ease-in-out),
+      scale var(--duration-slow) var(--ease-in-out);
+  }
+
+  .nav__view[aria-pressed='true'] .nav__label::after {
+    width: var(--nav-mark);
+    margin-left: var(--nav-mark-gap);
+    scale: 1;
+  }
+
+  /* No hover fill on the switch: its halves are the controls. */
+  .nav__views:not([data-open]):hover {
+    background: var(--pill-glass);
   }
 
   @media (min-width: 48rem) {
     .nav {
       position: fixed;
     }
+
+  }
+
+  /* A quiet uppercase label over a hairline, as in the case card. */
+  .nav__heading {
+    margin-bottom: var(--space-2);
+    padding-bottom: var(--space-2);
+    border-bottom: var(--rule-width) solid var(--rule);
+    color: var(--ink-detail);
+    font-size: inherit;
+    font-weight: var(--weight-normal);
+    line-height: inherit;
+    text-transform: uppercase;
+  }
+
+  .nav__intro {
+    text-wrap: wrap;
+  }
+
+  .nav__contact {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* One line each: the name left, Copy or the arrow right. */
+  .nav__contact-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    width: 100%;
+    min-height: var(--pill-height);
+    padding: 0;
+    border: 0;
+    border-bottom: var(--rule-width) solid var(--rule);
+    background: none;
+    color: var(--ink);
+    font: inherit;
+    letter-spacing: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .nav__contact li:last-child .nav__contact-row {
+    border-bottom: 0;
+  }
+
+  .nav__contact-row > svg {
+    flex: none;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+
+  .nav__contact-row:hover > svg {
+    transform: translateX(2px);
+  }
+
+  .nav__contact-row:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
   }
 </style>
 
@@ -52,5 +658,259 @@ const isHome = Astro.url.pathname === '/';
     link.addEventListener('click', (e) => {
       if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) e.preventDefault();
     });
+  }
+
+  // About: the button opens the panel and closes it again; so do Escape, a
+  // click anywhere outside it, and tabbing out of it.
+  {
+    const place = document.querySelector<HTMLElement>('.nav__about-place');
+    const shape = place?.querySelector<HTMLElement>('.nav__about');
+    const toggle = shape?.querySelector<HTMLButtonElement>('.nav__about-toggle');
+    const menu = shape?.querySelector<HTMLElement>('.nav__about-menu');
+    if (place && shape && toggle && menu) {
+      const root = document.documentElement;
+      const px = (name: string) => parseFloat(getComputedStyle(root).getPropertyValue(name)) || 0;
+      let open = false;
+
+      const size = () => {
+        place.style.setProperty('--about-w', `${Math.ceil(toggle.scrollWidth)}px`);
+        const panel = Math.min(px('--nav-panel-width'), root.clientWidth - 2 * px('--index-margin'));
+        shape.style.setProperty('--panel-w', `${Math.max(panel, toggle.scrollWidth)}px`);
+        if (open) show();
+      };
+      const show = () => {
+        open = true;
+        menu.hidden = false;
+        toggle.setAttribute('aria-expanded', 'true');
+        shape.toggleAttribute('data-open', true);
+        shape.style.width = shape.style.getPropertyValue('--panel-w');
+        shape.style.height = `${px('--pill-height') + menu.offsetHeight}px`;
+      };
+      const hide = () => {
+        if (!open) return;
+        open = false;
+        toggle.setAttribute('aria-expanded', 'false');
+        shape.removeAttribute('data-open');
+        shape.style.width = '';
+        shape.style.height = '';
+      };
+      shape.addEventListener('transitionend', (e) => {
+        if (e.target === shape && e.propertyName === 'height' && !open) menu.hidden = true;
+      });
+      toggle.addEventListener('click', () => (open ? hide() : show()));
+      addEventListener('pointerdown', (e) => open && !shape.contains(e.target as Node) && hide(), { capture: true });
+      shape.addEventListener('focusout', (e) => !shape.contains(e.relatedTarget as Node) && hide());
+      addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape' || !open) return;
+        hide();
+        toggle.focus({ preventScroll: true });
+      });
+      addEventListener('resize', size);
+      document.fonts?.ready.then(size);
+      size();
+    }
+  }
+
+  // Copy the address; say so for a moment, then put "Copy" back. Without the
+  // clipboard API (insecure context, old browser) fall back to mailto.
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy]')) {
+    const status = button.querySelector<HTMLElement>('[data-copy-status]');
+    let timer = 0;
+    button.addEventListener('click', async () => {
+      const address = button.dataset.copy ?? '';
+      try {
+        await navigator.clipboard.writeText(address);
+      } catch {
+        window.location.href = `mailto:${address}`;
+        return;
+      }
+      if (!status) return;
+      status.textContent = 'Copied';
+      clearTimeout(timer);
+      timer = window.setTimeout(() => (status.textContent = 'Copy'), 1600);
+    });
+  }
+
+  // The switch's and About's outline, after anima.ai's nav: one rounded
+  // rectangle per part, joined where they meet (each [data-seam]'s left
+  // edge) by a neck that dips in from the top and bottom edges. Drawn as a
+  // clip path, so the glass blur is clipped too.
+  for (const el of document.querySelectorAll<HTMLElement>('[data-fused]')) {
+    const draw = () => {
+      const box = el.getBoundingClientRect();
+      const style = getComputedStyle(el);
+      const r = parseFloat(style.borderTopLeftRadius) || 0;
+      const neck = parseFloat(style.getPropertyValue('--nav-neck')) || 0;
+      const w = box.width;
+      const h = box.height;
+      const seams = [...el.querySelectorAll<HTMLElement>('[data-seam]')].map(
+        (b) => b.getBoundingClientRect().left - box.left,
+      );
+      // The neck smooths out as the switch opens, gone one bar's height down.
+      const bar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pill-height')) || h;
+      const dip = neck * Math.max(0, 1 - (h - bar) / bar);
+      const n = r * 1.2; // the neck's reach either side of the seam
+      const top = seams
+        .map((s) => `L ${s - n} 0 C ${s - n / 3} 0 ${s - n / 4} ${dip} ${s} ${dip} C ${s + n / 4} ${dip} ${s + n / 3} 0 ${s + n} 0`)
+        .join(' ');
+      const bottom = [...seams]
+        .reverse()
+        .map((s) => `L ${s + n} ${h} C ${s + n / 3} ${h} ${s + n / 4} ${h - dip} ${s} ${h - dip} C ${s - n / 4} ${h - dip} ${s - n / 3} ${h} ${s - n} ${h}`)
+        .join(' ');
+      el.style.clipPath = `path('M ${r} 0 ${top} L ${w - r} 0 A ${r} ${r} 0 0 1 ${w} ${r} L ${w} ${h - r} A ${r} ${r} 0 0 1 ${w - r} ${h} ${bottom} L ${r} ${h} A ${r} ${r} 0 0 1 0 ${h - r} L 0 ${r} A ${r} ${r} 0 0 1 ${r} 0 Z')`;
+    };
+    // Redrawn as it resizes, and as its parts do (the switch's halves trade
+    // width when the choice changes, moving the neck).
+    const watch = new ResizeObserver(draw);
+    watch.observe(el);
+    el.querySelectorAll<HTMLElement>('.nav__view').forEach((part) => watch.observe(part));
+    document.fonts?.ready.then(draw);
+  }
+
+  // Work / Play: press one, and the index shows its tiles; its half widens
+  // for its dot as the other's narrows (CSS).
+  const views = [...document.querySelectorAll<HTMLButtonElement>('.nav__view')];
+  const group = document.querySelector<HTMLElement>('.nav__views');
+
+  for (const button of views) {
+    button.addEventListener('click', () => {
+      if (button.getAttribute('aria-pressed') === 'true') return;
+      views.forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+      document.dispatchEvent(new CustomEvent('index-view', { detail: button.dataset.view }));
+    });
+  }
+
+  // Opening, after jeton.com: hovering a half (or focusing it) opens the
+  // switch down into that half's panel; leaving it closes it, after a beat
+  // in case the pointer is only crossing a gap. A tap opens and closes it
+  // (no hover there), as does a tap outside. Escape closes it.
+  const place2 = document.querySelector<HTMLElement>('.nav__switch');
+  const row = group?.querySelector<HTMLElement>('.nav__row');
+  if (place2 && group && row) {
+    const menus = [...group.querySelectorAll<HTMLElement>('.nav__menu')];
+    const root = document.documentElement;
+    const px = (name: string) => parseFloat(getComputedStyle(root).getPropertyValue(name)) || 0;
+    let open: string | null = null;
+    let timer = 0;
+    let touch = false;
+
+    // The closed size: the halves at their own width.
+    const size = () => {
+      place2.style.removeProperty('--switch-w');
+      place2.style.setProperty('--switch-w', `${Math.ceil(row.scrollWidth)}px`);
+      const panel = Math.min(px('--nav-panel-width'), root.clientWidth - 2 * px('--index-margin'));
+      group.style.setProperty('--panel-w', `${Math.max(panel, row.scrollWidth)}px`);
+      if (open) show(open);
+    };
+
+    const show = (view: string) => {
+      clearTimeout(timer);
+      open = view;
+      menus.forEach((m) => (m.hidden = m.dataset.menu !== view));
+      views.forEach((b) => b.setAttribute('aria-expanded', String(b.dataset.view === view)));
+      const menu = menus.find((m) => m.dataset.menu === view);
+      // The cover from the first name's top to the last's bottom.
+      const names = [...(menu?.querySelectorAll<HTMLElement>('.nav__name') ?? [])];
+      if (menu && names.length && menu.querySelector('.nav__cover')) {
+        const top = names[0].getBoundingClientRect().top;
+        const bottom = names[names.length - 1].getBoundingClientRect().bottom;
+        menu.style.setProperty('--cover-top', `${top - menu.getBoundingClientRect().top}px`);
+        menu.style.setProperty('--nav-cover', `${bottom - top}px`);
+      }
+      group.toggleAttribute('data-open', true);
+      group.style.width = group.style.getPropertyValue('--panel-w');
+      group.style.height = `${px('--pill-height') + (menu?.offsetHeight ?? 0)}px`;
+    };
+
+    const hide = () => {
+      clearTimeout(timer);
+      if (!open) return;
+      open = null;
+      views.forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      group.removeAttribute('data-open');
+      group.style.width = '';
+      group.style.height = '';
+      group.querySelectorAll('[data-on]').forEach((el) => el.removeAttribute('data-on'));
+      group.querySelectorAll<HTMLVideoElement>('.nav__cover video').forEach((v) => v.pause());
+    };
+
+    // Once shut, the panels go, so they can't be tabbed into unseen.
+    group.addEventListener('transitionend', (e) => {
+      if (e.target === group && e.propertyName === 'height' && !open) menus.forEach((m) => (m.hidden = true));
+    });
+
+    addEventListener('pointerdown', (e) => {
+      touch = e.pointerType !== 'mouse';
+      if (open && !group.contains(e.target as Node)) hide();
+    }, { capture: true });
+
+    for (const button of views) {
+      const view = button.dataset.view!;
+      button.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && show(view));
+      button.addEventListener('focus', () => !touch && show(view));
+      button.addEventListener('click', () => {
+        if (touch) open === view ? hide() : show(view);
+      });
+    }
+    group.addEventListener('pointerleave', (e) => {
+      if (e.pointerType === 'mouse') timer = window.setTimeout(hide, 200);
+    });
+    group.addEventListener('pointerenter', () => clearTimeout(timer));
+    group.addEventListener('focusout', (e) => {
+      if (!group.contains(e.relatedTarget as Node)) hide();
+    });
+    addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || !open) return;
+      const back = views.find((b) => b.dataset.view === open);
+      hide();
+      back?.focus({ preventScroll: true });
+    });
+
+    // Play's pieces have no pages yet: their names show Play's tiles.
+    for (const item of group.querySelectorAll<HTMLButtonElement>('[data-show]')) {
+      item.addEventListener('click', () => {
+        views.find((b) => b.dataset.view === item.dataset.show)?.click();
+        hide();
+      });
+    }
+
+    // While a name is hovered or focused: the list's dot glides to sit after
+    // it, and a project's cover shows in the corner.
+    for (const item of group.querySelectorAll<HTMLElement>('.nav__item')) {
+      const on = () => {
+        const pointer = item.closest('.nav__list')?.querySelector<HTMLElement>('.nav__pointer');
+        const shown = !!pointer?.hasAttribute('data-on');
+        group.querySelectorAll('[data-on]').forEach((el) => el !== pointer && el.removeAttribute('data-on'));
+        item.toggleAttribute('data-on', true);
+        const cover = group.querySelector<HTMLElement>(`.nav__cover [data-cover="${item.dataset.cover}"]`);
+        cover?.toggleAttribute('data-on', true);
+        // A film plays its preview cut from the start, muted; the others stop.
+        group.querySelectorAll<HTMLVideoElement>('.nav__cover video').forEach((v) => v !== cover && v.pause());
+        if (cover instanceof HTMLVideoElement && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          cover.currentTime = 0;
+          cover.play().catch(() => {});
+        }
+        const name = item.querySelector<HTMLElement>('.nav__name');
+        if (!pointer || !name) return;
+        const list = pointer.parentElement!.getBoundingClientRect();
+        const box = name.getBoundingClientRect();
+        const gap = parseFloat(getComputedStyle(pointer).getPropertyValue('--nav-mark-gap')) || 6;
+        const x = box.right - list.left + gap;
+        const from = parseFloat(pointer.style.getPropertyValue('--to-x')) || x;
+        pointer.toggleAttribute('data-out', x > from);
+        pointer.style.setProperty('--to-x', `${x}px`);
+        pointer.style.setProperty('--to-y', `${box.top + box.height / 2 - list.top}px`);
+        // Showing for the first time: put it in place before it grows, so it
+        // doesn't glide in from the corner.
+        if (!shown) void pointer.offsetWidth;
+        pointer.toggleAttribute('data-on', true);
+      };
+      item.addEventListener('pointerenter', on);
+      item.addEventListener('focus', on);
+    }
+
+    addEventListener('resize', size);
+    document.fonts?.ready.then(size);
+    size();
   }
 </script>

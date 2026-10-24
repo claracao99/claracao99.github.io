@@ -1,14 +1,15 @@
 ---
 /**
  * The lamp (Lamp.astro) at its usual size, in the lower right corner of a
- * square tile on Figure grey, the same size as the cards beside it: the
- * index's last tile.
- * Pulling its cord switches the theme.
+ * square tile on Figure grey, the same size as the cards beside it: Play's
+ * first project, for now on its own. Pulling its cord turns it on.
  */
 import Lamp from './Lamp.astro';
+
+const props = Astro.props;
 ---
 
-<div class="lamp-tile">
+<div class="lamp-tile" {...props}>
   <Lamp />
 </div>
 
