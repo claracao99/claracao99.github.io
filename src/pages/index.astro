@@ -259,10 +259,6 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
       overflow: hidden;
     }
 
-    .rail {
-      outline-offset: var(--rail-inset); /* read by the script, resolved */
-    }
-
     .rail__stage {
       user-select: none;
       position: fixed;
@@ -333,6 +329,13 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
       pointer-events: auto;
       will-change: transform;
     }
+
+    /* Once a tile is tapped the row slides under a resting pointer: tiles
+     * passing beneath it mustn't wake (a pill fading in, a film preview
+     * starting), which dropped frames mid-move. */
+    :global(html[data-leaving]) .rail .cards > :global(*) {
+      pointer-events: none;
+    }
   }
 </style>
 
@@ -367,9 +370,11 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
   // its big name hands over to the header's small one as it leaves),
   // Work's projects,
   // an arrow in a tile's room, then Play's. It opens on its first project
-  // at the left edge, in line with the wordmark, and goes as far as its last
-  // tile at the right edge; the header's switch shows which half is in
-  // the middle and glides the row to the other. Several stand in view at
+  // in the middle, the intro beside it, and goes from the intro in the
+  // middle to its last tile in the middle: whatever the row brings to the
+  // middle (the switch, the keys, focus, a tap) lands dead centre. The
+  // header's switch shows which half is in the middle and glides the row
+  // to the other. Several stand in view at
   // once and the next is cut off by the window's edge, the sign there's more. Each turns by
   // how far its centre is from the window's: flat in the middle, its outer
   // edge swinging in towards the edges, the drum's inside.
@@ -396,8 +401,8 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
       let width = 0; // the window
       let size = 0; // a tile
       let step = 0; // a tile and the gap after it
-      // How far the row moves: from its first tile at the left edge to its
-      // last at the right, each in line with the header's wordmark.
+      // How far the row moves: from the intro in the middle to its last
+      // tile in the middle.
       let lo = 0;
       let end = 0;
       const clamp = (v: number) => Math.max(lo, Math.min(end, v));
@@ -423,14 +428,16 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
         centred = v;
         switches.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
       };
-      // A view's place in the row: Work's start (its first project at the
-      // left edge), Play's first tile in the middle (or as near as the end
-      // allows).
+      // Where the row is when `el` stands in the middle.
+      const centreOf = (el: HTMLElement) =>
+        el === intro ? lo : introSpace + Math.max(0, tiles.indexOf(el)) * step;
+      // A view's place in the row: its first tile in the middle (About's is
+      // the intro).
       const placeOf = (v: string) =>
         v === 'play' && divider
           ? clamp(introSpace + (all.indexOf(divider) + 1) * step)
           : v === 'work'
-            ? clamp(lo + introSpace) // the first project at the left edge
+            ? clamp(introSpace) // the first project
             : lo; // About: the intro
       let opening = true;
       let playEdge = -1;
@@ -463,40 +470,19 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
         step = size + (parseFloat(getComputedStyle(row).columnGap) || 0);
         angle = parseFloat(style.getPropertyValue('--rail-angle')) || 0;
         playSpeed = parseFloat(style.getPropertyValue('--play-speed')) || 1;
-        // --rail-inset is a calc(): read it resolved, through outline-offset.
-        const inset = parseFloat(style.outlineOffset) || 0;
-        lo = (width - size) / 2 - inset;
         // The intro: its width and a gap either side, before the tiles.
         introSpace = intro ? intro.offsetWidth + 2 * (step - size) : 0;
-        end = Math.max(lo, introSpace + (tiles.length - 1) * step - lo);
+        // The ends: the intro in the middle, the last tile in the middle.
+        lo = intro ? (intro.offsetWidth - size) / 2 : 0;
+        end = Math.max(lo, introSpace + (tiles.length - 1) * step);
         // The big name's place in the intro.
         if (slot) slotAt = { x: slot.offsetLeft, w: slot.offsetWidth || 1 };
-        // The end tiles are turned, so the drum's perspective carries their
-        // outer edges further out than laid out: measure where they land and
-        // pull each end in until it sits at the inset. (Not while pushed in:
-        // the dolly moves them.)
-        if (!focus || !dolly) {
-          const keep = [at, to];
-          for (let n = 0; n < 3; n++) {
-            // The intro is flat: the left end needs no fitting.
-            if (!intro) {
-              at = to = lo;
-              draw();
-              lo -= inset - tiles[0].getBoundingClientRect().left;
-            }
-            at = to = end;
-            draw();
-            end += tiles[tiles.length - 1].getBoundingClientRect().right - (width - inset);
-          }
-          end = Math.max(lo, end);
-          [at, to] = keep;
-        }
-        if (opening && !start) at = to = placeOf('about'); // the landing: the intro
+        if (opening && !start) at = to = placeOf('work'); // the landing: the first project
         opening = false;
         at = clamp(at);
         to = clamp(to);
         if (start) {
-          at = to = clamp(introSpace + Math.max(0, tiles.indexOf(start)) * step);
+          at = to = clamp(centreOf(start));
           // Back from its case: open on the drum still pushed in, so it can
           // gather round the tile as the cover lands (dollyOut).
           if (tiles.includes(start) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -565,7 +551,7 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
         // middle, or at its end.
         if (divider) {
           const arrow = first + introSpace + all.indexOf(divider) * step + size / 2;
-          showView(arrow < width / 2 || at >= end - 1 ? 'play' : at < lo + introSpace * 0.5 ? 'about' : 'work');
+          showView(arrow < width / 2 || at >= end - 1 ? 'play' : at < (lo + placeOf('work')) / 2 ? 'about' : 'work');
           // Play's own ground comes in behind the row, faster than it
           // (parallax): its edge enters at the window's right with the arrow
           // and sweeps left --play-speed times as fast as the row, so it
@@ -601,33 +587,43 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
         { passive: false },
       );
 
+      // The keys bring the next tile (or the one before) to the middle.
       addEventListener('keydown', (e) => {
         if (!on || e.metaKey || e.ctrlKey || e.altKey) return;
-        const by = { ArrowRight: step, ArrowDown: step, ArrowLeft: -step, ArrowUp: -step }[e.key];
-        if (!by) return;
+        const dir = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+        if (!dir) return;
         e.preventDefault();
-        go(by);
+        const stops = [...(intro ? [intro] : []), ...tiles.filter((t) => t !== divider)].map(centreOf);
+        const next = dir > 0 ? stops.find((c) => c > to + 1) : stops.findLast((c) => c < to - 1);
+        if (next !== undefined) go(next - to);
       });
 
-      // The dolly's moves: one eased tween of the row's place (to bring the
-      // tile to the middle) and the push, together, so it reads as a single
-      // camera move. Resolves when it's done.
+      // The dolly's moves: an eased tween of the row's place and of the
+      // push. A tile tapped off to the side first glides to the middle
+      // (centre), then the camera pushes in on it there (dollyIn). Resolves
+      // when it's done.
       const dollyPush = 0.05; // the chosen tile's growth, pushed in
       const dollySink = 520; // px away
-      const tween = (target: number, from: number, by: number, delay: number) =>
+      // `speed`: how fast the row is already going (px/ms), so a glide
+      // picks it up where it is instead of stopping it dead first.
+      const tween = (target: number, from: number, by: number, delay: number, duration: number, speed = 0) =>
         new Promise<void>((done) => {
           cancelAnimationFrame(frame);
           frame = 0;
-          const root = document.documentElement;
-          const duration = cssMs(root, '--duration-dolly') || 700;
           const t0 = performance.now() + delay;
           const d0 = dolly;
           // Ease in and out, cubic: a camera's move, no lurch in the middle.
           const ease = (k: number) => (k < 0.5 ? 4 * k ** 3 : 1 - (-2 * k + 2) ** 3 / 2);
+          // From a moving start: a Hermite curve leaving at that speed and
+          // settling at rest.
+          const m = speed * duration;
+          const place = speed
+            ? (k: number) => by * (3 * k ** 2 - 2 * k ** 3) + m * (k ** 3 - 2 * k ** 2 + k)
+            : (k: number) => by * ease(k);
           const tick = () => {
             const k = Math.min(1, Math.max(0, (performance.now() - t0) / duration));
             const e = ease(k);
-            at = to = from + by * e;
+            at = to = from + place(k);
             dolly = d0 + (target - d0) * e;
             draw();
             if (k < 1) requestAnimationFrame(tick);
@@ -636,30 +632,42 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
           requestAnimationFrame(tick);
         });
 
-      dollyIn = (tile) => {
-        if (!on || !tiles.includes(tile)) return Promise.resolve();
+      // The glide to the middle takes longer the further the tile is, up
+      // to 1.6 times --duration-centre.
+      const centring = (by: number) =>
+        (cssMs(document.documentElement, '--duration-centre') || 550) *
+        Math.min(1.6, Math.max(0.8, Math.sqrt(Math.abs(by) / step)));
+
+      dollyIn = async (tile) => {
+        if (!on || !tiles.includes(tile)) return;
+        const push = cssMs(document.documentElement, '--duration-dolly') || 700;
+        const by = centreOf(tile) - at;
+        // Still gliding from the wheel or a fling: its next frame's step.
+        const speed = at === to ? 0 : ((to - at) * lerp) / (1000 / 60);
+        if (Math.abs(by) > 2 || speed) await tween(0, at, by, 0, centring(by), speed);
         focus = tile;
-        const x = new DOMMatrix(getComputedStyle(tile).transform).m41;
-        return tween(1, at, x + size / 2 - width / 2, 0);
+        await tween(1, at, 0, 0, push);
       };
 
       dollyOut = (tile) => {
         if (!on || focus !== tile || dolly === 0) return;
         // Once the cover is on its way home.
-        const delay = (cssMs(document.documentElement, '--duration-travel') || 700) * 0.3;
-        tween(0, at, 0, delay).then(() => {
+        const root = document.documentElement;
+        const delay = (cssMs(root, '--duration-travel') || 700) * 0.3;
+        tween(0, at, 0, delay, cssMs(root, '--duration-dolly') || 700).then(() => {
           focus = null;
           draw();
         });
       };
 
-      // Tabbing to a tile brings it to the middle.
+      // Tabbing to a tile brings it to the middle. Only the keyboard's
+      // focus: a press focuses the link too (Chromium), and that move would
+      // fight the tap's own glide (dollyIn).
       row.addEventListener('focusin', (e) => {
-        if (!on) return;
+        if (!on || !(e.target as Element).matches(':focus-visible')) return;
         const tile = tiles.find((t) => t.contains(e.target as Node));
         if (!tile) return;
-        const x = new DOMMatrix(getComputedStyle(tile).transform).m41;
-        go(x + size / 2 - width / 2);
+        go(centreOf(tile) - to);
       });
 
       // Mouse, touch and pen: drag the row, and let go with a fling (the
@@ -692,14 +700,20 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
         drag.moved += Math.abs(by);
         drag.v = by / Math.max(1, e.timeStamp - drag.t);
         Object.assign(drag, { x: e.clientX, y: e.clientY, t: e.timeStamp });
-        to = clamp(to + by);
-        at = to;
+        // A press that wobbles a little is still a tap: the row stays put.
+        if (drag.moved <= 8) return;
+        // Caught where it is (still gliding, perhaps), and carried from there.
+        at = clamp(at + by);
+        to = at;
         frame ||= requestAnimationFrame(draw);
       });
       const release = (e: PointerEvent) => {
         if (!drag || e.pointerId !== drag.id) return;
-        if (drag.moved > 8) dragged = e.timeStamp;
-        go(drag.v * 180);
+        // Only a drag lets go with a fling.
+        if (drag.moved > 8) {
+          dragged = e.timeStamp;
+          go(drag.v * 180);
+        }
         drag = null;
         rail.removeAttribute('data-dragging');
       };
@@ -775,8 +789,10 @@ const links = CONTACT.filter((c) => !c.href.startsWith('mailto:'));
         );
       }
       // Never hold the page hostage to the move: open after it, or after a
-      // beat longer than it should take, whichever comes first.
-      await Promise.race([move?.catch(() => {}), new Promise((r) => setTimeout(r, duration + 400))]);
+      // beat longer than it should take (the glide to the middle at its
+      // longest, then the push), whichever comes first.
+      const longest = duration + 1.6 * (cssMs(root, '--duration-centre') || 550);
+      await Promise.race([move?.catch(() => {}), new Promise((r) => setTimeout(r, longest + 400))]);
       location.assign(href);
     };
     const plain = (e: MouseEvent) =>

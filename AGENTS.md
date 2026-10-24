@@ -60,8 +60,10 @@ infrastructure:
   name, SITE.intro, CONTACT; the header wordmark is hidden on landing and
   rolls up into its clipped box, partizan.com-style, once the big name is
   mostly off-screen: `data-name-in` on html), then Work's projects, an arrow in a tile's room
-  (`.rail-divider`), then Play's — opening with the first project at the left edge (in line with the
-  wordmark, `--rail-inset`);
+  (`.rail-divider`), then Play's — opening with the first project dead
+  centre, the intro beside it. Its ends are the intro centred and the last
+  tile centred, and everything the row brings to the middle (switch, arrow
+  keys, focus, a tap) lands exactly centred; free scrolling doesn't snap;
   the header switch follows which half is centred and glides the row to
   the other. Play has its own white ground (`.rail__play-bg`): a clean-cut
   layer that sweeps in behind the row faster than it (parallax,
@@ -88,9 +90,10 @@ infrastructure:
   bottom is clipped. Phones' pills get a 44px tap layer (`.pill::after`),
   which must be off on pills that contain other controls.
 - **Opening a tile: dolly in, then one View Transition** (index.astro,
-  PageTransition.astro). On the rail, `dollyIn` tweens the row's place and
-  a `dolly` 0→1 together (one camera move, cubic in-out,
-  `--duration-dolly`): the chosen tile glides to the middle and grows a
+  PageTransition.astro). On the rail, `dollyIn` first glides a tile
+  that's off to the side to the middle (cubic in-out, `--duration-centre`,
+  longer the further it is), then tweens a `dolly` 0→1 there
+  (`--duration-dolly`): the chosen tile grows a
   touch (as `scale`, never `translateZ`: the transition captures tiles
   without the stage's perspective, so a z push jumps at hand-off), the rest
   sink back in z, part, turn further and blur/dim. Then the page opens and

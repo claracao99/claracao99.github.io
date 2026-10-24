@@ -193,10 +193,9 @@
 
   /* Index rail (index.astro, from 48rem): the tiles in one row, pinned while
    * the page scrolls, sliding sideways and turning away as they leave the
-   * middle, after details.so's Perspective Cards. As big as leaves the
-   * next tile peeking in at the window's edge, the sign there's more: from
-   * the inset, 3.4 steps (a tile and its eighth of a gap) fill the width, so
-   * the fourth shows four tenths of itself. No taller than 46svh. Keep the
+   * middle, after details.so's Perspective Cards. Sized so the turned
+   * tiles either side of the centred one run off the window's edge, the
+   * sign there's more. No taller than 46svh. Keep the
    * 520 in step with lib/media.ts. */
   --rail-tile: clamp(260px, min(46svh, calc((100vw - 2rem) / 3.825)), 520px);
   --rail-gap: calc(var(--rail-tile) / 8);
@@ -217,8 +216,6 @@
   --play-figure: #f0f0f0;
   --play-shape: #dedede;
   --icon-rail-arrow: 24px; /* between Work and Play on the rail, for now */
-  /* The row's ends stop in line with the wordmark (Nav.astro). */
-  --rail-inset: calc(var(--index-margin) + var(--pill-pad));
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -246,6 +243,9 @@
    * rest of the drum sinks back into shadow; then the tile grows into the
    * case page's cover as the page arrives under it. Back, the reverse. */
   --duration-dolly: 750ms;
+  /* A tile tapped off to the side glides to the middle first, then the
+   * dolly pushes in; further tiles take longer, up to 1.6 times this. */
+  --duration-centre: 550ms;
   --duration-travel: 700ms;
   /* A word rolling in or out of its clipped box (the wordmark's handoff,
    * after partizan.com's nav). */
