@@ -12,9 +12,11 @@
  * rather than a control; a film is tagged [Video] and plays its preview cut
  * there instead.
  *
- * On a case page the middle holds the way back instead: a square with a
- * back arrow (Phosphor's arrow-left, bold) joined, by the same neck, to the project's name. Back returns
- * to the index as it was (history) when that's where we came from.
+ * On a case page the middle holds the way back instead: Back, a word like
+ * the switch's (no icon: the header is all type), joined by the same neck
+ * to the project's name, which carries the switch's dot (where you are).
+ * Back returns to the index as it was (history) when that's where we came
+ * from. Between the two the pill morphs part for part (lib/nav-morph.ts).
  *
  * The current page's pill does nothing when clicked rather than reloading
  * (a modified click still opens a new tab). On the index the wordmark
@@ -24,7 +26,6 @@
  * away with the page.
  */
 import { Image } from 'astro:assets';
-import ArrowLeft from '../icons/arrow-left.svg';
 import { caseStudyPath, getPublishedWork, projectName } from '../lib/work';
 
 interface Props {
@@ -120,7 +121,7 @@ const views = ['Work', 'Play'];
         <div class="nav__crumb-place">
           <div class="pill nav__crumb" data-fused>
             <a class="nav__back" href="/" aria-label="Back to work">
-              <ArrowLeft aria-hidden="true" />
+              <span class="nav__back-label">Back</span>
             </a>
             <span class="nav__title" data-seam>
               <span class="nav__title-text">{project}</span>
@@ -130,6 +131,9 @@ const views = ['Work', 'Play'];
       )
     }
   </nav>
+  {/* Stands in for the middle pill between the index and a case page,
+      morphing the one into the other (lib/nav-morph.ts). */}
+  <div class="nav__morph" aria-hidden="true" hidden></div>
 </header>
 
 <style>
@@ -212,14 +216,80 @@ const views = ['Work', 'Play'];
     }
   }
 
+  /* Arriving between the index and a case page, the wordmark starts as it
+   * was on the page before, then rolls to this page's state when let go
+   * (lib/nav-morph.ts). */
+  :global(html[data-name-hold='out']:root) .logotype__roll {
+    translate: 0 100%;
+    opacity: 0;
+    transition: none;
+  }
+
+  :global(html[data-name-hold='in']:root) .logotype__roll {
+    translate: 0 0;
+    opacity: 1;
+    transition: none;
+  }
+
   .nav__home:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
 
-  /* A case page's way back, in the switch's place: the arrow's square,
-   * then the name, joined by a neck. Only the square is a link. */
+  /* While the stand-in morphs between the index's switch and a case's
+   * Back + name, the real pill waits hidden under it. The stand-in is the
+   * header's width; its outline (a clip path) draws only the pill, so the
+   * text ticking out of it is clipped too. */
+  :global(html[data-nav-stand-in]) :is(.nav__views, .nav__crumb) {
+    visibility: hidden;
+  }
+
+  .nav__morph {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background: var(--pill-glass);
+    backdrop-filter: blur(var(--pill-blur));
+    -webkit-backdrop-filter: blur(var(--pill-blur));
+    /* The pills' type (base.css .pill). */
+    font-size: var(--text-small);
+    letter-spacing: var(--tracking-small);
+    pointer-events: none;
+  }
+
+  .nav__morph[hidden] {
+    display: none;
+  }
+
+  .nav__morph :global(.nav__morph-item) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    color: var(--ink);
+    white-space: nowrap;
+    will-change: transform, opacity;
+  }
+
+  /* The chosen view's dot, as the switch draws it (.nav__label::after). */
+  .nav__morph :global(.nav__morph-dot[hidden]) {
+    display: none;
+  }
+
+  .nav__morph :global(.nav__morph-dot) {
+    display: inline-block;
+    width: var(--nav-mark);
+    height: var(--nav-mark);
+    margin-left: var(--nav-mark-gap);
+    border-radius: 50%;
+    background: var(--ink);
+  }
+
+  /* A case page's way back, in the switch's place: Back, then the name,
+   * joined by a neck. Only Back is a link. */
   .nav__crumb-place {
     grid-column: 2;
     justify-self: center;
@@ -233,30 +303,19 @@ const views = ['Work', 'Play'];
     border-radius: var(--nav-radius);
   }
 
+  /* Padded like the switch's parts (.nav__view). */
   .nav__back {
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
     flex: none;
     align-self: stretch;
-    width: var(--pill-height);
+    padding-inline: var(--pill-pad);
     border-radius: var(--nav-radius);
     color: var(--ink);
+    text-decoration: none;
     transition: background-color var(--duration-base) var(--ease-out);
   }
 
-  .nav__back:hover {
-    background: var(--pill-fill-hover);
-  }
-
-  .nav__back :global(svg) {
-    width: var(--icon-back);
-    height: var(--icon-back);
-    transition: translate var(--duration-base) var(--ease-out);
-  }
-
-  .nav__back:hover :global(svg) {
-    translate: -2px 0;
-  }
 
   .nav__back:focus-visible {
     outline: 2px solid var(--focus-ring);
@@ -279,6 +338,18 @@ const views = ['Work', 'Play'];
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  /* Where you are: the switch's dot (.nav__label::after) after the name.
+   * Outside the clipped text, so a cut-short name still keeps it. */
+  .nav__title::after {
+    content: '';
+    flex: none;
+    width: var(--nav-mark);
+    height: var(--nav-mark);
+    margin-left: var(--nav-mark-gap);
+    border-radius: 50%;
+    background: var(--ink);
   }
 
 
@@ -613,6 +684,7 @@ const views = ['Work', 'Play'];
 </style>
 
 <script>
+  import { morphNav, saveNav } from '../lib/nav-morph';
   // The current page's link: a plain click would only reload it. The
   // index's wordmark goes back to the landing instead (index.astro).
   for (const link of document.querySelectorAll<HTMLAnchorElement>('.nav a[aria-current="page"]')) {
@@ -860,5 +932,28 @@ const views = ['Work', 'Play'];
     addEventListener('resize', size);
     document.fonts?.ready.then(size);
     size();
+  }
+
+  // Last, once the switch has its size: between the index and a case page
+  // the middle pill morphs from the one to the other (lib/nav-morph.ts): the
+  // leaving page saves its pill, the arriving one plays the morph.
+  // PageTransition.astro marks the pages (data-nav-morph) and holds the
+  // wordmark (data-name-hold).
+  {
+    const nav = document.querySelector<HTMLElement>('.nav');
+    const root = document.documentElement;
+    addEventListener('pageswap', (e) => {
+      if (nav && e.viewTransition && 'navMorph' in root.dataset) saveNav(nav);
+    });
+    let played: unknown = null;
+    const play = (vt: unknown) => {
+      if (!nav || !('navMorph' in root.dataset) || vt === played) return;
+      played = vt;
+      morphNav(nav, root.dataset.vtDir === 'open');
+    };
+    // Revealed before this script ran (a fresh load), or after (a
+    // prerendered page activated, a page back from the bfcache).
+    if ('navMorph' in root.dataset) play((window as { navReveal?: unknown }).navReveal);
+    addEventListener('pagereveal', (e) => e.viewTransition && play(e.viewTransition));
   }
 </script>

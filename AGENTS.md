@@ -128,7 +128,22 @@ infrastructure:
   Case → case crossfades. No loading screen. Case pages are prefetched
   eagerly and prerendered on hover (speculation rules) so there's no hold.
   The header is pinned on desktop and holds still through page changes;
-  on phones' case pages it scrolls with the page (the index never scrolls). Cross-document view-transition
+  on phones' case pages it scrolls with the page (the index never
+  scrolls). Its middle pill, index ↔ case, is
+  one live shape, not snapshots (lib/nav-morph.ts): the leaving page saves
+  its pill on `pageswap`, the arriving page hides its real one
+  (`data-nav-stand-in`) and morphs a stand-in from the saved shape into it,
+  part for part: Work's part becomes Back's (a word, no icon, no hover fill)
+  and Play's the name's (which carries the switch's dot, "where you are"),
+  the neck sliding between, labels tick over in their own parts
+  (up opening, down closing), the wordmark rolls (`data-name-hold`). The
+  old header is hidden from the transition and the header is never renamed
+  mid-transition (`data-nav-morph` stays till it ends): a part that gains a
+  view-transition-name mid-way drops out of view. The stand-in re-measures
+  the real pill every frame and is timed by a WAAPI animation, so paused or
+  seeked transitions freeze it too. Till it has drawn its first frame
+  (`data-nav-ready`) the transition keeps showing the old header, so a page
+  that paints before its script runs never shows an empty middle. Cross-document view-transition
   pseudos are styled by the *new* page.
   Read duration tokens in script with `cssMs` (lib/css.ts), never bare
   `parseFloat`: the build's minifier rewrites `600ms` as `.6s`, so every

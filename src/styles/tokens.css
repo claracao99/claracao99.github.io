@@ -80,7 +80,6 @@
    * pills, and side by side, joined by a pinched neck (Nav.astro draws it). */
   --nav-radius: 10px;
   --nav-neck: 7px; /* how far the edge dips in where two meet */
-  --icon-back: 16px; /* the arrow in a case page's Back */
   /* Open, the switch is a panel (after jeton.com's nav): this wide, at most,
    * with the hovered project's cover this size in its top right corner. */
   --nav-panel-width: 380px;

@@ -46,7 +46,12 @@
     window.addEventListener('pageswap', (e) => {
       if (!e.viewTransition) return;
       root.dataset.vtNav = '';
-      if (between(kind(location.href), kind(e.activation?.entry?.url))) root.dataset.vtTile = '';
+      if (between(kind(location.href), kind(e.activation?.entry?.url))) {
+        root.dataset.vtTile = '';
+        // The header's middle morphs (lib/nav-morph.ts): nothing of it
+        // goes into the snapshot apart from the header as a whole.
+        root.dataset.navMorph = '';
+      }
     });
     // Only for the old page coming back from the bfcache: on a fresh load
     // pageshow fires mid-transition, and clearing the names there drops the
@@ -56,6 +61,10 @@
       delete root.dataset.vtNav;
       delete root.dataset.vtTile;
       delete root.dataset.vtDir;
+      delete root.dataset.navMorph;
+      delete root.dataset.navReady;
+      delete root.dataset.navStandIn;
+      delete root.dataset.nameHold;
     });
 
     window.addEventListener('pagereveal', (e) => {
@@ -71,6 +80,16 @@
       if (between(from, to)) {
         root.dataset.vtTile = '';
         root.dataset.vtDir = to === 'case' ? 'open' : 'close';
+        // The header's middle morphs from the last page's pill to this
+        // one's (Nav.astro, lib/nav-morph.ts), which hides the real one
+        // till then; the wordmark starts as it was there and rolls.
+        root.dataset.navMorph = '';
+        root.dataset.navStandIn = '';
+        window.navReveal = vt;
+        try {
+          const saved = JSON.parse(sessionStorage.getItem('nav-morph') || 'null');
+          if (saved) root.dataset.nameHold = saved.name ? 'in' : 'out';
+        } catch {}
         if (to === 'work') {
           let path = '';
           try {
@@ -88,6 +107,10 @@
         }
       }
       vt.finished.finally(() => {
+        delete root.dataset.navMorph;
+        delete root.dataset.navReady;
+        delete root.dataset.navStandIn;
+        delete root.dataset.nameHold;
         delete root.dataset.vtNav;
         delete root.dataset.vtTile;
         delete root.dataset.vtDir;
@@ -118,19 +141,41 @@
     background: var(--transition-backdrop);
   }
 
-  /* The header's middle changes between pages (the About / Work / Play switch, a
-   * case's Back and name) in two parts. The pill's shape (nav-pill, drawn
-   * without its text, which is named apart) morphs from the one to the
-   * other, stretching to its new width and place, the neck crossfading. The
-   * text (nav-label) ticks over inside its box, clipped: the old scrolls up
-   * and out as the new scrolls up and in; back to the index, both scroll
-   * down. Neither text stretches as its box changes size. */
-  [data-vt-nav] :is(.nav__views, .nav__crumb) {
+  /* Case → case, the header's middle (Back and the name) changes in two
+   * parts: the pill's shape (nav-pill, drawn without its text, which is
+   * named apart) stretches to its new width, and the text (nav-label) ticks
+   * over inside its box, clipped. Between the index and a case the arriving
+   * page morphs the pill itself instead (data-nav-morph, lib/nav-morph.ts),
+   * so none of this applies. */
+  [data-vt-nav]:not([data-nav-morph]) :is(.nav__views, .nav__crumb) {
     view-transition-name: nav-pill;
   }
 
-  [data-vt-nav] :is(.nav__views .nav__row, .nav__title) {
+  [data-vt-nav]:not([data-nav-morph]) :is(.nav__views .nav__row, .nav__title) {
     view-transition-name: nav-label;
+  }
+
+  /* Between the index and a case page the arriving header plays the morph
+   * itself, live (lib/nav-morph.ts), from where the old one's pill was:
+   * the old header is never shown, and the new isn't faded in. */
+  [data-nav-morph]::view-transition-old(site-nav) {
+    animation: none;
+    opacity: 0;
+  }
+
+  [data-nav-morph]::view-transition-new(site-nav) {
+    animation: none;
+  }
+
+  /* Till the stand-in is drawn (a page loaded fresh can paint a frame
+   * before its script runs), the old header stays up instead: the
+   * stand-in starts exactly as it was, so the swap can't be seen. */
+  [data-nav-morph]:not([data-nav-ready])::view-transition-old(site-nav) {
+    opacity: 1;
+  }
+
+  [data-nav-morph]:not([data-nav-ready])::view-transition-new(site-nav) {
+    opacity: 0;
   }
 
   ::view-transition-group(nav-pill),
