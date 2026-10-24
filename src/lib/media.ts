@@ -16,6 +16,7 @@ import type { ImageMetadata } from 'astro';
 const TILE_PX = 240; // desktop --tile-size
 const GAP_PX = 10; // --index-gap
 const RAIL_PX = 520; // --rail-tile at its largest
+const RAIL_VW = 68; // --rail-tile on phones
 
 export function tileSizes(src: ImageMetadata | undefined, tileRatio = 1, { wide = false } = {}): string {
   const ratio = src ? src.width / src.height : 1;
@@ -25,9 +26,10 @@ export function tileSizes(src: ImageMetadata | undefined, tileRatio = 1, { wide 
   return `(max-width: 32rem) ${Math.ceil(100 * scale)}vw, ${px(desktop)}`;
 }
 
-/** An index tile: the grid's square up to 48rem, the rail's bigger one beyond. */
+/** An index tile: the rail's, 68vw on phones and up to 520px from 48rem
+ * (under reduced motion phones get the grid's full-width square instead). */
 export function railSizes(src: ImageMetadata | undefined): string {
   const scale = Math.max(1, src ? src.width / src.height : 1);
   const px = (size: number) => `${Math.ceil(size * scale)}px`;
-  return `(max-width: 32rem) ${Math.ceil(100 * scale)}vw, (max-width: 48rem) ${px(TILE_PX)}, ${px(RAIL_PX)}`;
+  return `(max-width: 32rem) ${Math.ceil(100 * scale)}vw, (max-width: 48rem) ${Math.ceil(RAIL_VW * scale)}vw, ${px(RAIL_PX)}`;
 }

@@ -191,17 +191,20 @@
   --pill-height: 40px;
   --pill-pad: var(--space-4); /* 16 */
 
-  /* Index rail (index.astro, from 48rem): the tiles in one row, pinned while
-   * the page scrolls, sliding sideways and turning away as they leave the
-   * middle, after details.so's Perspective Cards. Sized so the turned
-   * tiles either side of the centred one run off the window's edge, the
-   * sign there's more. No taller than 46svh. Keep the
-   * 520 in step with lib/media.ts. */
-  --rail-tile: clamp(260px, min(46svh, calc((100vw - 2rem) / 3.825)), 520px);
-  --rail-gap: calc(var(--rail-tile) / 8);
+  /* Index rail (index.astro, every width but reduced motion): the tiles in
+   * one row, pinned while the page holds still, sliding sideways and turning
+   * away as they leave the middle, after details.so's Perspective Cards.
+   * Sized so the turned tiles either side of the centred one run off the
+   * window's edge, the sign there's more.
+   * Phones: one tile in the middle, a slice of each neighbour either side,
+   * no taller than 40svh so the intro fits above and the contacts below.
+   * From 48rem (below): several in view, no taller than 46svh. Keep the
+   * 68vw and 520 in step with lib/media.ts. */
+  --rail-tile: min(68vw, 40svh);
+  --rail-gap: calc(var(--rail-tile) / 12);
   --rail-intro: var(--rail-tile); /* the intro at the row's start, a tile wide */
   --rail-angle: 36deg; /* a tile's turn at the window's edge */
-  --rail-perspective: 1000px; /* nearer, so the turned tiles foreshorten more */
+  --rail-perspective: 700px; /* nearer, so the turned tiles foreshorten more */
   /* Play's own ground on the rail, sliding in behind it: white, with dark
    * ink for the wordmark while it's on it. */
   --play-bg: #ffffff;
@@ -327,6 +330,9 @@
   :root {
     --pill-height: 36px;
     --pill-pad: 1.25rem; /* 20 */
+    --rail-tile: clamp(260px, min(46svh, calc((100vw - 2rem) / 3.825)), 520px);
+    --rail-gap: calc(var(--rail-tile) / 8);
+    --rail-perspective: 1000px;
   }
 }
 

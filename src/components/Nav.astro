@@ -142,9 +142,10 @@ const views = ['Work', 'Play'];
     z-index: var(--z-nav);
   }
 
-  /* Wordmark | switch. On phones the switch takes the room beside the
-   * wordmark; from 48rem the outer columns share what's left, so it sits in
-   * the window's middle whatever the pills' widths. */
+  /* Wordmark | switch. The outer columns share what's left, so the index's
+   * switch sits in the window's middle whatever the pills' widths. On a
+   * phone's case page the way back takes the room beside the wordmark
+   * instead (a long name needs it). */
   .nav__bar {
     display: grid;
     grid-template-columns: auto 1fr auto;
@@ -161,6 +162,10 @@ const views = ['Work', 'Play'];
     justify-self: center;
     width: var(--switch-w, 9rem);
     height: var(--pill-height);
+  }
+
+  .nav__bar:has(.nav__switch) {
+    grid-template-columns: 1fr auto 1fr;
   }
 
   @media (min-width: 48rem) {
@@ -200,7 +205,7 @@ const views = ['Work', 'Play'];
       opacity var(--duration-roll) var(--ease-roll);
   }
 
-  @media (min-width: 48rem) and (prefers-reduced-motion: no-preference) {
+  @media (prefers-reduced-motion: no-preference) {
     :global(html:has(.rail-intro):not([data-name-in])) .logotype__roll {
       translate: 0 100%;
       opacity: 0;
@@ -727,6 +732,7 @@ const views = ['Work', 'Play'];
     let open: string | null = null;
     let timer = 0;
     let touch = false;
+    let wasPressed = false; // the tapped half, before the tap
 
     // The closed size: the halves at their own width.
     const size = () => {
@@ -782,8 +788,14 @@ const views = ['Work', 'Play'];
       const view = button.dataset.view!;
       button.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && show(view));
       button.addEventListener('focus', () => !touch && show(view));
+      // A tap on the other half only goes there; a tap on the half
+      // you're on opens its panel (and closes it again).
+      button.addEventListener('pointerdown', () => (wasPressed = button.getAttribute('aria-pressed') === 'true'));
       button.addEventListener('click', () => {
-        if (touch) open === view ? hide() : show(view);
+        if (!touch) return;
+        if (open === view) hide();
+        else if (wasPressed) show(view);
+        else hide();
       });
     }
     group.addEventListener('pointerleave', (e) => {
