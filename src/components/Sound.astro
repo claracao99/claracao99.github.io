@@ -1,16 +1,22 @@
 ---
 /**
- * Unlocks the interface sounds (lib/sound.ts) on the first press or key, as
- * browsers keep audio locked until a user gesture. Links and buttons are
- * silent; only the lamp's cord (Lamp.astro) plays a sound.
+ * Unlocks the interface sounds (lib/sound.ts) on the first press or key on
+ * the lamp, as browsers keep audio locked until a user gesture. Links and
+ * buttons are silent; only the lamp's cord (Lamp.astro) plays a sound, so
+ * only the lamp unlocks it: opening the audio device can hold the page for
+ * a quarter of a second, which elsewhere stalled the first tap's glide.
  */
 ---
 
 <script>
   import { unlockSound } from '../lib/sound';
 
+  const onLamp = (e: Event) => (e.target as Element).closest?.('[data-lamp], .lamp-tile');
+
   document.addEventListener('pointerdown', (e) => {
-    if (e.button === 0) unlockSound();
+    if (e.button === 0 && onLamp(e)) unlockSound();
   });
-  document.addEventListener('keydown', () => unlockSound());
+  document.addEventListener('keydown', (e) => {
+    if (onLamp(e)) unlockSound();
+  });
 </script>
