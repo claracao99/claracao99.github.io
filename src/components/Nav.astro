@@ -317,6 +317,24 @@ const views = ['Work', 'Play'];
   }
 
 
+  /* Phones' pills reach for a 44px tap with a layer over them (base.css):
+   * over the crumb it would swallow Back's taps, so Back reaches instead. */
+  .nav__crumb::after {
+    content: none;
+  }
+
+  @media (max-width: 47.99rem) {
+    .nav__back {
+      position: relative;
+    }
+
+    .nav__back::after {
+      content: '';
+      position: absolute;
+      inset: -2px 0;
+    }
+  }
+
   .nav__back:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: -2px;
