@@ -15,7 +15,7 @@ export const SITE = {
   lang: 'en',
   /** The about text in the index's intro (index.astro). */
   intro:
-    'Clara Cao is a product designer at Bolt, shaping the app millions of people use to get around their city. She finds the problem worth solving, builds the answer in real code with AI, and turns messy flows into calm, effortless experiences.',
+    'Product designer at Bolt, shaping the app millions use to get around their city.',
 } as const;
 
 /**
