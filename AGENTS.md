@@ -54,6 +54,8 @@ infrastructure:
   tall as its text (Information = short project name as h1, company, year;
   Description = summary + MDX body), then the frontmatter `media` (`size:
   small` = square, `large` = its own ratio). The header pill is the way back.
+  (Tried and reverted 2026-10-25: the case as a window over the index,
+  centred, media left and text right; Clara went back to the page.)
   Media without `src` is a placeholder tile; no `media` at all gets a default
   placeholder set, and `media: []` means the cover alone. Layout lives in
   `src/styles/case.css` (global, because MDX output has no scope).
@@ -144,7 +146,9 @@ infrastructure:
   seeked transitions freeze it too. Till it has drawn its first frame
   (`data-nav-ready`) the transition keeps showing the old header, so a page
   that paints before its script runs never shows an empty middle. Cross-document view-transition
-  pseudos are styled by the *new* page.
+  pseudos are styled by the *new* page, and a group already on the old
+  page keeps its old stacking place, under any group new on the arriving
+  one (lift it with `z-index` on its `::view-transition-group`).
   Read duration tokens in script with `cssMs` (lib/css.ts), never bare
   `parseFloat`: the build's minifier rewrites `600ms` as `.6s`, so every
   wait collapses to under a millisecond, live only (dev isn't minified).
