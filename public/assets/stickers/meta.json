@@ -1,0 +1,57 @@
+{
+ "clay": {
+  "w": 152.67,
+  "h": 212.67,
+  "name": "Clay \u2014 Toon Club (arch)"
+ },
+ "tweak": {
+  "w": 228.67,
+  "h": 132.67,
+  "name": "One more tweak \u2014 Rubber Ink"
+ },
+ "hyrox": {
+  "w": 227.33,
+  "h": 133.33,
+  "name": "Hyrox \u2014 Die-cut Pop"
+ },
+ "half-marathon": {
+  "w": 202.67,
+  "h": 202.67,
+  "name": "21.1 km \u2014 Warped Acid"
+ },
+ "cheesecake": {
+  "w": 200.67,
+  "h": 200.67,
+  "name": "Cheesecake \u2014 Rubber Ink (classic ring)"
+ },
+ "hand-gestures": {
+  "w": 220.67,
+  "h": 222.67,
+  "name": "Hand gestures \u2014 Die-cut Pop"
+ },
+ "matcha": {
+  "w": 183.67,
+  "h": 183.67,
+  "name": "cup \u2014 Warped Acid (tilted square)"
+ },
+ "claude-code": {
+  "w": 189.0,
+  "h": 183.0,
+  "name": "laptop \u2014 Warped Acid (lime star)"
+ },
+ "bolt": {
+  "w": 152.67,
+  "h": 193.67,
+  "name": "Bolt \u2014 cancellation fee (Postage)"
+ },
+ "chihuahua": {
+  "w": 210.67,
+  "h": 210.67,
+  "name": "Chihuahua \u2014 Toon Club (scallop, photo)"
+ },
+ "teriyaki": {
+  "w": 227.67,
+  "h": 131.33,
+  "name": "Teriyaki \u2014 Rubber Ink"
+ }
+}

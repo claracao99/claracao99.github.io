@@ -1,0 +1,1994 @@
+/* Clara's site, direction B "Close-up": one project at a time, the phone big
+   enough to read and cut off by the bottom edge; scroll moves to the next.
+   Sizes follow the 1280 × 832 Figma frames (726:2): 20px type, 32px margins. */
+
+/* Inter (SIL OFL, self-hosted), for everyone who doesn't have ABC Diatype
+   installed: Diatype's web licence isn't bought yet, so it isn't shipped. */
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('assets/fonts/inter-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: Inter;
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('assets/fonts/inter-latin-ext-wght-normal.woff2') format('woff2-variations');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* Corners, square-ish: 2px on small things (labels, the Back tag, the toast,
+   buttons, focus), 4px on containers (media frames, the video). Product UI
+   inside them keeps its own (Bolt's pills, the sheet, phone screens). */
+:root {
+  --bg: #fff;
+  --ink: #000;
+  --grey: #737373; /* 4.7:1 on white, AA for 14px */
+  --line: #e8e8e8;
+  --figure: #f5f5f5;
+  --edge: 32px;
+  --col: 300px;
+  --gutter: 88px;
+  /* Two sizes, nothing between: everything at --t, and one large size for
+     the case heading, the result figure and Next. Hierarchy is ink vs grey. */
+  --t: 14px;
+  --t-big: 48px; /* fixed: it doesn't shrink with the window (phones set their own) */
+  --lead: 1.4;
+  --track: 0.015em;
+  --cut: 56px; /* the header's height; objects centre in the space under it */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #0e0e0e;
+  --ink: #f2f2f2;
+  --grey: #8a8a8a;
+  --line: #262626;
+  --figure: #181818;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-snap-type: y mandatory;
+  background: var(--bg);
+  transition: background-color 400ms var(--ease);
+}
+
+html.hold {
+  scroll-snap-type: none;
+}
+
+/* Over a case or the About, the work underneath stays where it was. */
+html:has(body:not([data-view='work'])) {
+  overflow: hidden;
+  scroll-snap-type: none;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font: var(--t) / var(--lead) 'ABC Diatype Trial', 'ABC Diatype', Inter, system-ui, sans-serif;
+  letter-spacing: var(--track);
+  -webkit-font-smoothing: antialiased;
+  transition: color 400ms var(--ease);
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dd,
+ul,
+ol,
+figure {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+}
+
+a,
+button {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.skip {
+  position: fixed;
+  left: var(--edge);
+  top: -60px;
+  z-index: 10;
+  background: var(--bg);
+}
+
+.skip:focus {
+  top: 64px;
+}
+
+/* Links show they're links on hover: a fine underline drawn in. */
+:is(.links, .about__links) :is(a, button),
+.b-link a,
+.cp__next a,
+.about__credit a {
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 300ms var(--ease);
+}
+
+:is(.links, .about__links) :is(a, button):hover,
+.b-link a:hover,
+.cp__next a:hover,
+.about__credit a:hover {
+  background-size: 100% 1px;
+}
+
+/* ── Header: the name left; the tabs and the theme right. ── */
+.bar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  height: var(--cut);
+  padding: 0 var(--edge);
+  /* No bar: the words float, and invert against whatever passes under them
+     (white over a dark screen, black over the page). */
+  color: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+}
+
+.bar > * {
+  pointer-events: auto;
+}
+
+.name {
+  justify-self: start;
+}
+
+.switch {
+  position: relative;
+  height: 1.4em;
+  /* clips the roll top and bottom only, so a long project name never crops */
+  clip-path: inset(0 -100vw);
+}
+
+.switch__tabs {
+  display: flex;
+  gap: 24px;
+  transition: transform 500ms var(--ease-io), opacity 500ms var(--ease-io);
+}
+
+/* Every tab keeps room for the dot, so labels never move between pages. */
+.tab::after {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-left: 7px;
+  vertical-align: 0.17em;
+  border-radius: 50%;
+  background: currentColor;
+  scale: 0;
+  transition: scale 400ms var(--ease);
+}
+
+.tab::after {
+  display: none;
+}
+
+/* Selected is ink, the rest grey: no marks. */
+.switch__tabs .tab:not(.is-on) {
+  color: var(--grey);
+  transition: color 300ms var(--ease);
+}
+
+.switch__tabs .tab:hover {
+  color: var(--ink);
+}
+
+.bar :focus-visible {
+  outline-color: #fff;
+}
+
+.meta {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+}
+
+.theme {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-right: -4px;
+  color: inherit;
+  transition: rotate 600ms var(--ease-io);
+}
+
+:root[data-theme='dark'] .theme {
+  rotate: 180deg;
+}
+
+/* ── Work ── */
+.runway section {
+  height: 100svh;
+  scroll-snap-align: start;
+}
+
+.links {
+  position: fixed;
+  right: var(--edge);
+  bottom: 14px;
+  z-index: 3;
+  display: flex;
+  gap: 24px;
+}
+
+.strip {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* The object stands whole in the middle of the page: centred across it, and
+   centred in the space under the header. */
+.object {
+  --area: calc(100svh - var(--cut));
+  position: absolute;
+  left: calc(50vw - var(--w) / 2);
+  top: calc(var(--cut) + (var(--area) - var(--h)) / 2);
+  width: var(--w);
+  height: var(--h);
+  will-change: transform;
+}
+
+.phone {
+  /* a fixed size: the object doesn't grow or shrink with the window
+     (phones set their own) */
+  --h: 640px;
+  --w: calc(var(--h) * 1462 / 3000);
+  display: block;
+}
+
+.strip .phone {
+  cursor: pointer;
+}
+
+.phone img.device,
+.phone .screen,
+.phone .island {
+  position: absolute;
+}
+
+.phone .device--dark,
+:root[data-theme='dark'] .phone .device:not(.device--dark) {
+  display: none;
+}
+
+:root[data-theme='dark'] .phone .device--dark {
+  display: block;
+}
+
+.phone img.device {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* barely there: just enough to set it down */
+  filter: drop-shadow(0 0.04em 0.06em rgb(0 0 0 / 0.05)) drop-shadow(0 1.2em 2em rgb(0 0 0 / 0.06));
+}
+
+/* Measured on the render (flat, silver, no shadow): screen 1329 × 2891 at
+   (66, 54) of 1462 × 3000, corners 62/402 of its width; island 413 × 122 at
+   (524, 91). */
+.phone .screen {
+  left: 4.514%;
+  top: 1.8%;
+  width: 90.903%;
+  height: 96.367%;
+  overflow: hidden;
+  border-radius: 15.43% / 7.09%;
+  background: #000;
+}
+
+.phone video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.phone .island {
+  left: 35.835%;
+  top: 3.033%;
+  width: 28.263%;
+  height: 4.063%;
+  border-radius: 999px;
+  background: #000;
+}
+
+.play {
+  --H: 640px;
+  --h: calc(var(--H) * var(--s));
+  --w: calc(var(--h) * var(--r));
+}
+
+.play img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.info {
+  position: fixed;
+  left: var(--edge);
+  /* set by the script: the work's block centred on the phone's centre line */
+  top: var(--info-top, 36svh);
+  z-index: 2;
+  width: var(--col);
+}
+
+/* The index: every stop, right-aligned on the right edge, starting level
+   with the count, like the project page's section index. */
+.index {
+  position: fixed;
+  right: var(--edge);
+  top: var(--index-top, 36svh);
+  z-index: 2;
+  text-align: right;
+}
+
+.index ol {
+  list-style: none;
+  display: grid;
+  gap: 2px;
+}
+
+.index li.is-play {
+  margin-top: 18px;
+}
+
+.index button {
+  display: block;
+  margin-left: auto;
+  overflow: hidden;
+  color: var(--grey);
+  transition: color 300ms var(--ease);
+}
+
+.index button > span {
+  display: block;
+}
+
+.index button:hover,
+.index button.is-on {
+  color: var(--ink);
+}
+
+html.booting .case,
+html.booting .about {
+  transition: none !important;
+}
+
+/* Until the script has placed them (after the fonts load), every stop's
+   object and words sit stacked in one spot: keep them out of sight, or a
+   refresh flashes all the thumbnails at once. */
+html:not(.is-ready) .work :is(.strip, .info, .index) {
+  visibility: hidden;
+}
+
+/* A mask row: its lines sit on top of each other and roll through it. */
+.mask {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+.mask > * {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  will-change: transform;
+}
+
+.b-count {
+  color: var(--grey);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One rhythm: 16px between groups, none within (title + summary are one). */
+.block {
+  margin-top: 0;
+}
+
+.block > span > span {
+  display: block;
+}
+
+.b-title {
+  color: var(--ink);
+}
+
+.b-summary,
+.b-role {
+  color: var(--grey);
+}
+
+.b-role,
+.b-link {
+  margin-top: 16px;
+}
+
+.summary {
+  color: var(--grey);
+}
+
+.b-link a::after {
+  content: ' →';
+}
+
+/* Views: the case and the About lie over the work; one takes input at a time. */
+.case,
+.about {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--bg);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 450ms var(--ease), visibility 0s 450ms, background-color 400ms var(--ease);
+}
+
+body[data-view='case'] .case,
+body[data-view='about'] .about {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 450ms var(--ease), visibility 0s, background-color 400ms var(--ease);
+}
+
+body:not([data-view='work']) .work :is(.info, .index, .links) {
+  visibility: hidden;
+}
+
+/* ── About: Work's layout. The laptop centred on the page where the phone
+   stands; her name, intro and links on the left where a project's words sit;
+   Experience and Education on the right, where Work's index is. Switching
+   between the two, only the object in the middle changes. ── */
+.about {
+  /* both columns centred on Work's line: the space under the header, lifted
+     4% (the padding below is twice the lift) */
+  display: grid;
+  grid-template-columns: calc(var(--edge) + var(--col)) 1fr calc(var(--col) + var(--edge));
+  grid-template-rows: 1fr auto auto auto 1fr;
+  padding-top: var(--cut);
+  padding-bottom: calc((100svh - var(--cut)) * 0.08);
+}
+
+.about__text {
+  display: contents;
+}
+
+.about__name,
+.about__intro,
+.about__links {
+  grid-column: 1;
+  padding-left: var(--edge);
+  position: relative;
+  z-index: 1;
+}
+
+.about__name {
+  grid-row: 2;
+  margin-bottom: 8px;
+}
+
+.about__intro {
+  grid-row: 3;
+}
+
+.about__links {
+  grid-row: 4;
+  margin-top: 24px;
+}
+
+.about__intro {
+  color: var(--grey);
+}
+
+.about__links {
+  display: flex;
+  gap: 24px;
+}
+
+/* right-aligned on the right edge, starting level with her name */
+.about__list {
+  grid-column: 3;
+  grid-row: 1 / -1;
+  align-self: center;
+  align-content: start;
+  padding-right: var(--edge);
+  text-align: right;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+}
+
+.about__list dt {
+  color: var(--grey);
+  margin: 24px 0 8px;
+}
+
+.about__list dt:first-child {
+  margin-top: 0;
+}
+
+.about__list dd {
+  display: grid;
+}
+
+.about__list dd span:last-child {
+  color: var(--grey);
+  margin-bottom: 10px;
+}
+
+.about__stage {
+  /* the whole window, so the laptop's shadow fades out with no edge; the
+     laptop itself is a fixed size (--lid) */
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+.about__laptop {
+  --lid: 620px; /* the lid's width on screen, fixed */
+  position: absolute;
+  inset: var(--cut) 0 0;
+  width: 100%;
+  height: calc(100% - var(--cut));
+  display: block;
+  cursor: grab;
+  touch-action: pan-y;
+  opacity: 0;
+  transition: opacity 800ms var(--ease);
+}
+
+.about__laptop[data-ready] {
+  opacity: 1;
+}
+
+.about__laptop[data-drag] {
+  cursor: grabbing;
+}
+
+.about__hint {
+  position: absolute;
+  bottom: 5svh;
+  left: 50%;
+  translate: -50% 0;
+  color: var(--grey);
+  transition: opacity 400ms var(--ease);
+  pointer-events: none;
+}
+
+.about__hint[data-gone] {
+  opacity: 0;
+}
+
+/* The model's credit (its CC BY licence asks for one): out of the corner,
+   at the foot of the words, as quiet as it can be. */
+.about__credit {
+  margin-top: 48px;
+  color: var(--grey);
+  font-size: 11px;
+}
+
+/* With a pointer, the cursor says how to turn it; touch keeps the hint. */
+@media (hover: hover) {
+  .about__hint {
+    display: none;
+  }
+}
+
+/* The copied-email note. */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 9;
+  translate: -50% 12px;
+  padding: 10px 16px;
+  border-radius: 2px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: var(--t);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 250ms var(--ease), translate 250ms var(--ease);
+}
+
+.toast[data-on] {
+  opacity: 1;
+  translate: -50% 0;
+}
+
+/* ── Phones and narrow windows: words on top, the phone under them, still
+   whole and centred; the counter says where you are. ── */
+@media (max-width: 960px) {
+  :root {
+    --edge: 16px;
+    --t: 14px;
+    --t-big: 30px;
+    --cut: 48px;
+    --col: 100%;
+  }
+
+
+  .index,
+  .links {
+    display: none;
+  }
+
+  .bar {
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+  }
+
+  .switch {
+    justify-self: center;
+  }
+
+  .switch__tabs {
+    gap: 16px;
+  }
+
+  .tab::after {
+    width: 4px;
+    height: 4px;
+    margin-left: 6px;
+  }
+
+  .info {
+    top: calc(var(--cut) + 3svh);
+    right: var(--edge);
+    width: auto;
+  }
+
+  /* Under the words, whole, centred in what's left of the screen. */
+  .phone {
+    --h: min(54svh, calc(72vw * 3000 / 1462));
+  }
+
+  .strip .object {
+    top: calc(38svh + (58svh - var(--h)) / 2);
+  }
+
+  .strip .play {
+    --H: 54svh;
+  }
+
+  /* Name, words, links, then the laptop, then the CV lines. */
+  .about {
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .about__text {
+    display: contents;
+  }
+
+  .about__name {
+    order: 1;
+    padding: calc(var(--cut) + 3svh) var(--edge) 0;
+  }
+
+  .about__intro {
+    order: 2;
+    padding: 0 var(--edge);
+  }
+
+  .about__links {
+    order: 3;
+    padding: 0 var(--edge);
+    margin-top: 16px;
+  }
+
+  .about__stage {
+    order: 4;
+    position: relative;
+    inset: auto;
+    width: auto;
+    height: 56svh;
+    flex: none;
+  }
+
+  .about__laptop {
+    --lid: initial;
+    --fill: 0.7;
+    inset: 0;
+    height: 100%;
+  }
+
+  .about__list {
+    order: 5;
+    align-self: stretch;
+    margin-top: 8px;
+    padding: 0 var(--edge) 32px;
+    text-align: left;
+  }
+
+  .about__hint {
+    bottom: 2svh;
+  }
+
+  .about__credit {
+    order: 6;
+    margin-top: 0;
+    padding: 0 var(--edge) 32px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 1ms !important;
+  }
+}
+
+/* Hovering the phone says what a click does. */
+.work:has(.strip .object:not(.play):hover) .block > span:not([inert]) .b-link a {
+  background-size: 100% 1px;
+}
+
+/* Bolt, wherever it's named: a hairline that firms up on hover. */
+.bolt {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  transition: text-decoration-color 250ms var(--ease);
+}
+
+.bolt:hover {
+  text-decoration-color: currentColor;
+}
+
+.theme svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Opening and closing a project ──
+   The phone is the shared object and never moves. Opening, the case's lines
+   roll up into place through their masks, a row at a time, the same motion
+   as scrolling between projects, while the nav rolls to Back · Project.
+   Closing, the case fades off the same phone and the work's lines roll back. */
+@keyframes roll-in {
+  from { translate: 0 110%; }
+  to { translate: 0 0; }
+}
+
+.case .roll {
+  display: block;
+  overflow: hidden;
+}
+
+.case .roll > span {
+  display: block;
+}
+
+.case.is-entering .roll > span {
+  animation: roll-in 760ms var(--ease-io) both;
+  animation-delay: calc(80ms + var(--i) * 60ms);
+}
+
+/* The work's words roll in on first load and on the way back, with the
+   project page's timing exactly: 760ms, 80ms + 60ms a line, top to bottom,
+   left column first (count 0, title to link 1–4), then the index (6 on). */
+.work .info.is-returning .block > span > span,
+.work .index.is-returning button > span {
+  animation: roll-in 760ms var(--ease-io) both;
+  animation-delay: 80ms;
+}
+
+.work .index.is-returning button > span { animation-delay: calc(80ms + (6 + var(--n, 0)) * 60ms); }
+
+.work .info.is-returning .block > span > span:nth-child(2) { animation-delay: 140ms; }
+.work .info.is-returning .block > span > span:nth-child(3) { animation-delay: 200ms; }
+.work .info.is-returning .block > span > span:nth-child(4) { animation-delay: 260ms; }
+.work .info.is-returning .block > span > span:nth-child(5) { animation-delay: 320ms; }
+
+/* About's words roll in like the work's: each line rises through a window
+   that stays put (the clip keeps pace with the move), on Work's timing:
+   760ms, 80ms + 60ms a line, the left column, then the list from line 6. */
+@keyframes roll-up {
+  from { translate: 0 100%; clip-path: inset(0 0 100% 0); }
+  to { translate: 0 0; clip-path: inset(0 0 0 0); }
+}
+
+.about.is-entering :is(.about__name, .about__intro, .about__links, .about__list > *) {
+  animation: roll-up 760ms var(--ease-io) both;
+  animation-delay: calc(80ms + var(--i, 0) * 60ms);
+}
+
+.about__name { --i: 0; }
+.about__intro { --i: 1; }
+.about__links { --i: 2; }
+.about__list > :nth-child(1) { --i: 6; }
+.about__list > :nth-child(2) { --i: 7; }
+.about__list > :nth-child(3) { --i: 8; }
+.about__list > :nth-child(4) { --i: 9; }
+.about__list > :nth-child(5) { --i: 10; }
+.about__list > :nth-child(6) { --i: 11; }
+.about__list > :nth-child(7) { --i: 12; }
+.about__list > :nth-child(8) { --i: 13; }
+
+@media (prefers-reduced-motion: reduce) {
+  .about.is-entering :is(.about__name, .about__intro, .about__links, .about__list > *) {
+    animation: none;
+  }
+}
+
+/* Opening is a near-cut on the shared phone, not a fade of the whole page;
+   closing fades quickly so the work's lines can roll in underneath. */
+.case {
+  transition: opacity 260ms var(--ease), visibility 0s 260ms, background-color 400ms var(--ease);
+}
+
+body[data-view='case'] .case {
+  transition: opacity 120ms linear, visibility 0s, background-color 400ms var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .case.is-entering .roll > span,
+  .work .info.is-returning .block > span > span,
+  .work .index.is-returning button > span {
+    animation: none;
+  }
+}
+
+.theme svg {
+  width: 14px;
+  height: 14px;
+}
+
+.b-link .out::after {
+  content: ' ↗';
+}
+
+/* The nav steps aside while you read down, and returns on the way up. */
+.bar {
+  transition: translate 450ms var(--ease-io);
+}
+
+body[data-nav-hidden] .bar {
+  translate: 0 -100%;
+}
+
+/* ── The video: its frame and a quiet timeline (Figma 827:20139, B) ── */
+.display {
+  --w: 600px;
+  --h: calc(var(--w) * 9 / 16);
+  display: block;
+  cursor: pointer;
+}
+
+/* the timeline hangs below the frame: lift the pair so it centres as one */
+.strip .display {
+  margin-top: -22px;
+}
+
+.display .screen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #000;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.07);
+}
+
+.display video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.vtime {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 24px);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 12px;
+  color: var(--grey);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.vtrack {
+  grid-column: 1 / -1;
+  position: relative;
+  height: 1px;
+  background: var(--line);
+}
+
+.vdone {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--p, 0) * 100%);
+  background: var(--ink);
+  transition: width 260ms linear;
+}
+
+.video__play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: max-content;
+  height: 44px;
+  padding: 0 20px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.92);
+  color: #000;
+  transition: scale 300ms var(--ease), opacity 300ms var(--ease);
+}
+
+.video__play svg {
+  width: 14px;
+  height: 14px;
+}
+
+.video__play:hover {
+  scale: 1.04;
+}
+
+.video__chapters {
+  list-style: none;
+  margin-top: 16px;
+  columns: 2;
+  column-gap: 32px;
+}
+
+.video__chapters button {
+  display: grid;
+  grid-template-columns: 3em 1fr;
+  width: 100%;
+  padding: 6px 0;
+  text-align: left;
+  color: var(--ink);
+}
+
+.video__chapters button span {
+  color: var(--grey);
+  font-variant-numeric: tabular-nums;
+}
+
+.video__chapters button:hover {
+  color: var(--grey);
+}
+
+@media (max-width: 960px) {
+  .display {
+    --w: 88vw;
+  }
+
+  .video__chapters {
+    columns: 1;
+  }
+}
+
+/* ── Nav: Constant (Figma 741:2, N1), split (Figma 814:2). The name alone
+   on the left, so it reads as a signature and not a fourth tab; Work, Play
+   and About on the right by the theme, the section you're in in ink. On a
+   project, Work takes you back to where you were. ── */
+.bar {
+  display: flex;
+  gap: 32px;
+}
+
+.switch {
+  margin-left: auto;
+}
+
+@media (max-width: 960px) {
+  .bar {
+    gap: 24px;
+  }
+}
+
+.switch__tabs .tab:hover {
+  color: var(--ink);
+}
+
+/* ── Project page: a side column and the object in the corner ──
+   On the 12-column grid. Left (1–3), staying put while you read: number,
+   name, overview, facts and the index of sections. Top right (10–12): the
+   object, scaled down from home and floating in the corner. The content
+   fills the middle and right (4–12): the first rows beside the object, the
+   media wide below it. Two sizes: the name and Next are large. */
+:root {
+  --g-steel: #e0e3e7;
+  --g-sage: #dfe4e0;
+  --g-sand: #e8e4dc;
+  --g-mist: #e4e3e9;
+  --gap: 16px;
+}
+
+:root[data-theme='dark'] {
+  --g-steel: #1b1d20;
+  --g-sage: #1a1d1b;
+  --g-sand: #1f1d1a;
+  --g-mist: #1c1c20;
+}
+
+.cp {
+  --top: calc(var(--cut) + 40px);
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gap);
+  padding: var(--top) var(--edge) 0;
+  align-items: start;
+}
+
+.cp .g {
+  color: var(--grey);
+}
+
+/* The side column. */
+.cp__side {
+  grid-column: 1 / 4;
+  position: sticky;
+  top: var(--top);
+  padding-bottom: 48px;
+  display: grid;
+  gap: 24px;
+  align-content: start;
+}
+
+.cp__name {
+  font-size: var(--t-big);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.cp__count {
+  margin-bottom: -16px;
+}
+
+.cp__overview {
+  color: var(--grey);
+  max-width: 30em;
+}
+
+.cp__facts {
+  display: grid;
+  gap: 2px;
+}
+
+.cp__facts .roll > span {
+  display: grid;
+  grid-template-columns: 5em 1fr;
+  gap: 8px;
+}
+
+.cp__facts dt {
+  color: var(--grey);
+}
+
+.cp__facts dd {
+  margin: 0;
+}
+
+.cp__index ol {
+  list-style: none;
+  display: grid;
+  gap: 2px;
+}
+
+.cp__index button {
+  color: var(--grey);
+  text-align: left;
+  transition: color 300ms var(--ease);
+}
+
+.cp__index button:hover,
+.cp__index button.is-on {
+  color: var(--ink);
+}
+
+/* The middle and right: its own 9 columns. */
+.cp__main {
+  grid-column: 4 / 13;
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  column-gap: var(--gap);
+}
+
+.cp__main > * {
+  grid-column: 1 / 7;
+}
+
+/* The miniature: the object, still and small, at the top of the side
+   column. It takes you back to Work; it leans toward the pointer. */
+.cp__mini {
+  display: block;
+  justify-self: start;
+  margin-bottom: 8px;
+  perspective: 700px;
+}
+
+.cp__mini.is-phone {
+  --h: 168px;
+  --w: calc(var(--h) * 1462 / 3000);
+}
+
+.cp__mini.is-display {
+  --w: 176px;
+  --h: calc(var(--w) * 9 / 16);
+}
+
+.cp__mini,
+.cp__mini .mini {
+  width: var(--w);
+  height: var(--h);
+}
+
+.cp__mini .mini {
+  position: relative;
+  display: block;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.cp__mini .mini.phone,
+.cp__mini .mini.display {
+  --h: inherit;
+  --w: inherit;
+  cursor: pointer;
+}
+
+.cp__mini .mini img.device,
+.cp__mini .mini svg.device {
+  filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.08));
+}
+
+.phone .screen img,
+.display .screen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Rows: a grey label over the text; one rhythm. */
+.cp__row {
+  margin-bottom: 96px;
+}
+
+.cp__label {
+  color: var(--grey);
+  margin-bottom: 12px;
+}
+
+.cp__text {
+  line-height: 1.55;
+  max-width: 34em;
+}
+
+.cp__text p + p {
+  margin-top: 1em;
+}
+
+.cp__text ol {
+  list-style: none;
+  counter-reset: item;
+}
+
+.cp__text li {
+  counter-increment: item;
+  display: grid;
+  grid-template-columns: 2.6em 1fr;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+}
+
+.cp__text li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.cp__text li::before {
+  content: counter(item, decimal-leading-zero);
+  color: var(--grey);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Media: wide across the middle and right, close under the row it shows. */
+.cp__media {
+  grid-column: 1 / 10 !important;
+  margin: -56px 0 96px;
+}
+
+.cp__media.is-single {
+  grid-column: 1 / 8 !important;
+}
+
+.cp__media.is-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+  align-items: start;
+}
+
+.cp__media.is-pair .frame {
+  aspect-ratio: 4 / 3 !important;
+}
+
+.cp__media + .cp__media {
+  margin-top: calc(-96px + var(--gap));
+}
+
+.cp .frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--figure);
+}
+
+.cp .frame video,
+.cp .frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cp figcaption {
+  margin-top: 10px;
+  color: var(--grey);
+}
+
+.cp__video .frame {
+  background: #000;
+}
+
+.cp__video.is-playing .video__play {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cp__next {
+  grid-column: 1 / 10 !important;
+  display: grid;
+  gap: 6px;
+  margin-top: 64px;
+  padding: 24px 0 80px;
+  border-top: 1px solid var(--line);
+}
+
+.cp__next a {
+  justify-self: start;
+  font-size: var(--t-big);
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+}
+
+.cp__next a::after {
+  content: ' →';
+}
+
+/* Rows and media rise in as they arrive. */
+.cp__row,
+.cp__media {
+  opacity: 0;
+  translate: 0 24px;
+  transition: opacity 800ms var(--ease), translate 1000ms var(--ease);
+}
+
+.cp__row.is-in,
+.cp__media.is-in {
+  opacity: 1;
+  translate: 0 0;
+}
+
+@media (max-width: 1100px) {
+  .cp__main > * { grid-column: 1 / 10; }
+}
+
+@media (max-width: 960px) {
+  .cp {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .cp__side {
+    grid-column: 1;
+    position: static;
+    padding: 0;
+    gap: 16px;
+  }
+
+  .cp__count {
+    margin-bottom: -8px;
+  }
+
+  .cp__index {
+    display: none;
+  }
+
+  .cp {
+    padding-top: calc(var(--cut) + 16px);
+  }
+
+  .cp__main {
+    grid-column: 1;
+    grid-template-columns: minmax(0, 1fr);
+    padding-top: 32px;
+  }
+
+  .cp__main > *,
+  .cp__media,
+  .cp__media.is-single,
+  .cp__next {
+    grid-column: 1 !important;
+  }
+
+
+  .cp__row {
+    margin-bottom: 64px;
+  }
+
+  .cp__media {
+    margin: -32px 0 64px;
+  }
+
+  .cp__media.is-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp__row,
+  .cp__media {
+    opacity: 1;
+    translate: none;
+  }
+}
+
+/* The lean wrapper on the home row's objects: the same box, turned in 3D. */
+.object {
+  perspective: 1000px;
+}
+
+.object .lean {
+  position: absolute;
+  inset: 0;
+  display: block;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* The index of sections, on the right, staying put while you read. */
+.cp__main {
+  grid-column: 4 / 12 !important;
+  grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
+}
+
+.cp__index {
+  grid-column: 12 / 13;
+  grid-row: 1;
+  position: sticky;
+  top: var(--top);
+  justify-self: end;
+  text-align: right;
+}
+
+.cp__index button {
+  text-align: right;
+}
+
+/* One media width: every image, pair, row, demo and video spans the whole
+   content column (cols 4–11, 912 at 1440). Text keeps its own measure. */
+.cp__media,
+.cp__media.is-single,
+.cp__next {
+  grid-column: 1 / -1 !important;
+}
+
+.frame.is-contain {
+  background: var(--figure);
+}
+
+.frame.is-contain img {
+  object-fit: contain !important;
+  padding: 32px;
+}
+
+/* Before and after: two phones on the figure grey, labelled. */
+.cp__compare .frame {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  padding: 20px 40px 40px;
+  background: var(--figure);
+}
+
+.cp__compare .cmp {
+  display: grid;
+  gap: 24px;
+  justify-items: center;
+}
+
+.cp__compare .cmp span {
+  justify-self: start;
+}
+
+.cp__compare .cmp img {
+  width: min(100%, 230px);
+  height: auto;
+  object-fit: contain;
+}
+
+/* Arriving: the words and the write-up wait until the phone has landed. */
+.case.is-arriving .cp__side > :not(.cp__mini),
+.case.is-arriving .cp__main,
+.case.is-arriving .cp__index {
+  opacity: 0;
+}
+
+.case .cp__main,
+.case .cp__index {
+  transition: opacity 500ms var(--ease);
+}
+
+@media (max-width: 960px) {
+  .cp__main {
+    grid-column: 1 !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .cp__media,
+  .cp__media.is-single,
+  .cp__next {
+    grid-column: 1 !important;
+  }
+
+  .cp__index {
+    display: none;
+  }
+
+  .cp__compare .frame {
+    gap: 16px;
+    padding: 16px 16px 24px;
+  }
+}
+
+/* The cursor's words over a phone on the work: white on a black container
+   (flipped on the dark page, where black would vanish). */
+.cursor-label {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 8;
+  padding: 6px 12px;
+  border-radius: 2px;
+  background: var(--ink);
+  color: var(--bg);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.9;
+  transition: opacity 200ms var(--ease), scale 200ms var(--ease);
+}
+
+.cursor-label[data-on] {
+  scale: 1;
+}
+
+.cursor-label[data-on] {
+  opacity: 1;
+}
+
+/* Work's words in the project page's type: the name at the large size,
+   8px under the count, then 24px between the groups. */
+.work .b-title {
+  margin-top: 8px; /* under the count */
+}
+
+.work .b-title {
+  font-size: var(--t-big);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.work .b-summary {
+  margin-top: 24px;
+}
+
+.work .b-role,
+.work .b-link {
+  margin-top: 24px;
+}
+
+/* A pair of contained screenshots stays square, so both sit level. */
+.cp__media.is-pair .frame.is-contain {
+  aspect-ratio: 1 / 1 !important;
+}
+
+.cp__media.is-pair .frame.is-contain img {
+  padding: 24px;
+}
+
+/* A row of screenshots at one height, as wide as the other media. */
+.cp__media.cp__row-media {
+  grid-column: 1 / -1 !important;
+  display: flex;
+  gap: var(--gap);
+  align-items: flex-start;
+}
+
+.cp__row-media .frame {
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.cp__row-media img {
+  height: auto !important;
+  object-fit: contain !important;
+}
+
+@media (max-width: 960px) {
+  .cp__media.cp__row-media {
+    flex-direction: column;
+  }
+}
+
+/* Leaving through the miniature: the words and the write-up fade first. */
+.case .cp__side > * {
+  transition: opacity 300ms var(--ease);
+}
+
+.case.is-leaving .cp__side > :not(.cp__mini),
+.case.is-leaving .cp__main,
+.case.is-leaving .cp__index {
+  opacity: 0;
+}
+
+/* The filter sheet: its container as wide as the other media, the sheet
+   at its own size in the middle. */
+.cp__media.cp__demo.is-single {
+  grid-column: 1 / -1 !important;
+}
+
+.cp__demo .frame {
+  padding: 40px 0 !important;
+}
+
+.cp__demo .fd {
+  width: 375px; /* the prototype's own width, so the chips wrap as they do there */
+  zoom: 0.86;
+}
+
+/* Design's UI, side by side: the featured card over a few rows in different
+   states (captured from the playground), then the live filter sheet. Both at
+   the prototype's 375px width, scaled the same. */
+.cp__demo .frame {
+  grid-template-columns: auto auto !important;
+  align-items: start;
+  column-gap: 64px;
+  padding: 56px 16px !important;
+}
+
+.cp__demo .demo__ui {
+  width: 375px;
+  zoom: 0.86;
+  display: flex;
+  flex-direction: column;
+}
+
+.cp .cp__demo .demo__ui img {
+  width: 100%;
+  height: auto;
+  object-fit: initial;
+}
+
+.cp .cp__demo .demo__ui .demo__card {
+  width: 352px;
+  margin: 0 12px 10px;
+}
+
+@media (max-width: 960px) {
+  .cp__demo .frame {
+    grid-template-columns: auto !important;
+    row-gap: 40px;
+    justify-content: center;
+  }
+}
+
+/* A lead line before a numbered list. */
+.cp__text ol.after-lead {
+  margin-top: 16px;
+}
+
+/* Before and after: the after half stands out on a deep neutral; the before
+   stays on the light grey. */
+.cp__compare .frame {
+  gap: 0 !important;
+  padding: 0 !important;
+}
+
+.cp__compare .cmp {
+  padding: 20px 40px 40px;
+}
+
+/* Neutral, not the project colour: the after half on graphite, the before
+   half on the light grey. */
+.cp__compare .cmp + .cmp {
+  background: #1d1d1f;
+}
+
+:root[data-theme='dark'] .cp__compare .cmp + .cmp {
+  background: #2c2c2e;
+}
+
+
+.cp__compare .cmp + .cmp span {
+  color: rgb(255 255 255 / 0.85);
+}
+
+@media (max-width: 960px) {
+  .cp__compare .cmp {
+    padding: 16px 16px 24px;
+  }
+}
+
+/* The miniature as the way back: greyed out, with Back on it. It keeps its
+   colour while it shrinks into place and while it grows back on leaving. */
+.cp__mini {
+  position: relative;
+}
+
+.cp__mini .mini {
+  filter: grayscale(1);
+  opacity: 0.45;
+  transition: filter 500ms var(--ease), opacity 500ms var(--ease);
+}
+
+.cp__mini:hover .mini,
+.cp__mini:focus-visible .mini {
+  opacity: 0.65;
+}
+
+.case.is-arriving .cp__mini .mini,
+.case.is-leaving .cp__mini .mini {
+  filter: none;
+  opacity: 1;
+}
+
+/* Back rolls up through its own mask with the rest of the words. */
+.cp__back {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  border-radius: 2px;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 300ms var(--ease);
+}
+
+.case .cp__back.roll {
+  display: block;
+  overflow: hidden;
+}
+
+.cp__back > span {
+  display: block;
+  padding: 6px 12px;
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.case.is-arriving .cp__back,
+.case.is-leaving .cp__back {
+  opacity: 0;
+}
+
+/* Inside the inverting bar, ink is written as white: hover must use it too,
+   or the word inverts to white on white and disappears. */
+.bar .switch__tabs .tab:hover,
+.bar .switch__tabs .tab.is-on {
+  color: #fff;
+}
+
+/* Light and dark side by side, each on its own ground: the light phone on
+   light grey, the dark one (black body) on black. Fixed, whatever the site's
+   theme, labelled like the before and after. */
+.cp__duo .frame {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+
+.duo__item {
+  display: grid;
+  gap: 24px;
+  justify-items: center;
+  padding: 20px 40px 48px;
+  background: #f5f5f5;
+}
+
+.duo__item + .duo__item {
+  background: #000;
+}
+
+.duo__item + .duo__item .g {
+  color: rgb(255 255 255 / 0.6);
+}
+
+.case .cp__duo .duo__item .device:not(.device--dark) {
+  display: block;
+}
+
+.case .cp__duo .duo__item .device--dark {
+  display: none;
+}
+
+.case .cp__duo .duo__item + .duo__item .device:not(.device--dark) {
+  display: none;
+}
+
+.case .cp__duo .duo__item + .duo__item .device--dark {
+  display: block;
+}
+
+.duo__item .g {
+  justify-self: start;
+}
+
+.cp__duo .duo__phone {
+  position: relative;
+  width: min(240px, 100%);
+  height: auto;
+  aspect-ratio: 1462 / 3000;
+}
+
+@media (max-width: 960px) {
+  .duo__item {
+    padding: 16px 16px 24px;
+  }
+}
+
+/* Media that opens a write-up (no text row above to tuck under) starts level
+   with the side column's miniature. */
+.cp__main > .cp__media:first-child {
+  margin-top: 0;
+}
+
+/* More of the same section after its media: a closer step than a new one. */
+.cp__media + .cp__row.is-cont {
+  margin-top: -40px;
+}
+
+/* ── Activity's UI, piece by piece ──
+   The card and the sheet side by side, each in its own white box, then the
+   list rows with notes. Everything at the prototype's size × 0.86. */
+.cp__ui {
+  display: grid;
+  gap: 40px;
+}
+
+.ui__pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.ui__pair > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.cp .ui__box {
+  display: grid;
+  place-items: center;
+  padding: 48px 16px;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+
+.ui__pair .ui__box {
+  flex: 1;
+}
+
+.ui__card {
+  position: relative;
+  width: 351px;
+  zoom: 0.86;
+}
+
+.cp .ui__card img {
+  width: 100%;
+  height: auto;
+  object-fit: initial;
+}
+
+/* The card's buttons, laid over the drawn ones: Clay's secondary small pill
+   (bg/neutral-secondary over white, made opaque), pressing in on tap. */
+.ui__btn {
+  position: absolute;
+  height: 36px;
+  border-radius: 999px;
+  background: rgb(237 240 239);
+  color: #191f1c;
+  font: 650 14px/18px InterVariable, Inter, -apple-system, system-ui, sans-serif;
+  letter-spacing: -0.084px;
+  -webkit-font-smoothing: antialiased;
+  transition: transform 140ms var(--ease), background-color 140ms var(--ease);
+}
+
+.ui__btn:hover {
+  background: rgb(229 234 232);
+}
+
+.ui__btn:active {
+  transform: scale(0.95);
+  background: rgb(219 226 223);
+}
+
+/* The list: rows at 0.86 on the left, notes on the right, each a hairline
+   from a dot on the element out to its words. */
+.cp .ui__listbox {
+  place-items: center start;
+  padding-left: 96px;
+}
+
+.ui__list {
+  --w: 321px; /* 373 × 0.86 */
+  --gap: 40px;
+  width: var(--w);
+}
+
+.ui__row {
+  position: relative;
+}
+
+.cp .ui__row img {
+  width: 100%;
+  height: 100%;
+  object-fit: initial;
+}
+
+.ui__note {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  top: calc(var(--y) * 100%);
+  width: calc((1 - var(--x)) * var(--w) + var(--gap));
+  height: 1px;
+  background: #b5b5b5;
+}
+
+.ui__note::before {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #191f1c;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.ui__note > span {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: -10px;
+  width: max-content;
+  max-width: 380px;
+  color: var(--grey);
+  line-height: 20px;
+}
+
+.ui__legend {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .ui__pair {
+    grid-template-columns: 1fr;
+  }
+
+  .cp .ui__listbox {
+    padding: 32px 16px 24px;
+    place-items: center;
+    gap: 24px;
+  }
+
+  /* no room for lines: the dot becomes a number, the words a legend */
+  .ui__note {
+    width: 0;
+    background: none;
+  }
+
+  .ui__note > span {
+    display: none;
+  }
+
+  .ui__note::before,
+  .ui__legend li::before {
+    content: attr(data-n);
+    left: 2px; /* just after the element, never over its last letter */
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    font-size: 10px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ui__legend {
+    display: grid;
+    gap: 8px;
+    width: var(--w, 321px);
+    list-style: none;
+    counter-reset: note;
+    color: var(--grey);
+  }
+
+  .ui__legend li {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    counter-increment: note;
+  }
+
+  .ui__legend li::before {
+    content: counter(note);
+    position: static;
+    flex: none;
+    border-radius: 50%;
+    background: #191f1c;
+  }
+}
+

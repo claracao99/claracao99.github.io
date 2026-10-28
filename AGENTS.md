@@ -9,6 +9,18 @@ Don't add one: `base` leaks into `getStaticPaths` slugs, `<a href>`s and
 `import.meta.env.BASE_URL`, and hand-written absolute links silently work in
 dev then 404 in production.
 
+### The homepage is the Close-up site (since 2026-10-29)
+
+`/` is no longer an Astro page: `src/pages/index.astro` was removed and the
+homepage is the static **Close-up** site in `public/` (`index.html`,
+`closeup*.js/css`, `filter-demo.*`, `laptop3d.js`, `studio.js`,
+`assets/`, `vendor/three/`). Its source is `~/Projects-personal/laptop-scroll`
+(`closeup.html` → `public/index.html`, with the favicon, OG meta and
+GoatCounter added): change it there, copy the changed files over, build,
+push. Navigation is by hash (`#work`, `#work/<slug>`, `#about`). The Astro
+routes still build (`/work/<slug>/` old case pages, the 404), but nothing on
+the homepage links to them.
+
 ## Hard constraints
 
 This site must outlive Clara's current job. Nothing may couple it to employer

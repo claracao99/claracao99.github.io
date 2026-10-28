@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<!-- claracao.work: the Close-up site. Source: ~/Projects-personal/laptop-scroll (closeup.html); copy files over from there. -->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clara Cao · Product designer</title>
+<meta name="description" content="Product designer at Bolt, shaping the app millions use to get around their city.">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="canonical" href="https://claracao.work/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Clara Cao">
+<meta property="og:title" content="Clara Cao · Product designer">
+<meta property="og:description" content="Product designer at Bolt, shaping the app millions use to get around their city.">
+<meta property="og:url" content="https://claracao.work/">
+<script>
+  // The theme before first paint: a saved choice, else the system's.
+  document.documentElement.dataset.theme =
+    localStorage.getItem('theme') ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+</script>
+<link rel="stylesheet" href="closeup.css">
+<link rel="stylesheet" href="filter-demo.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three/build/three.module.js", "three/addons/": "./vendor/three/examples/jsm/" } }
+</script>
+</head>
+<body data-view="work">
+<script>
+  // The view before first paint, so a refresh on About or a project never
+  // shows the work underneath while the script loads. No fades until it has.
+  document.body.dataset.view = location.hash.startsWith('#about') ? 'about' : location.hash.startsWith('#work/') ? 'case' : 'work';
+  document.documentElement.classList.add('booting');
+</script>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="bar">
+  <a class="name" href="#work" data-top>Clara Cao</a>
+  <nav class="switch" aria-label="Main">
+    <div class="switch__tabs">
+      <a class="tab" href="#work" data-tab="work">Work</a>
+      <a class="tab" href="#work" data-tab="play">Play</a>
+      <a class="tab" href="#about" data-tab="about">About</a>
+    </div>
+  </nav>
+  <div class="meta">
+    <button class="theme" type="button" aria-label="Switch to dark mode" data-theme-toggle>
+      <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.4" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 1.6a6.4 6.4 0 0 0 0 12.8z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ── Work: one project at a time; scroll moves to the next. ── -->
+<div class="work" id="main">
+  <div class="strip" aria-hidden="true"></div>
+
+  <section class="info" aria-live="polite">
+    <div class="row mask block" data-field="block"></div>
+  </section>
+
+  <nav class="index" aria-label="Projects"><ol></ol></nav>
+
+  <footer class="links">
+    <button type="button" data-email>Email</button>
+    <a href="https://www.linkedin.com/in/clara-cao/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://claracao.work/cv.pdf" target="_blank" rel="noopener">CV</a>
+  </footer>
+
+  <main class="runway" aria-hidden="true"></main>
+</div>
+
+<!-- ── A project's write-up, over the work. ── -->
+<article class="case" aria-label="Project" tabindex="-1"></article>
+
+<!-- ── About: the laptop, turned by dragging. ── -->
+<section class="about" aria-label="About" tabindex="-1">
+  <div class="about__text">
+    <h1 class="about__name">Clara Cao</h1>
+    <p class="about__intro">Product designer at <a class="bolt" href="https://bolt.eu" target="_blank" rel="noopener">Bolt</a>, shaping the app millions use to get around their city. I find the problem worth solving and build the answer in real code.</p>
+    <p class="about__links">
+      <button type="button" data-email>Email</button>
+      <a href="https://www.linkedin.com/in/clara-cao/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://claracao.work/cv.pdf" target="_blank" rel="noopener">CV</a>
+    </p>
+    <dl class="about__list">
+      <dt>Experience</dt>
+      <dd><span>Product Designer, <a class="bolt" href="https://bolt.eu" target="_blank" rel="noopener">Bolt</a></span><span>2026–present</span></dd>
+      <dd><span>Associate Product Designer, <a class="bolt" href="https://bolt.eu" target="_blank" rel="noopener">Bolt</a></span><span>2025–26</span></dd>
+      <dd><span>Product Designer, <a class="bolt" href="https://www.method.com/" target="_blank" rel="noopener">Method</a></span><span>2025</span></dd>
+      <dd><span>Growth Analyst, <a class="bolt" href="https://intropic.io/" target="_blank" rel="noopener">Intropic</a></span><span>2021–23</span></dd>
+      <dt>Education</dt>
+      <dd><span>MSc Human-Computer Interaction, <a class="bolt" href="https://www.ucl.ac.uk/" target="_blank" rel="noopener">UCL</a></span><span>Distinction</span></dd>
+      <dd><span>BSc Psychology, <a class="bolt" href="https://www.ucl.ac.uk/" target="_blank" rel="noopener">UCL</a></span><span>First Class Honours</span></dd>
+    </dl>
+    <!-- MacBook model by jackbaeten (sketchfab.com/3d-models/macbook-pro-m3-16-inch-2024-8e34fc2b303144f78490007d91ff57c4), CC BY 4.0 -->
+  </div>
+  <figure class="about__stage">
+    <canvas class="about__laptop" tabindex="0" aria-label="Clara's laptop, covered in stickers. Drag, or press Enter, to turn it round."></canvas>
+    <figcaption class="about__hint">Drag to turn it round</figcaption>
+  </figure>
+</section>
+
+<div class="toast" role="status" aria-live="polite"></div>
+<div class="cursor-label" aria-hidden="true"></div>
+
+<script type="module" src="closeup.js"></script>
+<!-- Cookieless analytics (claracao.goatcounter.com). Skips localhost. -->
+<script async data-goatcounter="https://claracao.goatcounter.com/count" src="https://gc.zgo.at/count.js"></script>
+</body>
+</html>

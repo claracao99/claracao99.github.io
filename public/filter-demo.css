@@ -1,0 +1,305 @@
+/* Activity's filter sheet, standalone in the case page (filter-demo.js).
+   Drawn at the prototype's own size (a 375px-wide sheet) from FilterSheet.tsx
+   and FilterChip.tsx, which carry Figma's measurements. */
+
+.cp__demo .frame {
+  display: grid;
+  grid-template-columns: minmax(0, 375px);
+  justify-content: center;
+  padding: 72px 16px;
+  /* white, with a hairline, like the research screenshots */
+  background: #fff;
+  border: 1px solid var(--line);
+}
+
+.fd {
+  --fs-bg: #fff;
+  /* Clay's light tokens, read off the running prototype (2026-10-28) */
+  --fs-ink: #191f1c; /* content/primary */
+  --fs-t2: rgba(0, 10, 7, 0.63); /* content/secondary */
+  --fs-t3: rgba(0, 17, 11, 0.47); /* content/tertiary */
+  --fs-well: rgba(0, 45, 30, 0.07); /* bg/neutral-secondary */
+  --fs-line: rgba(0, 20, 13, 0.16); /* border/neutral-secondary */
+  --fs-hard: rgba(0, 20, 13, 0.16); /* bg/neutral-secondary-hard */
+  --fs-green: #2b8659; /* bg/action-primary */
+  min-width: 0;
+  color: var(--fs-ink);
+  font: 450 16px/20px InterVariable, Inter, -apple-system, 'SF Pro Text', system-ui, sans-serif;
+  letter-spacing: -0.176px;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+.fd button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fs {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  background: var(--fs-bg);
+  /* no shadow (her call): a hairline keeps the white sheet off the white page */
+  border: 1px solid rgba(0, 20, 13, 0.1);
+}
+
+.fs__body {
+  padding-bottom: 24px;
+}
+
+.fs-h2 {
+  margin: 0;
+  padding: 20px 48px 8px 24px;
+  font-size: 24px; /* Heading S Accent */
+  line-height: 30px;
+  font-weight: 650;
+  letter-spacing: -0.456px;
+}
+
+.fs-h3 {
+  margin: 0;
+  padding: 20px 24px 8px;
+  font-size: 20px; /* Heading XS Accent */
+  line-height: 25px;
+  font-weight: 650;
+  letter-spacing: -0.34px;
+}
+
+/* Ⓒ Chip, size M: an 8px-radius rect, not a pill. */
+.fs-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 24px;
+}
+
+.fd .fs-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--fs-line);
+  background: var(--fs-well);
+  font-size: 14px; /* Body S Compact Accent */
+  font-weight: 650;
+  line-height: 18px;
+  letter-spacing: -0.084px;
+  white-space: nowrap;
+  transition: background-color 150ms, color 150ms, border-color 150ms;
+}
+
+.fd .fs-chip.is-on {
+  background: var(--fs-green);
+  color: #fff; /* static/content/key-light; the hairline stays, all but invisible */
+}
+
+.fd .fs-chip svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+/* ── Dates ── */
+.fs-dates {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  padding: 0 24px;
+}
+
+.fs-field {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  border-radius: 8px;
+  background: var(--fs-well);
+}
+
+/* Active: the end the calendar is picking, a 2px ring drawn inside. */
+.fs-field.is-active {
+  background: none;
+  box-shadow: inset 0 0 0 2px var(--fs-green);
+}
+
+.fd .fs-field > button:first-child {
+  flex: 1;
+  min-width: 0;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 16px;
+  text-align: left;
+}
+
+.fs-field small {
+  font-size: 13px;
+  line-height: 16px;
+  color: var(--fs-t2);
+}
+
+.fs-t2 {
+  color: var(--fs-t2);
+}
+
+.fd .fs-field__clear {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 0 16px 0 12px;
+  color: var(--fs-t3);
+}
+
+/* The iOS inline date picker, floating 10px above the fields. */
+.fs-cal {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: calc(100% + 10px);
+  z-index: 10;
+  padding: 14px 12px 12px;
+  border-radius: 13px;
+  background: var(--fs-bg);
+  box-shadow: 0 6px 30px rgb(0 0 0 / 0.12);
+}
+
+.fs-cal__head {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+}
+
+.fs-cal__head > span {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 650;
+}
+
+.fs-cal__head i {
+  display: flex;
+  color: var(--fs-green);
+}
+
+.fd .fs-cal__head button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  color: var(--fs-green);
+}
+
+.fd .fs-cal__head button:disabled {
+  color: var(--fs-t3);
+  cursor: default;
+}
+
+.fs-cal__week,
+.fs-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.fs-cal__week span {
+  text-align: center;
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 650;
+  color: var(--fs-t3);
+}
+
+.fs-cal__grid {
+  margin-top: 8px;
+}
+
+.fd .fs-day {
+  height: 40px;
+  display: grid;
+  place-items: center;
+}
+
+.fd .fs-day.is-range {
+  background: var(--fs-well);
+}
+
+.fs-day span {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 18px; /* Body L */
+  font-weight: 450;
+}
+
+.fs-day span.is-picked {
+  background: var(--fs-green);
+  color: #fff;
+}
+
+.fd .fs-day:disabled {
+  color: var(--fs-t3);
+  cursor: default;
+}
+
+/* ── Ⓒ Button Stack ── */
+.fs__foot {
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+  border-radius: 0 0 24px 24px;
+  background: var(--fs-bg);
+  /* no shadow of its own: the sheet carries one even shadow behind it all */
+  border-top: 1px solid var(--fs-line);
+}
+
+.fd .fs-btn {
+  flex: 1;
+  min-height: 48px;
+  border-radius: 24px;
+  background: var(--fs-well);
+  font-weight: 650;
+  line-height: 24px;
+  letter-spacing: -0.176px;
+  transition: transform 120ms;
+}
+
+.fd .fs-btn.is-primary {
+  background: var(--fs-green);
+  color: #fff;
+}
+
+.fd .fs-btn:active {
+  transform: scale(0.98);
+}
+
+/* Close: a 48px target inset 4px, a 32px disc inside. Here it closes nothing. */
+.fd .fs-close {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  cursor: default;
+}
+
+.fs-close svg {
+  box-sizing: content-box;
+  padding: 4px;
+  border-radius: 50%;
+  background: var(--fs-hard);
+}
