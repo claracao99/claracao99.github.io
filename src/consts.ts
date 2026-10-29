@@ -21,10 +21,8 @@ export const SITE = {
 /**
  * Public contact links, shown in the index's intro (index.astro). Static links only — a contact form
  * would need a server or third-party endpoint, which this site avoids.
- * public/cv.pdf is a copy of cv/Clara-Cao-CV.pdf (WIP); re-copy after ./build.sh.
  */
 export const CONTACT = [
   { label: 'claracao99@gmail.com', href: 'mailto:claracao99@gmail.com' },
   { label: 'LinkedIn', href: 'https://www.linkedin.com/in/clara-cao/', external: true },
-  { label: 'CV', href: '/cv.pdf', external: true },
 ] as const;

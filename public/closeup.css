@@ -270,8 +270,9 @@ button {
 
 .phone {
   /* a fixed size: the object doesn't grow or shrink with the window
-     (phones set their own) */
-  --h: 640px;
+     (phones set their own), except in a short window, where it shrinks so
+     the stops (one window apart) never overlap */
+  --h: min(640px, calc((100svh - var(--cut)) * 0.86));
   --w: calc(var(--h) * 1462 / 3000);
   display: block;
 }
@@ -334,7 +335,7 @@ button {
 }
 
 .play {
-  --H: 640px;
+  --H: min(640px, calc((100svh - var(--cut)) * 0.86));
   --h: calc(var(--H) * var(--s));
   --w: calc(var(--h) * var(--r));
 }
@@ -689,6 +690,13 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
 
   .strip .object {
     top: calc(38svh + (58svh - var(--h)) / 2);
+  }
+
+  /* Phones: 24 under the words (size() measures them), and never so low
+     that the phone runs off the bottom. */
+  .strip .phone {
+    --h: min(54svh, calc(72vw * 3000 / 1462), calc(100svh - var(--words-bottom, 38svh) - 40px));
+    top: calc(var(--words-bottom, 38svh) + 24px);
   }
 
   .strip .play {
@@ -1664,7 +1672,17 @@ body[data-nav-hidden] .bar {
 }
 
 :root[data-theme='dark'] .cp__compare .cmp + .cmp {
-  background: #2c2c2e;
+  background: #48484a; /* a clear step up from the before half and the page */
+}
+
+/* The dark page shows the same screens in the dark phone. */
+.cp__compare .cmp img.cmp--dark,
+:root[data-theme='dark'] .cp__compare .cmp img:not(.cmp--dark) {
+  display: none;
+}
+
+:root[data-theme='dark'] .cp__compare .cmp img.cmp--dark {
+  display: block;
 }
 
 
@@ -1838,6 +1856,10 @@ body[data-nav-hidden] .bar {
   flex: 1;
 }
 
+:root[data-theme='dark'] .cp .ui__box {
+  background: var(--figure);
+}
+
 .ui__card {
   position: relative;
   width: 351px;
@@ -1992,3 +2014,16 @@ body[data-nav-hidden] .bar {
   }
 }
 
+
+/* Phones: the words a little tighter, so the phone sits nearer the middle. */
+@media (max-width: 960px) {
+  .work .b-title {
+    margin-top: 4px;
+  }
+
+  .work .b-summary,
+  .work .b-role,
+  .work .b-link {
+    margin-top: 12px;
+  }
+}

@@ -75,6 +75,10 @@ const objects = STOPS.map((s, i) => {
   return el;
 });
 const videos = objects.map((el) => $('video', el));
+// One stop is one runway section (100svh). Scroll positions and snap points
+// both count in it: on a phone innerHeight grows when the address bar hides,
+// and measuring stops in it then left the last project peeking in.
+const stopH = () => runway.firstElementChild?.offsetHeight || innerHeight;
 // The video's timeline follows its preview: where in the whole video it is.
 for (const v of videos) {
   const tl = v && $('.vtime', v.closest('.object'));
@@ -141,12 +145,16 @@ function size() {
   const mid = cut + (innerHeight - cut) / 2 - Math.round((innerHeight - cut) * 0.04);
   root.style.setProperty('--info-top', `${Math.round(mid - H / 2)}px`);
   root.style.setProperty('--index-top', `${Math.round(mid - index.offsetHeight / 2)}px`);
+  // On a phone the phone starts just under the words of the wordiest phone
+  // project, so it sits as near the middle as the words allow.
+  const phoneWords = Math.max(...hs.filter((_, i) => STOPS[i].kind === 'phone'));
+  root.style.setProperty('--words-bottom', `${Math.round($('.info').getBoundingClientRect().top + phoneWords)}px`);
   at = -1;
 }
 
 let at = -1;
 function render() {
-  const h = innerHeight;
+  const h = stopH();
   const p = scrollY / h;
   objects.forEach((el, i) => { el.style.transform = `translateY(${(i - p) * GAP * h}px)`; });
   // Each line rolls a beat after the one above it, top to bottom.
@@ -182,7 +190,7 @@ function render() {
 
 // Only the project in view plays, and only while the work is showing.
 function playStrip() {
-  const p = scrollY / innerHeight;
+  const p = scrollY / stopH();
   videos.forEach((v, i) => {
     if (!v) return;
     const on = body.dataset.view === 'work' && Math.abs(i - p) < 0.5;
@@ -200,10 +208,10 @@ addEventListener('scroll', () => {
 addEventListener('resize', () => { size(); render(); });
 
 function go(i, smooth = true) {
-  const top = Math.max(0, Math.min(STOPS.length - 1, i)) * innerHeight;
+  const top = Math.max(0, Math.min(STOPS.length - 1, i)) * stopH();
   scrollTo({ top, behavior: smooth && !REDUCE ? 'smooth' : 'instant' });
 }
-const here = () => Math.round(scrollY / innerHeight);
+const here = () => Math.round(scrollY / stopH());
 
 // ── Case ──────────────────────────────────────────────────────────────────────
 
@@ -240,7 +248,7 @@ function caseHTML(p, i) {
     if (s.media) return `<figure class="cp__media${s.media.bleed ? ' is-bleed' : ' is-single'}">${media(s.media)}<figcaption>${s.media.alt}</figcaption></figure>`;
     if (s.compare) return `<figure class="cp__media cp__compare is-single">
       <div class="frame">${[['Before', s.compare.before], ['After', s.compare.after]].map(([k, src]) =>
-        `<div class="cmp"><span class="g">${k}</span><img src="${src}" alt="${k}: ${s.compare.caption}" loading="lazy"></div>`).join('')}</div>
+        `<div class="cmp"><span class="g">${k}</span><img src="${src}" alt="${k}: ${s.compare.caption}" loading="lazy"><img class="cmp--dark" src="${src.replace(/\.webp$/, '-dark.webp')}" alt="${k}: ${s.compare.caption}" loading="lazy"></div>`).join('')}</div>
       <figcaption>${s.compare.caption}</figcaption>
     </figure>`;
     // A row of screenshots at one height, as wide as the other media: each
@@ -382,7 +390,7 @@ if (matchMedia('(hover: hover)').matches) {
 }
 
 // The home row's phone leans too, gently, while the work is showing.
-lean(() => (body.dataset.view === 'work' ? $('.lean', objects[Math.round(scrollY / innerHeight)] ?? document.body) : null), { reach: 1.1, px: 10, deg: 6 });
+lean(() => (body.dataset.view === 'work' ? $('.lean', objects[Math.round(scrollY / stopH())] ?? document.body) : null), { reach: 1.1, px: 10, deg: 6 });
 
 // "Watch the video" (the cursor over the video, or the link) means play it.
 let watchNext = false, autoStart = null;
@@ -687,7 +695,7 @@ document.fonts.ready.then(() => {
   size();
   if (hold !== null) {
     root.classList.add('hold');
-    scrollTo(0, Number(hold) * innerHeight);
+    scrollTo(0, Number(hold) * stopH());
   }
   route();
   render();

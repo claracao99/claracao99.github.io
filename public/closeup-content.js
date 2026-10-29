@@ -83,20 +83,14 @@ export const PROJECTS = [
     figure: null, // a no-harm test: no headline number to make big
     sections: [
       { label: 'Approach', text: [
-        'Pickup and destination sat in two separate fields, so nothing showed they made one trip, or which way it went. Google Maps and Uber both draw a route as one connected thing, a pattern riders already know.',
-        'I reused the route styling from the order flow rather than inventing new icons, so a route now reads the same from search to receipt. And I left the background colour alone on purpose, so the route stays the most prominent thing on screen.',
+        'Pickup and destination sat in two separate fields, so nothing showed they made one trip, or which way it went.',
+        'I joined them into one connected field: pickup, stops and destination on a single route.',
+        'I reused the route styling from the order flow rather than inventing new icons, so a route now reads the same from search to receipt.',
       ] },
       { compare: { before: M + 'search-bar-search-before.webp', after: M + 'search-bar-search-after.webp', caption: 'The search screen, before and after' } },
       { compare: { before: M + 'search-bar-route-before.webp', after: M + 'search-bar-route-after.webp', caption: 'The route in an active order, before and after' } },
-      { label: 'Shipped', list: [
-        'One connected field for pickup, stops and destination',
-        'A gradient route line, with a marker for every stop',
-        'One route component in orders, scheduled rides and history',
-      ] },
-      { label: 'Results', list: [
-        'Orders and GMV neutral in a no-harm A/B test, every trend positive',
-        'Session-to-finish up 0.14%, not counted: riders joined the test before search',
-        'Live for all riders since October 2026',
+      { label: 'Results', text: [
+        'A no-harm A/B test kept orders and GMV neutral, with every trend positive. Session-to-finish rose 0.14%, though it isn’t counted, since riders joined the test before reaching search. The new search bar has been live for all riders since October 2026.',
       ] },
     ],
   },
