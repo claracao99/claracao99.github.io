@@ -147,7 +147,7 @@ export const PROJECTS = [
     still: true,
     title: 'Airport pickup',
     tagline: 'From arrivals to the car',
-    summary: 'Finding your driver at the airport: a map and photos of every step, from arrivals to the pickup point.',
+    summary: 'Finding your driver at the airport, from arrivals to the pickup point.',
     role: 'Lead designer, Bolt, 2026',
     clip: 'assets/closeup/airport-pickup',
     facts: [['Role', 'Lead designer'], ['Company', 'Bolt'], ['When', 'Aug 2026']],
