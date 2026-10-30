@@ -1732,7 +1732,9 @@ body[data-nav-hidden] .bar {
 }
 
 :root[data-theme='dark'] .cp__compare .cmp + .cmp {
-  background: #48484a; /* a clear step up from the before half and the page */
+  /* light mode mirrored: the same 15.4:1 against the before half (#181818)
+     as #1d1d1f has against #f5f5f5 */
+  background: #efefef;
 }
 
 /* The dark page shows the same screens in the dark phone. */
@@ -1748,6 +1750,10 @@ body[data-nav-hidden] .bar {
 
 .cp__compare .cmp + .cmp span {
   color: rgb(255 255 255 / 0.85);
+}
+
+:root[data-theme='dark'] .cp__compare .cmp + .cmp span {
+  color: rgb(0 0 0 / 0.85);
 }
 
 @media (max-width: 960px) {
