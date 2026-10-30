@@ -478,11 +478,18 @@ function openCase(slug) {
     }
   }, { root: casePane, threshold: 0.25 });
   $$('video', casePane).filter((v) => !v.closest('.cp__video')).forEach((v) => caseObserver.observe(v));
+  // What's on screen at the start arrives with the side column, as one
+  // sequence: it waits for the words to roll, then follows the last fact at
+  // the same 60ms a step. The rest rises as it's scrolled to.
+  const blocks = $$('.cp__media, .cp__row', casePane);
+  const fold = casePane.clientHeight * 0.9;
+  const first = blocks.filter((el) => el.getBoundingClientRect().top < fold);
+  first.forEach((el, n) => el.style.setProperty('--delay', `${80 + (3 + p.facts.length + n) * 60}ms`));
   revealObserver?.disconnect();
   revealObserver = new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-in'); revealObserver.unobserve(e.target); }
   }, { root: casePane, rootMargin: '0px 0px -10% 0px' });
-  $$('.cp__media, .cp__row', casePane).forEach((el) => revealObserver.observe(el));
+  blocks.filter((el) => !first.includes(el)).forEach((el) => revealObserver.observe(el));
   // Demos: playable pieces of the product.
   for (const el of $$('[data-demo]', casePane)) if (el.dataset.demo === 'activity-filter') mountFilterDemo(el);
   const player = $('.cp__video', casePane);
@@ -535,6 +542,7 @@ function openCase(slug) {
     current.landing = false;
     casePane.classList.remove('is-arriving');
     casePane.classList.add('is-entering');
+    first.forEach((el) => el.classList.add('is-in'));
     autoStart?.();
     autoStart = null;
   };

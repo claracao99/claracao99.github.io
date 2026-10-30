@@ -1409,12 +1409,14 @@ body[data-nav-hidden] .bar {
   content: ' →';
 }
 
-/* Rows and media rise in as they arrive. */
+/* Rows and media rise in as they arrive, on the words' roll timing (760ms,
+   ease-io). Those on screen at the start carry on the side column's count
+   (--delay, from closeup.js), so the page arrives top to bottom as one. */
 .cp__row,
 .cp__media {
   opacity: 0;
   translate: 0 24px;
-  transition: opacity 800ms var(--ease), translate 1000ms var(--ease);
+  transition: opacity 760ms var(--ease-io) var(--delay, 0ms), translate 760ms var(--ease-io) var(--delay, 0ms);
 }
 
 .cp__row.is-in,
