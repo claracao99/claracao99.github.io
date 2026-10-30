@@ -622,6 +622,14 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
   margin-bottom: 10px;
 }
 
+/* Registered so laptop3d.js reads --lid as resolved pixels, not the formula;
+   0 (the stacked layout's `initial`) means "fit the canvas" instead. */
+@property --lid {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
 .about__stage {
   /* the whole window, so the laptop's shadow fades out with no edge; the
      laptop itself is a fixed size (--lid) */
@@ -631,7 +639,9 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
 }
 
 .about__laptop {
-  --lid: 620px; /* the lid's width on screen, fixed */
+  /* the lid's width on screen: 620, or less when the window is too narrow
+     to keep 48 clear of the words' columns either side */
+  --lid: min(620px, 100vw - 2 * (var(--edge) + var(--col)) - 2 * 48px);
   position: absolute;
   inset: var(--cut) 0 0;
   width: 100%;
@@ -769,7 +779,11 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
   .strip {
     clip-path: inset(calc(var(--words-bottom, 38svh) + 12px) 0 0);
   }
+}
 
+/* About stacks earlier than the rest: under 1100 the gap between its two
+   300px columns is too narrow for the laptop. */
+@media (max-width: 1100px) {
   /* Name, words, links, then the laptop, then the CV lines. */
   .about {
     display: flex;
@@ -784,12 +798,13 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
 
   .about__name {
     order: 1;
-    padding: calc(var(--cut) + 3svh) var(--edge) 0;
+    padding: calc(var(--cut) + 1svh) var(--edge) 0;
   }
 
   .about__intro {
     order: 2;
     padding: 0 var(--edge);
+    max-width: calc(560px + 2 * var(--edge)); /* a readable line on tablets and small windows */
   }
 
   .about__links {
@@ -803,7 +818,7 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
     position: relative;
     inset: auto;
     width: auto;
-    height: 56svh;
+    height: 46svh;
     flex: none;
   }
 
@@ -822,8 +837,12 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
     text-align: left;
   }
 
+  /* Just under the laptop, wherever it ends: it's centred in the stage, half
+     its height (with its shadow) 26vw where width sets its size, 40% of the stage
+     where height does (tablets). */
   .about__hint {
-    bottom: 2svh;
+    top: calc(50% + min(26vw, 40%) + 24px);
+    bottom: auto;
   }
 
   .about__credit {
