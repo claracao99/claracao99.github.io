@@ -225,7 +225,7 @@ button {
   place-items: center;
   width: 24px;
   height: 24px;
-  margin-right: -4px;
+  margin-right: -5px; /* the 14px icon, not its 24px button, meets the edge */
   color: inherit;
   transition: rotate 600ms var(--ease-io);
 }
@@ -1088,7 +1088,7 @@ body[data-nav-hidden] .bar {
    project, Work takes you back to where you were. ── */
 .bar {
   display: flex;
-  gap: 32px;
+  gap: 35px; /* About to the theme icon reads 40px: the icon sits 5px inside its button */
 }
 
 .switch {
