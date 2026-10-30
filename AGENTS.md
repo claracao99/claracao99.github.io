@@ -27,7 +27,13 @@ Close-up gotchas:
 - **Stops are runway sections, not window heights.** `stopH()` is a section's
   height (100svh), the unit of the snap points. On a phone `innerHeight` grows
   when the address bar hides; measuring stops in it left the last project
-  peeking in.
+  peeking in. The reverse also bites: with the bar hidden (iPhone: svh 714,
+  window 754) the page can't scroll to the last stop, so read positions
+  through `stops()`, which stretches the last stretch of scroll onto it. Don't
+  make the last section `100lvh` instead: a snap area taller than the screen
+  lets Safari rest anywhere inside it, past the stop. To test it, Chrome at
+  402×754 with `.runway section { height: 714px }` is the bar-hidden
+  geometry; the Simulator's Safari won't keep its bar hidden at the end.
 - **Before/after has dark twins.** Each `compare` image has a `-dark.webp`
   beside it: the same screen in `device-dark.webp`, swapped by theme. The
   screen sits at (66, 54), 1329×2891 of the 1462×3000 frame, radius
