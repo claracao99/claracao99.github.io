@@ -357,7 +357,8 @@ button {
 }
 
 /* Character House's live lamp (closeup.js, liveLamp): the floor lamp's 2048² frame, scaled so
-   its art fills the tile. The tile clips it, so only the lamp itself takes the pointer. */
+   its art fills the tile. The tile clips it, so only the lamp itself takes the pointer. The
+   cord sways under it but doesn't pull: a click opens the site, so the cursor stays a link's. */
 .play .live-lamp {
   position: absolute;
   inset: 0;
@@ -376,9 +377,6 @@ button {
   user-select: none;
   -webkit-user-select: none;
 }
-
-.play .lamp-stage.can-grab { cursor: grab; }
-.play .lamp-stage.grabbing { cursor: grabbing; }
 
 .piece-lamp .lamp,
 .piece-lamp .cord {

@@ -1,7 +1,7 @@
 // The lamp's pull cord, from Character House (characterhouse.claracao.work): lamp.js as it
 // was when the house still had its floor lamp (git a8ffd31^ in ~/Projects-personal/
-// character-house). The Play tile mounts FLOOR_LAMP without onToggle: the 灯 cord swings
-// under the pointer and pulls, and switches nothing here.
+// character-house). The Play tile mounts FLOOR_LAMP and only feeds it the pointer's moves: the
+// 灯 cord swings as it passes, and a click opens the site instead of pulling.
 //
 // Pull cord made of characters, simulated with XPBD (extended position-based dynamics).
 //

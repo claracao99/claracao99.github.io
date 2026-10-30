@@ -88,9 +88,9 @@ const objects = STOPS.map((s, i) => {
 });
 const videos = objects.map((el) => $('video', el));
 
-// Character House's lamp is the real one: its 灯 cord swings under the pointer and pulls like
-// the one on characterhouse.claracao.work, but it switches nothing here (no onToggle, so the
-// page keeps its theme). A press on the cord pulls it; anywhere else on the lamp opens the site.
+// Character House's lamp is the real one: its 灯 cord swings under the pointer like the one on
+// characterhouse.claracao.work. It doesn't pull here: a click anywhere on the lamp, the cord
+// included, opens the site (Clara, 2026-10-30).
 function liveLamp(tile) {
   const host = $('.live-lamp', tile);
   const stage = document.createElement('div');
@@ -99,28 +99,14 @@ function liveLamp(tile) {
   const piece = mountLamp(stage, FLOOR_LAMP);
   // the floor lamp's 2048² frame, scaled and shifted so its art (BOUNDS) fills the tile
   const B = FLOOR_LAMP.BOUNDS;
-  let scale = 1;
   const fit = () => {
-    scale = host.offsetWidth / (B.x1 - B.x0);
+    const scale = host.offsetWidth / (B.x1 - B.x0);
     stage.style.transform = `translate(${-B.x0 * scale}px, ${-B.y0 * scale}px) scale(${scale})`;
   };
   new ResizeObserver(fit).observe(host);
   fit();
-  let pulled = false;
-  stage.addEventListener('pointerdown', (e) => {
-    pulled = !!piece.down(piece.toStage(e), e, 10 / scale); // 10px of reach: the cord is small here
-    if (!pulled) return;
-    stage.setPointerCapture(e.pointerId);
-    e.preventDefault();
-    tile.dataset.pulling = '';
-  });
   stage.addEventListener('pointermove', (e) => piece.move(piece.toStage(e), e));
-  const end = (e) => { piece.up(e); delete tile.dataset.pulling; };
-  stage.addEventListener('pointerup', end);
-  stage.addEventListener('pointercancel', end);
   stage.addEventListener('pointerleave', () => piece.leave());
-  tile.addEventListener('click', (e) => { if (pulled) { e.preventDefault(); pulled = false; } });
-  tile.addEventListener('dragstart', (e) => e.preventDefault());
   // the cord only moves while the tile is on screen
   let on = false, prev = 0;
   const frame = (now) => {
@@ -440,9 +426,7 @@ if (matchMedia('(hover: hover)').matches) {
     const obj = body.dataset.view === 'work' && e.pointerType === 'mouse' ? e.target.closest?.('.strip .object:not(.play), .strip a.play') : null;
     // Over the About laptop it says how to turn it; not while it's held.
     const lap = body.dataset.view === 'about' && e.pointerType === 'mouse' && e.target === canvas && !canvas.dataset.drag;
-    // On the live lamp's cord the cursor is a hand, and a press pulls rather than opens.
-    const onCord = obj?.querySelector('.lamp-stage.can-grab, .lamp-stage.grabbing');
-    if ((obj && !onCord) || lap) {
+    if (obj || lap) {
       cursorLabel.textContent = lap ? 'Drag to turn around' : obj.classList.contains('play') ? 'Open project' : obj.classList.contains('is-soon') ? 'Coming soon' : obj.classList.contains('display') ? 'Watch the video' : 'View project';
       if (!cursorLabel.hasAttribute('data-on')) { lx = e.clientX + 16; ly = e.clientY + 16; }
       cursorLabel.setAttribute('data-on', '');
