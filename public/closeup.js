@@ -667,10 +667,19 @@ addEventListener('pointermove', (e) => {
 const toggle = $('[data-theme-toggle]');
 const label = () => toggle.setAttribute('aria-label', `Switch to ${root.dataset.theme === 'dark' ? 'light' : 'dark'} mode`);
 label();
+// The whole page changes theme at once: colours, phone frames and images in
+// one step, cross-faded as one picture. Each element fading on its own clock
+// (400ms here, 300ms there, the frames instant) read as delayed and glitchy.
 toggle.addEventListener('click', () => {
-  root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
-  localStorage.setItem('theme', root.dataset.theme);
-  label();
+  const flip = () => {
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', root.dataset.theme);
+    label();
+  };
+  root.classList.add('theme-switching');
+  const done = () => requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-switching')));
+  if (!document.startViewTransition || REDUCE) { flip(); done(); return; }
+  document.startViewTransition(flip).finished.finally(done);
 });
 
 // Her rule: an email address copies, it never opens a mail app.

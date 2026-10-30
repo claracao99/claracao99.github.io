@@ -2027,3 +2027,18 @@ body[data-nav-hidden] .bar {
     margin-top: 12px;
   }
 }
+
+/* Switching theme: no element fades by itself; the page cross-fades as one
+   (closeup.js, the theme toggle). */
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 280ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
