@@ -61,6 +61,7 @@
   --film-start-size: 60px; /* the big Play on a film's poster */
   --film-start-icon: 20px;
   --icon-pill-play: 9px; /* before a film's title in its card's pill, on touch */
+  --icon-close: 12px; /* a window's close × (CaseWindow.astro) */
   /* Transcript time chips (case.css): grey at rest, ink when hovered or
    * playing. */
   --chip-fill: var(--grey-20);
