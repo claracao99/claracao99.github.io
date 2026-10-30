@@ -21,6 +21,14 @@ push. Navigation is by hash (`#work`, `#work/<slug>`, `#about`). The Astro
 routes still build (`/work/<slug>/` old case pages, the 404), but nothing on
 the homepage links to them.
 
+Tab titles follow the page and never use a mid dot: `Clara Cao` on the work,
+`<Project> – Clara Cao` and `About – Clara Cao` (en dash), set in
+`closeup.js` (`openCase`, `show`) and `BaseLayout.astro`. The favicon is the
+pill in white on a black tile (2px-label corner, black in both themes); the
+SVG is the source, `favicon.ico` (16/32/48) and the full-bleed
+`apple-touch-icon.png` are rendered from it with `magick`. Decisions board:
+Figma Portfolio file, page "Favicon, tab name, description".
+
 ## Hard constraints
 
 This site must outlive Clara's current job. Nothing may couple it to employer

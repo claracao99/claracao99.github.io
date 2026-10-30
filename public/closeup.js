@@ -460,7 +460,7 @@ function openCase(slug) {
   casePane.classList.toggle('is-arriving', !!flip);
   casePane.innerHTML = caseHTML(p, i);
   casePane.scrollTop = 0;
-  document.title = `${p.title} · Clara Cao`;
+  document.title = `${p.title} – Clara Cao`;
   // The work underneath moves to this project, so leaving lands on it.
   go(i, false);
   // Media play only while on screen (the video waits for Play).
@@ -637,8 +637,8 @@ function show(view) {
   lastY = 0;
   body.dataset.view = view;
   markTabs();
-  if (view === 'work') document.title = 'Clara Cao · Product designer';
-  if (view === 'about') document.title = 'About · Clara Cao';
+  if (view === 'work') document.title = 'Clara Cao';
+  if (view === 'about') document.title = 'About – Clara Cao';
   if (view !== 'case') { caseObserver?.disconnect(); parallaxStop(); }
   if (view !== 'case' && was === 'case') $$('video', casePane).forEach((v) => v.pause());
   if (view === 'about' || laptop) wakeLaptop();

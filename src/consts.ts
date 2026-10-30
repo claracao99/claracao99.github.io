@@ -10,7 +10,7 @@ export const SITE = {
   title: 'Clara Cao',
   /** Default meta description; individual pages should override this. */
   description:
-    'Product designer at Bolt, raising the quality bar for the ride-hailing experience. Selected work and case studies.',
+    'Product designer at Bolt. I find the problem worth solving and build the answer in real code.',
   /** Used for OG locale and the <html lang> attribute. */
   lang: 'en',
   /** The about text in the index's intro (index.astro). */
