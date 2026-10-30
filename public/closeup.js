@@ -129,6 +129,18 @@ STOPS.forEach((s, i) => { if (s.live === 'lamp') liveLamp(objects[i]); });
 // both count in it: on a phone innerHeight grows when the address bar hides,
 // and measuring stops in it then left the last project peeking in.
 const stopH = () => runway.firstElementChild?.offsetHeight || innerHeight;
+// Where the scroll is, in stops. Once Safari's bar hides, the window is
+// taller than a stop and the page can't scroll all the way to the last one
+// (it stopped ~40px short, the last project's words not quite rolled in, its
+// lowest line cut by the mask). So the last stretch of scroll is stretched to
+// end exactly on the last stop; with the bar showing it maps one to one.
+function stops() {
+  const h = stopH(), last = STOPS.length - 1;
+  const p = scrollY / h;
+  const end = document.documentElement.scrollHeight - innerHeight; // the furthest it scrolls
+  if (p <= last - 1 || end >= last * h) return p;
+  return Math.min(last, last - 1 + (scrollY - (last - 1) * h) / (end - (last - 1) * h));
+}
 // The video's timeline follows its preview: where in the whole video it is.
 for (const v of videos) {
   const tl = v && $('.vtime', v.closest('.object'));
@@ -205,7 +217,7 @@ function size() {
 let at = -1;
 function render() {
   const h = stopH();
-  const p = scrollY / h;
+  const p = stops();
   objects.forEach((el, i) => { el.style.transform = `translateY(${(i - p) * GAP * h}px)`; });
   // Each line rolls a beat after the one above it, top to bottom.
   rows.forEach(({ key, el, lines }) => {
@@ -240,7 +252,7 @@ function render() {
 
 // Only the project in view plays, and only while the work is showing.
 function playStrip() {
-  const p = scrollY / stopH();
+  const p = stops();
   videos.forEach((v, i) => {
     if (!v) return;
     const on = body.dataset.view === 'work' && Math.abs(i - p) < 0.5;
@@ -261,7 +273,7 @@ function go(i, smooth = true) {
   const top = Math.max(0, Math.min(STOPS.length - 1, i)) * stopH();
   scrollTo({ top, behavior: smooth && !REDUCE ? 'smooth' : 'instant' });
 }
-const here = () => Math.round(scrollY / stopH());
+const here = () => Math.round(stops());
 
 // ── Case ──────────────────────────────────────────────────────────────────────
 
@@ -445,7 +457,7 @@ if (matchMedia('(hover: hover)').matches) {
 }
 
 // The home row's phone leans too, gently, while the work is showing.
-lean(() => (body.dataset.view === 'work' ? $('.lean', objects[Math.round(scrollY / stopH())] ?? document.body) : null), { reach: 1.1, px: 10, deg: 6 });
+lean(() => (body.dataset.view === 'work' ? $('.lean', objects[here()] ?? document.body) : null), { reach: 1.1, px: 10, deg: 6 });
 
 // "Watch video" (the cursor over the video, or the link) means play it.
 let watchNext = false, autoStart = null;
