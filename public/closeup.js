@@ -594,15 +594,21 @@ function leaveCase() {
 
 const canvas = $('.about__laptop');
 const hint = $('.about__hint');
-let laptop;
+let laptop, mounting;
 async function wakeLaptop() {
-  if (!laptop) {
-    const { mountLaptop } = await import('./laptop3d.js');
+  // Mounted once, however many calls arrive while it's still importing.
+  mounting ??= import('./laptop3d.js').then(({ mountLaptop }) => {
     laptop = mountLaptop(canvas, { onReady: () => canvas.setAttribute('data-ready', '') });
     canvas.addEventListener('pointerdown', () => hint.setAttribute('data-gone', ''), { once: true });
-  }
+  });
+  await mounting;
   laptop.setActive(body.dataset.view === 'about');
 }
+// The laptop loads with the page, not on the way to About: the model is
+// 10 MB, and on a phone it would otherwise arrive after you do. Hidden, it
+// draws nothing until About shows.
+const preloadLaptop = () => (window.requestIdleCallback ?? setTimeout)(() => wakeLaptop());
+if (document.readyState === 'complete') preloadLaptop(); else addEventListener('load', preloadLaptop, { once: true });
 
 // ── Views and the switch ──────────────────────────────────────────────────────
 

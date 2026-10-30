@@ -206,14 +206,56 @@ export function mountLaptop(canvas, { onReady } = {}) {
   let t = 0, vel = 0, goal = 0, dragging = false, grabX = 0, grabT = 0, lastT = 0, lastMs = 0, active = false, raf = 0;
   const perPx = () => 1.6 / canvas.clientWidth; // a drag across the canvas ≈ 1.6 faces
   const W = 6, ZETA = 0.8; // the settle: about a third of a second, the faintest overshoot
+  // Pinch (touch): two fingers zoom in round the point between them, to look
+  // closer at a sticker or the screen, and pan while they're down; let go and
+  // it eases back out. Two fingers never turn it: a turn under way stops on
+  // the nearer face, and turning waits until every finger is up.
+  const ZOOM_MAX = 3;
+  const fingers = new Map(); // pointerId → its point on the canvas
+  let zoom = 1, pinch = null, focus = null, held = false; // focus: the frame point under the fingers' midpoint
+  const at = (e) => { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  const midpoint = () => { const [a, b] = fingers.values(); return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, d: Math.hypot(a.x - b.x, a.y - b.y) }; };
+  function view() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (zoom <= 1.0001 || !focus) { if (camera.view?.enabled) camera.clearViewOffset(); return; }
+    // The frame point `focus.f` stays under the screen point `focus.m`, kept inside the frame.
+    const x = clamp(focus.f.x - focus.m.x / zoom, 0, w - w / zoom);
+    const y = clamp(focus.f.y - focus.m.y / zoom, 0, h - h / zoom);
+    camera.setViewOffset(w, h, x, y, w / zoom, h / zoom);
+  }
   canvas.addEventListener('pointerdown', (e) => {
     if (!rig) return;
+    if (e.pointerType === 'touch') {
+      fingers.set(e.pointerId, at(e));
+      canvas.setPointerCapture(e.pointerId);
+      if (fingers.size === 2) {
+        if (dragging) { dragging = false; delete canvas.dataset.drag; vel = 0; goal = Math.round(t); }
+        const m = midpoint();
+        // Where the midpoint is in the whole frame, at the zoom already showing.
+        const o = camera.view?.enabled ? { x: camera.view.offsetX, y: camera.view.offsetY } : { x: 0, y: 0 };
+        pinch = { d: m.d || 1, zoom, f: { x: o.x + m.x / zoom, y: o.y + m.y / zoom } };
+        focus = { f: pinch.f, m };
+        held = true;
+        kick();
+        return;
+      }
+      if (fingers.size > 2 || held) return;
+    }
     dragging = true; grabX = e.clientX; grabT = t; lastT = t; lastMs = e.timeStamp; vel = 0;
     canvas.setPointerCapture(e.pointerId);
     canvas.dataset.drag = '1';
     kick();
   });
   canvas.addEventListener('pointermove', (e) => {
+    if (fingers.has(e.pointerId)) fingers.set(e.pointerId, at(e));
+    if (pinch && fingers.size >= 2) {
+      const m = midpoint();
+      zoom = clamp(pinch.zoom * (m.d / pinch.d), 1, ZOOM_MAX);
+      focus = { f: pinch.f, m };
+      dirty = true;
+      kick();
+      return;
+    }
     if (!dragging) return;
     t = grabT - (e.clientX - grabX) * perPx();
     // velocity in faces per second, smoothed so the flick counts, not one noisy frame
@@ -232,8 +274,16 @@ export function mountLaptop(canvas, { onReady } = {}) {
     goal = clamp(Math.round(t + vel * 0.22), near - 1, near + 1);
     kick();
   };
-  canvas.addEventListener('pointerup', release);
-  canvas.addEventListener('pointercancel', release);
+  const lift = (e) => {
+    fingers.delete(e.pointerId);
+    if (pinch && fingers.size < 2) { pinch = null; kick(); } // eases back out in frame()
+    if (!fingers.size) held = false;
+    release(e);
+  };
+  canvas.addEventListener('pointerup', lift);
+  canvas.addEventListener('pointercancel', lift);
+  // Safari's own page pinch would take the gesture first.
+  canvas.addEventListener('gesturestart', (e) => e.preventDefault());
   // Keyboard: Enter or Space turns it to the other face.
   canvas.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -255,12 +305,19 @@ export function mountLaptop(canvas, { onReady } = {}) {
       }
       dirty = true;
     }
+    // Fingers up: back out to the whole laptop, round the same point.
+    if (!pinch && zoom !== 1) {
+      zoom = REDUCE ? 1 : 1 + (zoom - 1) * Math.exp(-dt * 10);
+      if (zoom < 1.002) zoom = 1;
+      dirty = true;
+    }
     if (dirty && rig) {
       pose(t);
+      view();
       renderer.render(scene, camera);
       dirty = false;
     }
-    if (active && (dragging || t !== goal || vel !== 0 || dirty)) raf = requestAnimationFrame(frame);
+    if (active && (dragging || pinch || zoom !== 1 || t !== goal || vel !== 0 || dirty)) raf = requestAnimationFrame(frame);
   }
   function kick() {
     if (active && !raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
