@@ -1316,8 +1316,9 @@ body[data-nav-hidden] .bar {
 
 /* Media: wide across the middle and right, close under the row it shows. */
 .cp__media {
+  --after: 96px; /* the space under a picture; the next picture subtracts it */
   grid-column: 1 / 10 !important;
-  margin: -56px 0 96px;
+  margin: -56px 0 var(--after);
 }
 
 .cp__media.is-single {
@@ -1335,8 +1336,9 @@ body[data-nav-hidden] .bar {
   aspect-ratio: 4 / 3 !important;
 }
 
+/* A picture straight after another sits one gap under it, at every width. */
 .cp__media + .cp__media {
-  margin-top: calc(-96px + var(--gap));
+  margin-top: calc(var(--gap) - var(--after));
 }
 
 .cp .frame {
@@ -1449,7 +1451,8 @@ body[data-nav-hidden] .bar {
   }
 
   .cp__media {
-    margin: -32px 0 64px;
+    --after: 64px;
+    margin: -32px 0 var(--after);
   }
 
   .cp__media.is-pair {
