@@ -2,8 +2,8 @@
 // Order is by strength: the one with the clearest result first. Airport
 // pickup is second though its page is still to come; Airport drop-off waits
 // for its write-up. The video plays on a Studio Display.
-// `soon`: on the work with no project page (no link, the cursor says "Coming
-// soon"); `still`: the screen is the poster alone, no clip.
+// `soon`: on the work with no project page, or in Play with no site yet (no
+// link, the cursor says "Coming soon"); `still`: the screen is the poster alone, no clip.
 
 const M = 'assets/closeup/media/';
 
@@ -172,19 +172,20 @@ export const PLAY = [
     live: 'lamp',
   },
   {
-    slug: 'rest-in-pieces',
-    title: 'Rest in Pieces',
-    summary: 'A virtual tombstone. Leave a flower on the stone; when it rots, it feeds the next one.',
-    role: 'Personal project, 2026',
-    img: 'assets/closeup/flower.png', ratio: 298 / 481, scale: 0.58,
-    url: 'https://claracao.work/rest-in-pieces/',
-  },
-  {
     slug: 'iconic-chairs',
     title: 'Iconic Chairs',
     summary: 'An interactive 3D archive of 20 chairs that changed design, from the Wassily to the Egg.',
     role: 'Personal project, 2026',
     img: 'assets/closeup/chair.png', ratio: 774 / 943, scale: 0.52,
     url: 'https://claracao.work/iconic-chairs/',
+  },
+  {
+    slug: 'rest-in-pieces',
+    soon: true, // the site isn't ready: no link, the cursor says "Coming soon"
+    title: 'Rest in Pieces',
+    summary: 'A virtual tombstone. Leave a flower on the stone; when it rots, it feeds the next one.',
+    role: 'Personal project, 2026',
+    img: 'assets/closeup/flower.png', ratio: 298 / 481, scale: 0.58,
+    url: 'https://claracao.work/rest-in-pieces/',
   },
 ];

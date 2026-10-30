@@ -21,7 +21,7 @@ const STOPS = [
   // Work's meta line is the project page's facts, in the same order (Role,
   // Company, When), so the two never disagree; When shortens to its year(s).
   ...PROJECTS.map((p) => ({ ...p, role: p.facts.map(([k, v]) => (k === 'When' ? years(v) : v)).join(', '), kind: p.kind ?? 'phone', link: p.soon ? null : p.kind === 'display' ? 'Watch the video' : 'View project' })),
-  ...PLAY.map((p) => ({ ...p, kind: 'play', link: p.url ? 'Open' : null })),
+  ...PLAY.map((p) => ({ ...p, kind: 'play', link: p.url && !p.soon ? 'Open' : null })),
 ];
 const WORK = PROJECTS.length;
 const ALL = STOPS.length; // Play counts too: 01–06
@@ -60,9 +60,9 @@ const strip = $('.strip');
 const runway = $('.runway');
 const objects = STOPS.map((s, i) => {
   // Projects open their page; a side project with a site opens that, in a new tab.
-  const el = document.createElement((s.kind !== 'play' && !s.soon) || (s.kind === 'play' && s.url) ? 'a' : 'div');
+  const el = document.createElement((s.kind !== 'play' && !s.soon) || (s.kind === 'play' && s.url && !s.soon) ? 'a' : 'div');
   el.className = `object ${s.kind}${s.soon ? ' is-soon' : ''}`;
-  if (s.soon) {
+  if (s.soon && s.kind !== 'play') {
     // No page yet: nothing to open, only the cursor's "Coming soon".
     el.innerHTML = `<span class="lean">${objectHTML(s, { still: s.still })}</span>`;
   } else if (s.kind !== 'play') {
@@ -73,7 +73,7 @@ const objects = STOPS.map((s, i) => {
   } else {
     el.style.setProperty('--r', s.ratio);
     el.style.setProperty('--s', s.scale);
-    if (s.url) {
+    if (s.url && !s.soon) {
       el.href = s.url;
       el.target = '_blank';
       el.rel = 'noopener';
@@ -423,11 +423,11 @@ if (matchMedia('(hover: hover)').matches) {
     raf = Math.abs(cx - lx) + Math.abs(cy - ly) > 0.2 ? requestAnimationFrame(follow) : 0;
   };
   addEventListener('pointermove', (e) => {
-    const obj = body.dataset.view === 'work' && e.pointerType === 'mouse' ? e.target.closest?.('.strip .object:not(.play), .strip a.play') : null;
+    const obj = body.dataset.view === 'work' && e.pointerType === 'mouse' ? e.target.closest?.('.strip .object:not(.play), .strip a.play, .strip .play.is-soon') : null;
     // Over the About laptop it says how to turn it; not while it's held.
     const lap = body.dataset.view === 'about' && e.pointerType === 'mouse' && e.target === canvas && !canvas.dataset.drag;
     if (obj || lap) {
-      cursorLabel.textContent = lap ? 'Drag to turn around' : obj.classList.contains('play') ? 'Open project' : obj.classList.contains('is-soon') ? 'Coming soon' : obj.classList.contains('display') ? 'Watch the video' : 'View project';
+      cursorLabel.textContent = lap ? 'Drag to turn around' : obj.classList.contains('is-soon') ? 'Coming soon' : obj.classList.contains('play') ? 'Open project' : obj.classList.contains('display') ? 'Watch the video' : 'View project';
       if (!cursorLabel.hasAttribute('data-on')) { lx = e.clientX + 16; ly = e.clientY + 16; }
       cursorLabel.setAttribute('data-on', '');
     } else cursorLabel.removeAttribute('data-on');
