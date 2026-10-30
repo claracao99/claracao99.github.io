@@ -166,8 +166,10 @@ export const PLAY = [
     title: 'Character House',
     summary: 'Furniture made of Chinese characters. Pull the lamp’s 灯 cord.',
     role: 'Personal project, 2026',
-    img: 'assets/closeup/lamp.png', ratio: 428 / 1708, scale: 0.86,
+    img: 'assets/closeup/lamp.png', ratio: (1227 - 818) / (1865 - 228), scale: 0.86, // FLOOR_LAMP.BOUNDS
     url: 'https://characterhouse.claracao.work/',
+    // the tile is the real lamp: its 灯 cord swings and pulls (closeup.js, liveLamp)
+    live: 'lamp',
   },
   {
     slug: 'rest-in-pieces',

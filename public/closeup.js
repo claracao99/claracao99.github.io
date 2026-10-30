@@ -12,6 +12,7 @@
 
 import { PROJECTS, PLAY } from './closeup-content.js';
 import { mountFilterDemo } from './filter-demo.js';
+import { mount as mountLamp, FLOOR_LAMP } from './play-lamp.js';
 
 const EMAIL = 'claracao99@gmail.com';
 // Work shows only the year, the end year of a range: "Dec 2025 – Aug 2026" → "2026".
@@ -79,13 +80,62 @@ const objects = STOPS.map((s, i) => {
       el.tabIndex = -1; // the link under the words is the one in the tab order
       el.setAttribute('aria-label', `Open ${s.title}`);
     }
-    el.innerHTML = `<span class="lean"><img src="${s.img}" alt=""></span>`;
+    el.innerHTML = `<span class="lean">${s.live === 'lamp' ? '<span class="live-lamp"></span>' : `<img src="${s.img}" alt="">`}</span>`;
   }
   strip.append(el);
   runway.append(document.createElement('section'));
   return el;
 });
 const videos = objects.map((el) => $('video', el));
+
+// Character House's lamp is the real one: its 灯 cord swings under the pointer and pulls like
+// the one on characterhouse.claracao.work, but it switches nothing here (no onToggle, so the
+// page keeps its theme). A press on the cord pulls it; anywhere else on the lamp opens the site.
+function liveLamp(tile) {
+  const host = $('.live-lamp', tile);
+  const stage = document.createElement('div');
+  stage.className = 'lamp-stage';
+  host.append(stage);
+  const piece = mountLamp(stage, FLOOR_LAMP);
+  // the floor lamp's 2048² frame, scaled and shifted so its art (BOUNDS) fills the tile
+  const B = FLOOR_LAMP.BOUNDS;
+  let scale = 1;
+  const fit = () => {
+    scale = host.offsetWidth / (B.x1 - B.x0);
+    stage.style.transform = `translate(${-B.x0 * scale}px, ${-B.y0 * scale}px) scale(${scale})`;
+  };
+  new ResizeObserver(fit).observe(host);
+  fit();
+  let pulled = false;
+  stage.addEventListener('pointerdown', (e) => {
+    pulled = !!piece.down(piece.toStage(e), e, 10 / scale); // 10px of reach: the cord is small here
+    if (!pulled) return;
+    stage.setPointerCapture(e.pointerId);
+    e.preventDefault();
+    tile.dataset.pulling = '';
+  });
+  stage.addEventListener('pointermove', (e) => piece.move(piece.toStage(e), e));
+  const end = (e) => { piece.up(e); delete tile.dataset.pulling; };
+  stage.addEventListener('pointerup', end);
+  stage.addEventListener('pointercancel', end);
+  stage.addEventListener('pointerleave', () => piece.leave());
+  tile.addEventListener('click', (e) => { if (pulled) { e.preventDefault(); pulled = false; } });
+  tile.addEventListener('dragstart', (e) => e.preventDefault());
+  // the cord only moves while the tile is on screen
+  let on = false, prev = 0;
+  const frame = (now) => {
+    if (!on) return;
+    piece.step(Math.min(0.1, (now - (prev || now)) / 1000));
+    prev = now;
+    requestAnimationFrame(frame);
+  };
+  new IntersectionObserver(([entry]) => {
+    const was = on;
+    on = entry.isIntersecting;
+    if (on && !was) { prev = 0; requestAnimationFrame(frame); }
+  }).observe(tile);
+}
+STOPS.forEach((s, i) => { if (s.live === 'lamp') liveLamp(objects[i]); });
 // One stop is one runway section (100svh). Scroll positions and snap points
 // both count in it: on a phone innerHeight grows when the address bar hides,
 // and measuring stops in it then left the last project peeking in.
@@ -390,7 +440,9 @@ if (matchMedia('(hover: hover)').matches) {
     const obj = body.dataset.view === 'work' && e.pointerType === 'mouse' ? e.target.closest?.('.strip .object:not(.play), .strip a.play') : null;
     // Over the About laptop it says how to turn it; not while it's held.
     const lap = body.dataset.view === 'about' && e.pointerType === 'mouse' && e.target === canvas && !canvas.dataset.drag;
-    if (obj || lap) {
+    // On the live lamp's cord the cursor is a hand, and a press pulls rather than opens.
+    const onCord = obj?.querySelector('.lamp-stage.can-grab, .lamp-stage.grabbing');
+    if ((obj && !onCord) || lap) {
       cursorLabel.textContent = lap ? 'Drag to turn around' : obj.classList.contains('play') ? 'Open project' : obj.classList.contains('is-soon') ? 'Coming soon' : obj.classList.contains('display') ? 'Watch the video' : 'View project';
       if (!cursorLabel.hasAttribute('data-on')) { lx = e.clientX + 16; ly = e.clientY + 16; }
       cursorLabel.setAttribute('data-on', '');

@@ -356,6 +356,56 @@ button {
   cursor: pointer;
 }
 
+/* Character House's live lamp (closeup.js, liveLamp): the floor lamp's 2048² frame, scaled so
+   its art fills the tile. The tile clips it, so only the lamp itself takes the pointer. */
+.play .live-lamp {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: hidden;
+}
+
+.play .lamp-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2048px;
+  height: 2048px;
+  transform-origin: 0 0;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.play .lamp-stage.can-grab { cursor: grab; }
+.play .lamp-stage.grabbing { cursor: grabbing; }
+
+.piece-lamp .lamp,
+.piece-lamp .cord {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.piece-lamp .char {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--seg, 40px);
+  height: var(--seg, 40px);
+  margin: calc(var(--seg, 40px) / -2) 0 0 calc(var(--seg, 40px) / -2);
+  display: grid;
+  place-items: center;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-weight: 500;
+  font-size: var(--seg, 40px);
+  line-height: var(--seg, 40px);
+  color: #1b5de1;
+  will-change: transform;
+}
+
 .info {
   position: fixed;
   left: var(--edge);
