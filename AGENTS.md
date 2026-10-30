@@ -37,6 +37,15 @@ Close-up gotchas:
 - **The phone clips** are rendered, not filmed: `node
   scripts/render-activity-clips.mjs …` in `~/Projects-work/clara-rider-playground`
   (dev server up), output to `~/Downloads/portfolio-clips/`.
+- **Entrance motion is one system.** Words on Work, About and project pages
+  rise through their own line windows (`roll-up`, or `.roll` masks), 760ms
+  `--ease-io`, 80ms + 60ms a step, top to bottom. Project content on screen at
+  open continues the side column's count (`--delay`, set in `openCase`). A new
+  view reuses this; Clara spots any mismatch, mostly on phones where the
+  pieces sit close together.
+- **The About lid** is `--lid` (registered with `@property` so `laptop3d.js`
+  reads resolved px): 620px, or less to stay 48px clear of the columns.
+  About stacks under 1100px, earlier than the rest of the site.
 - **Testing the laptop headless** needs `--use-angle=metal --enable-gpu
   --ignore-gpu-blocklist`: without a GPU, Chrome draws WebGL on the CPU at a
   few fps, fades crawl and gestures go missing, which looks like bugs that

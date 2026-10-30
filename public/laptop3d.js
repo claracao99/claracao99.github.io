@@ -172,7 +172,7 @@ export function mountLaptop(canvas, { onReady } = {}) {
   }
 
   // The camera distance at which a w × h face fills `fill` of the frame.
-  // With CSS --lid (px), the face is that wide whatever the canvas: a fixed
+  // With CSS --lid (px), the face is that wide whatever the canvas: a set
   // size on a full-window canvas, so its soft shadow never meets an edge.
   function fit(w, h, fill) {
     const v = THREE.MathUtils.degToRad(camera.fov) / 2;

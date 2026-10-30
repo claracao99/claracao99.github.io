@@ -644,7 +644,7 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
 
 .about__stage {
   /* the whole window, so the laptop's shadow fades out with no edge; the
-     laptop itself is a fixed size (--lid) */
+     laptop itself is sized by --lid, not by the window */
   position: fixed;
   inset: 0;
   z-index: 0;
