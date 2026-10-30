@@ -34,6 +34,12 @@ The favicon is the pill in white on a black tile; the SVG is the source,
 rendered from it with `magick`. Decisions board: Figma Portfolio file, page
 "Favicon, tab name, description".
 
+Share links: link previews can't see past the `#`, so `/#work/<slug>` always
+previews the homepage. `public/activity/index.html` is a share page for
+Activity (`claracao.work/activity`): it carries the project's title,
+description and `assets/og/activity.jpg` (1200×627) and sends people on to
+`/#work/activity` with `location.replace`. Copy it for another project.
+
 ### The CV is never published
 
 `cv/` (source, build script, PDF) is gitignored and local only. Nothing on the
