@@ -149,7 +149,7 @@ const linkHTML = (s) => (!s.link ? '' : s.kind !== 'play'
   : `<a class="out" href="${s.url}" target="_blank" rel="noopener">${s.link}</a>`);
 const fields = {
   block: (s, i) => `<span class="b-count">${pad(i + 1)} / ${pad(ALL)}</span><span class="b-title">${s.title}</span><span class="b-summary">${bolt(s.summary)}</span>`
-    + `<span class="b-role">${bolt(s.role)}</span>${s.link ? `<span class="b-link">${linkHTML(s)}</span>` : ''}`,
+    + `<span class="b-role">${bolt(s.role)}</span>${s.link ? `<span class="b-link">${linkHTML(s)}</span>` : s.soon ? '<span class="b-link b-soon">Coming soon</span>' : ''}`,
 };
 const rows = Object.entries(fields).map(([key, make]) => {
   const el = $(`.work [data-field="${key}"]`);

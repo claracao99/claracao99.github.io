@@ -511,6 +511,18 @@ html:not(.is-ready) .work :is(.strip, .info, .index) {
   color: var(--grey);
 }
 
+/* No page yet: on touch the words say so where the link would be; with a
+   pointer the cursor says it over the object instead. */
+.b-soon {
+  color: var(--grey);
+}
+
+@media (hover: hover) {
+  .block .b-soon {
+    display: none;
+  }
+}
+
 .b-link a::after {
   content: ' →';
 }
@@ -909,10 +921,12 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
 
 /* The work's words roll in on first load and on the way back, with the
    project page's timing exactly: 760ms, 80ms + 60ms a line, top to bottom,
-   left column first (count 0, title to link 1–4), then the index (6 on). */
+   left column first (count 0, title to link 1–4), then the index (6 on).
+   Each line rises through its own window, About's roll-up: with the block's
+   mask alone, every line showed from the start and the column just drifted. */
 .work .info.is-returning .block > span > span,
 .work .index.is-returning button > span {
-  animation: roll-in 760ms var(--ease-io) both;
+  animation: roll-up 760ms var(--ease-io) both;
   animation-delay: 80ms;
 }
 
