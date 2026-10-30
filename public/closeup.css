@@ -753,7 +753,7 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
     top: calc(38svh + (58svh - var(--h)) / 2);
   }
 
-  /* Phones: 24 under the words (size() measures them), and never so low
+  /* Phones: 24 under the words' row (size() measures it), and never so low
      that the phone runs off the bottom. */
   .strip .phone {
     --h: min(54svh, calc(72vw * 3000 / 1462), calc(100svh - var(--words-bottom, 38svh) - 40px));
@@ -762,6 +762,12 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
 
   .strip .play {
     --H: 54svh;
+  }
+
+  /* Objects leave and arrive through a cut under the words' row, halfway
+     into the 24 above the phone, so a moving one never passes over them. */
+  .strip {
+    clip-path: inset(calc(var(--words-bottom, 38svh) + 12px) 0 0);
   }
 
   /* Name, words, links, then the laptop, then the CV lines. */

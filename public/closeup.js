@@ -192,10 +192,10 @@ function size() {
   const mid = cut + (innerHeight - cut) / 2 - Math.round((innerHeight - cut) * 0.04);
   root.style.setProperty('--info-top', `${Math.round(mid - H / 2)}px`);
   root.style.setProperty('--index-top', `${Math.round(mid - index.offsetHeight / 2)}px`);
-  // On a phone the phone starts just under the words of the wordiest phone
-  // project, so it sits as near the middle as the words allow.
-  const phoneWords = Math.max(...hs.filter((_, i) => STOPS[i].kind === 'phone'));
-  root.style.setProperty('--words-bottom', `${Math.round($('.info').getBoundingClientRect().top + phoneWords)}px`);
+  // On a phone the words and the objects keep to two bands: the words roll
+  // inside their row, as tall as the wordiest project, and the objects stay
+  // under it (the strip cuts there), so a moving one never crosses the words.
+  root.style.setProperty('--words-bottom', `${Math.round($('.info').getBoundingClientRect().top + H)}px`);
   at = -1;
 }
 
