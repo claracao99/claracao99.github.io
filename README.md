@@ -22,12 +22,12 @@ Node version is pinned in `.nvmrc` (24). Any Node ≥ 22.12 works locally.
 
 ## Structure
 
-- `public/` — the homepage, the static **Close-up** site, copied over from
-  `~/Projects-personal/laptop-scroll`. Edit it there, then copy the changed
-  files here. See [AGENTS.md](./AGENTS.md).
+- `public/` — the homepage, the static **Close-up** site. Edit it here.
+  See [AGENTS.md](./AGENTS.md).
 - `src/pages/404.astro` — the 404, the only page Astro builds. GitHub Pages
   serves it for every missing address.
-- `scripts/` — `grain-gradient.py`, which generates grainy background textures.
+- `scripts/` — `grain-gradient.py`, which generates grainy background textures,
+  and `laptop/`, which makes the About laptop's stickers and screen.
 
 ## Deployment
 

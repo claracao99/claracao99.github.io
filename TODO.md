@@ -10,8 +10,8 @@ State as of 2026-10-30.
       installed locally; everyone else gets Inter. Buy the web licence to ship
       it, or keep Inter.
 - [ ] **Play deep link (optional).** The 404's Play tab goes to `/#work`,
-      because the homepage has no `#play` route. Add one in laptop-scroll's
-      `closeup.js` if Play should open directly.
+      because the homepage has no `#play` route. Add one in
+      `public/closeup.js` if Play should open directly.
 
 ## Verified working (don't re-litigate)
 

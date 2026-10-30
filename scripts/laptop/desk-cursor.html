@@ -1,0 +1,230 @@
+<!doctype html>
+<!-- Source for the Cursor window on the About laptop (desk.html crops it). How Clara works. Cursor with the
+     iOS app open, Claude Code in its terminal making the change, and the
+     iOS Simulator running the result. Placeholder content, the Hockney pool
+     wallpaper behind. Captured at the 16" display's size by scripts/desk.mjs.
+     (The earlier Figma desktop is scripts/desk-figma.html.) -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1728px; height: 1117px; overflow: hidden; }
+  body {
+    font: 13px/1 -apple-system, 'SF Pro Text', system-ui, sans-serif;
+    background: url('inputs/screen.jpg') center / cover;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: 'SF Mono', Menlo, ui-monospace, monospace; }
+
+  /* The menu bar: translucent over the wallpaper. */
+  .menubar {
+    position: absolute; inset: 0 0 auto; height: 32px; padding: 0 14px 0 20px;
+    display: flex; align-items: center; gap: 22px; color: #fff;
+    background: rgb(20 40 70 / 0.18); backdrop-filter: blur(30px) saturate(1.4);
+    font-size: 13.5px; text-shadow: 0 0 6px rgb(0 0 0 / 0.15);
+  }
+  .menubar b { font-weight: 700; }
+  .menubar .right { margin-left: auto; display: flex; align-items: center; gap: 18px; }
+  .menubar svg { display: block; }
+
+  .win {
+    position: absolute; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.5), 0 30px 80px rgb(0 0 0 / 0.35), 0 8px 20px rgb(0 0 0 / 0.2);
+  }
+  .lights { display: flex; gap: 8px; }
+  .lights i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+
+  /* ── Cursor ── */
+  .cursor-app {
+    left: 56px; top: 58px; width: 1210px; height: 1012px; background: #181818; color: #cccccc;
+    display: grid; grid-template-rows: 38px 1fr 26px;
+  }
+  .titlebar { display: flex; align-items: center; padding: 0 14px; gap: 14px; background: #1f1f1f; border-bottom: 1px solid #2b2b2b; }
+  .titlebar .search { margin: 0 auto; width: 420px; height: 24px; border-radius: 6px; background: #2a2a2a; border: 1px solid #3a3a3a; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; color: #9d9d9d; }
+  .main { display: grid; grid-template-columns: 46px 232px 1fr; min-height: 0; }
+  .actbar { background: #181818; border-right: 1px solid #2b2b2b; display: flex; flex-direction: column; align-items: center; gap: 22px; padding-top: 14px; }
+  .actbar svg { width: 22px; height: 22px; }
+  .tree { background: #181818; border-right: 1px solid #2b2b2b; font-size: 12.5px; padding: 10px 0; }
+  .tree h5 { font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: #bbb; padding: 4px 18px 10px; }
+  .tree div { height: 22px; display: flex; align-items: center; gap: 6px; white-space: nowrap; color: #c5c5c5; }
+  .tree .sel { background: #37373d; color: #fff; }
+  .tree .m { color: #e2c08d; margin-left: auto; padding-right: 14px; font-size: 11px; }
+  .tree .sw { color: #e8834e; font-weight: 700; font-size: 10px; width: 12px; text-align: center; }
+  .work { display: grid; grid-template-rows: 35px 1fr 470px; min-height: 0; }
+  .tabs { display: flex; background: #181818; border-bottom: 1px solid #2b2b2b; font-size: 12.5px; }
+  .tabs div { padding: 0 16px; display: flex; align-items: center; gap: 7px; border-right: 1px solid #2b2b2b; color: #9d9d9d; }
+  .tabs .on { background: #1f1f1f; color: #fff; border-top: 1px solid #e8834e; }
+  .tabs .sw { color: #e8834e; font-weight: 700; font-size: 10px; }
+  .editor { background: #1f1f1f; font-size: 13px; line-height: 20px; padding: 10px 0; overflow: hidden; position: relative; }
+  .ln { display: grid; grid-template-columns: 52px 4px 1fr; white-space: pre; }
+  .ln > span:first-child { color: #6e7681; text-align: right; padding-right: 14px; }
+  .ln.add > span:nth-child(2) { background: #2ea043; }
+  .ln.add { background: rgb(46 160 67 / 0.12); }
+  .ln.cur { background: rgb(255 255 255 / 0.04); }
+  .ln > span:last-child { padding-left: 14px; }
+  .k { color: #c586c0; } .t { color: #4ec9b0; } .s { color: #ce9178; } .c { color: #6a9955; } .f { color: #dcdcaa; } .n { color: #b5cea8; } .p { color: #9cdcfe; } .d { color: #569cd6; }
+  .blame { color: #6e7681; font-style: italic; padding-left: 28px; }
+
+  /* the terminal panel, Claude Code running in it */
+  .panel { background: #181818; border-top: 1px solid #2b2b2b; display: grid; grid-template-rows: 32px 1fr; min-height: 0; }
+  .panel .ptabs { display: flex; align-items: center; gap: 22px; padding: 0 16px; font-size: 11px; letter-spacing: 0.04em; color: #8b8b8b; }
+  .panel .ptabs .on { color: #e7e7e7; border-bottom: 1px solid #e7e7e7; padding: 8px 0 7px; }
+  .panel .ptabs .shell { margin-left: auto; letter-spacing: 0; font-size: 12px; display: flex; align-items: center; gap: 6px; }
+  .cc { padding: 4px 18px 0; font-size: 12.5px; line-height: 19px; color: #d4d4d4; white-space: pre; overflow: hidden; }
+  .cc .u { color: #9b9b9b; }
+  .cc .dot { color: #e5e5e5; }
+  .cc .ok { color: #4ec98b; }
+  .cc .tool { color: #fff; font-weight: 600; }
+  .cc .dim { color: #7b7b7b; }
+  .cc .rm { background: rgb(248 81 73 / 0.22); color: #ffb3ad; }
+  .cc .ad { background: rgb(46 160 67 / 0.25); color: #aff5b4; }
+  .cc .star { color: #d97757; }
+  .cc .box { display: block; border: 1px solid #5a5a5a; border-radius: 6px; padding: 4px 10px; margin: 8px 0 4px; color: #e5e5e5; }
+  .cc .caret { display: inline-block; width: 8px; height: 15px; background: #d4d4d4; vertical-align: -3px; }
+  .cc .mode { color: #b392f0; }
+  .status { background: #181818; border-top: 1px solid #2b2b2b; display: flex; align-items: center; gap: 16px; padding: 0 12px; font-size: 11.5px; color: #9d9d9d; }
+  .status .br { color: #cccccc; }
+
+  /* ── iOS Simulator ── */
+  .sim { position: absolute; left: 1296px; top: 92px; width: 398px; }
+  .sim .bar { height: 30px; display: flex; align-items: center; gap: 10px; padding: 0 2px 0 4px; color: #fff; font-size: 12px; text-shadow: 0 1px 3px rgb(0 0 0 / 0.35); }
+  .sim .bar b { font-weight: 600; }
+  .sim .bar small { opacity: 0.8; font-size: 11px; }
+  .sim .bar .icons { margin-left: auto; display: flex; gap: 12px; opacity: 0.9; }
+  .device {
+    position: relative; width: 398px; height: 852px; border-radius: 62px; padding: 12px;
+    background: #1b1b1d;
+    box-shadow: inset 0 0 0 2px #3a3a3c, 0 0 0 1px #0b0b0c, 0 30px 70px rgb(0 0 0 / 0.4);
+  }
+  .device img { display: block; width: 374px; height: 828px; border-radius: 51px; object-fit: cover; object-position: top; }
+  .device .island { position: absolute; left: 50%; top: 23px; width: 112px; height: 33px; translate: -50% 0; border-radius: 20px; background: #000; }
+
+  .pointer { position: absolute; }
+</style>
+</head>
+<body>
+  <div class="menubar">
+    <svg width="15" height="17" viewBox="0 0 15 17"><circle cx="7.5" cy="9.5" r="6.2" fill="#fff"/></svg>
+    <b>Cursor</b><span>File</span><span>Edit</span><span>Selection</span><span>View</span><span>Go</span><span>Run</span><span>Terminal</span><span>Window</span><span>Help</span>
+    <div class="right">
+      <svg width="24" height="12" viewBox="0 0 24 12"><rect x=".5" y=".5" width="20" height="11" rx="3" fill="none" stroke="#fff" opacity=".9"/><rect x="2.5" y="2.5" width="7" height="7" rx="1.5" fill="#fff"/><rect x="21.5" y="4" width="1.6" height="4" rx=".8" fill="#fff" opacity=".9"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 11.5 1 4a10.6 10.6 0 0 1 15 0z" fill="#fff"/></svg>
+      <svg width="15" height="15" viewBox="0 0 15 15"><circle cx="6.3" cy="6.3" r="4.8" fill="none" stroke="#fff" stroke-width="1.6"/><path d="m10 10 4 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span>Tue 27 Oct&nbsp;&nbsp;16:58</span>
+    </div>
+  </div>
+
+  <!-- Cursor, on the iOS app -->
+  <div class="win cursor-app">
+    <div class="titlebar">
+      <div class="lights"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+      <div class="search"><svg width="12" height="12" viewBox="0 0 12 12"><circle cx="5" cy="5" r="3.8" fill="none" stroke="#9d9d9d" stroke-width="1.3"/><path d="m8 8 3 3" stroke="#9d9d9d" stroke-width="1.3"/></svg>rider-ios</div>
+    </div>
+    <div class="main">
+      <div class="actbar">
+        <svg viewBox="0 0 24 24"><path d="M4 3h9l5 5v13H4z M13 3v5h5" fill="none" stroke="#d7d7d7" stroke-width="1.5"/></svg>
+        <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6" fill="none" stroke="#858585" stroke-width="1.5"/><path d="m15 15 5 5" stroke="#858585" stroke-width="1.5"/></svg>
+        <svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.3" fill="none" stroke="#858585" stroke-width="1.5"/><circle cx="6" cy="18" r="2.3" fill="none" stroke="#858585" stroke-width="1.5"/><circle cx="18" cy="9" r="2.3" fill="none" stroke="#858585" stroke-width="1.5"/><path d="M6 8.3v7.4M18 11.3c0 4-6 3-12 4.4" fill="none" stroke="#858585" stroke-width="1.5"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M5 4l14 8-14 8z" fill="none" stroke="#858585" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="tree mono">
+        <h5 style="font-family:-apple-system,system-ui">EXPLORER</h5>
+        <div style="padding-left:10px">⌄ RIDER-IOS</div>
+        <div style="padding-left:20px">› App</div>
+        <div style="padding-left:20px">⌄ Features</div>
+        <div style="padding-left:32px">⌄ Activity</div>
+        <div style="padding-left:44px"><span class="sw">S</span>ActivityView.swift</div>
+        <div style="padding-left:44px"><span class="sw">S</span>ActivityRow.swift</div>
+        <div class="sel" style="padding-left:44px"><span class="sw">S</span>FeaturedRideCard.swift<span class="m">M</span></div>
+        <div style="padding-left:44px"><span class="sw">S</span>FilterSheet.swift</div>
+        <div style="padding-left:44px"><span class="sw">S</span>ActivityStates.swift<span class="m" style="color:#73c991">412</span></div>
+        <div style="padding-left:32px">› SearchBar</div>
+        <div style="padding-left:32px">› RouteAnimation</div>
+        <div style="padding-left:20px">› Clay</div>
+        <div style="padding-left:20px">› Resources</div>
+        <div style="padding-left:20px">› Tests</div>
+        <div style="padding-left:24px;color:#8b8b8b">CLAUDE.md</div>
+        <div style="padding-left:24px;color:#8b8b8b">README.md</div>
+      </div>
+      <div class="work">
+        <div class="tabs mono">
+          <div><span class="sw">S</span>ActivityView.swift</div>
+          <div class="on"><span class="sw">S</span>FeaturedRideCard.swift&nbsp;●</div>
+          <div style="color:#8b8b8b">CLAUDE.md</div>
+        </div>
+        <div class="editor mono">
+          <div class="ln"><span>1</span><span></span><span><span class="k">import</span> SwiftUI</span></div>
+          <div class="ln"><span>2</span><span></span><span><span class="k">import</span> Clay</span></div>
+          <div class="ln"><span>3</span><span></span><span></span></div>
+          <div class="ln"><span>4</span><span></span><span><span class="c">/// The latest ride, on top. The one riders actually open Activity for.</span></span></div>
+          <div class="ln"><span>5</span><span></span><span><span class="k">struct</span> <span class="t">FeaturedRideCard</span>: <span class="t">View</span> {</span></div>
+          <div class="ln"><span>6</span><span></span><span>    <span class="k">let</span> <span class="p">ride</span>: <span class="t">Ride</span></span></div>
+          <div class="ln"><span>7</span><span></span><span>    <span class="k">var</span> <span class="p">onRate</span>: () -> <span class="t">Void</span></span></div>
+          <div class="ln"><span>8</span><span></span><span>    <span class="k">var</span> <span class="p">onRebook</span>: () -> <span class="t">Void</span></span></div>
+          <div class="ln"><span>9</span><span></span><span>    <span class="c">// TODO(clara): remove before the Friday demo. (It has survived 3 Fridays.)</span></span></div>
+          <div class="ln"><span>10</span><span></span><span>    <span class="k">var</span> <span class="p">body</span>: <span class="k">some</span> <span class="t">View</span> {</span></div>
+          <div class="ln"><span>11</span><span></span><span>        <span class="t">VStack</span>(alignment: .<span class="p">leading</span>, spacing: <span class="n">0</span>) {</span></div>
+          <div class="ln"><span>12</span><span></span><span>            <span class="t">RouteMap</span>(ride.<span class="p">route</span>)</span></div>
+          <div class="ln"><span>13</span><span></span><span>                .<span class="f">frame</span>(height: <span class="n">140</span>)</span></div>
+          <div class="ln"><span>14</span><span></span><span>                .<span class="f">overlay</span>(alignment: .<span class="p">topLeading</span>) {</span></div>
+          <div class="ln"><span>15</span><span></span><span>                    <span class="t">Badge</span>(<span class="s">"\(ride.distance) · \(ride.duration)"</span>).<span class="f">padding</span>(<span class="n">12</span>)</span></div>
+          <div class="ln"><span>16</span><span></span><span>                }</span></div>
+          <div class="ln"><span>17</span><span></span><span>            <span class="t">RideRow</span>(ride: ride)</span></div>
+          <div class="ln"><span>18</span><span></span><span>            <span class="t">HStack</span>(spacing: <span class="n">8</span>) {</span></div>
+          <div class="ln"><span>19</span><span></span><span>                <span class="t">ClayButton</span>(<span class="s">"Add rating"</span>, style: .<span class="p">secondary</span>, size: .<span class="p">small</span>, action: onRate)</span></div>
+          <div class="ln add cur"><span>20</span><span></span><span>                <span class="t">ClayButton</span>(<span class="s">"Rebook"</span>, style: .<span class="p">secondary</span>, size: .<span class="p">small</span>, action: onRebook)<span class="blame">Claude · just now</span></span></div>
+          <div class="ln add"><span>21</span><span></span><span>                    .<span class="f">accessibilityHint</span>(<span class="s">"Books this ride again. Under 1% of you do."</span>)</span></div>
+          <div class="ln"><span>22</span><span></span><span>            }</span></div>
+          <div class="ln"><span>23</span><span></span><span>            .<span class="f">padding</span>(.<span class="p">leading</span>, <span class="n">68</span>).<span class="f">padding</span>(.<span class="p">bottom</span>, <span class="n">16</span>)</span></div>
+          <div class="ln"><span>24</span><span></span><span>        }</span></div>
+          <div class="ln"><span>25</span><span></span><span>        .<span class="f">background</span>(.<span class="p">layerFloor2</span>, in: .<span class="f">rect</span>(cornerRadius: <span class="n">16</span>))</span></div>
+          <div class="ln"><span>26</span><span></span><span>    }</span></div>
+          <div class="ln"><span>27</span><span></span><span>}</span></div>
+        </div>
+        <div class="panel">
+          <div class="ptabs"><span>PROBLEMS</span><span>OUTPUT</span><span class="on">TERMINAL</span><span>PORTS</span>
+            <span class="shell"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 3l3 3-3 3M6 9h4" fill="none" stroke="#8b8b8b" stroke-width="1.3"/></svg>claude</span></div>
+<div class="cc mono"><span class="u">&gt; the Rebook button on the featured card is shouting. make it whisper, then run it in the sim</span>
+
+<span class="dot">⏺</span> On it. Rebook is a primary button next to a secondary one, so it wins every argument.
+
+<span class="dot">⏺</span> <span class="tool">Update</span>(Features/Activity/FeaturedRideCard.swift)
+  <span class="dim">⎿</span>  Updated <span class="tool">FeaturedRideCard.swift</span> with 2 additions and 1 removal
+      <span class="rm"> 20 -   ClayButton("Rebook", style: .primary, size: .small, action: onRebook)          </span>
+      <span class="ad"> 20 +   ClayButton("Rebook", style: .secondary, size: .small, action: onRebook)        </span>
+      <span class="ad"> 21 +       .accessibilityHint("Books this ride again. Under 1% of you do.")           </span>
+
+<span class="dot">⏺</span> <span class="tool">Bash</span>(xcodebuild -scheme Rider -destination 'name=iPhone 17 Pro' build &amp;&amp; xcrun simctl launch booted eu.bolt.rider)
+  <span class="dim">⎿</span>  <span class="ok">** BUILD SUCCEEDED **</span> <span class="dim">(38.4s, 0 warnings, 1 existential crisis)</span>
+
+<span class="dot">⏺</span> Done. Rebook is now the same grey pill as Add rating: same size, inside voice.
+  It's running in the simulator. Want the map's badge to stop overlapping Camden next?
+<span class="box"><span class="u">&gt;</span> yes, and why is it 4:58 on a Tuesday and I'm still in ActivityStates.swift<span class="caret"></span></span>  <span class="mode">⏵⏵ accept edits on</span> <span class="dim">(shift+tab to cycle)</span>                                    <span class="star">✻</span> <span class="dim">Context left: 61%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="status mono">
+      <span class="br">⎇ clara/activity-rebook-whisper*</span><span>⟳ 0↓ 3↑</span><span>⊗ 0 ⚠ 2</span>
+      <span style="margin-left:auto">Ln 20, Col 61</span><span>Spaces: 4</span><span>UTF-8</span><span>Swift</span>
+    </div>
+  </div>
+
+  <!-- iOS Simulator, running it -->
+  <div class="sim">
+    <div class="bar">
+      <b>iPhone 17 Pro</b><small>iOS 26.1</small>
+      <span class="icons">
+        <svg width="14" height="14" viewBox="0 0 14 14"><path d="M7 1v8M3.5 5.5 7 9l3.5-3.5M2 12h10" fill="none" stroke="#fff" stroke-width="1.4"/></svg>
+        <svg width="14" height="14" viewBox="0 0 14 14"><rect x="1.5" y="3" width="11" height="8" rx="1.5" fill="none" stroke="#fff" stroke-width="1.4"/><circle cx="7" cy="7" r="1.8" fill="#fff"/></svg>
+        <svg width="14" height="14" viewBox="0 0 14 14"><path d="M2 10.5V12h1.5L11 4.5 9.5 3z" fill="none" stroke="#fff" stroke-width="1.4"/></svg>
+      </span>
+    </div>
+    <div class="device"><img src="inputs/desk-sim.png" alt=""><span class="island"></span></div>
+  </div>
+
+  <!-- the pointer, about to tap Rebook in the simulator -->
+  <svg class="pointer" style="left:1552px;top:546px" width="24" height="24" viewBox="0 0 22 22"><path d="M3 2l15 8-6.5 1.6L8.5 18z" fill="#000" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>
+</body>
+</html>

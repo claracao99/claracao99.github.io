@@ -13,11 +13,34 @@ in dev and 404 in production.
 `/` is the static **Close-up** site: `public/index.html`, `closeup*.js/css`,
 `filter-demo.*`, `laptop3d.js`, `studio.js`, `play-lamp.js`, `assets/`
 (media in `assets/closeup/`, fonts in `assets/fonts/`) and `vendor/three/`.
-Its source is `~/Projects-personal/laptop-scroll` (`closeup.html` →
-`public/index.html`, with the favicon, OG meta and GoatCounter added): change
-it there, copy the changed files over unchanged, build, push. Project copy
-lives in `closeup-content.js`. Navigation is by hash (`#work`,
-`#work/<slug>`, `#about`); there is no `#play` deep link.
+Edit it here: `public/` is the only source (the old `laptop-scroll` prototype
+it grew from was retired on 2026-10-30). Project copy lives in
+`closeup-content.js`; a project with `sections` has a page, one without is
+"Coming soon". Navigation is by hash (`#work`, `#work/<slug>`, `#about`);
+there is no `#play` deep link.
+
+The laptop's assets are made by `scripts/laptop/` (stickers from Figma, their
+layout on the lid, the screen image); see its README.
+
+Close-up gotchas:
+
+- **Stops are runway sections, not window heights.** `stopH()` is a section's
+  height (100svh), the unit of the snap points. On a phone `innerHeight` grows
+  when the address bar hides; measuring stops in it left the last project
+  peeking in.
+- **Before/after has dark twins.** Each `compare` image has a `-dark.webp`
+  beside it: the same screen in `device-dark.webp`, swapped by theme. The
+  screen sits at (66, 54), 1329×2891 of the 1462×3000 frame, radius
+  15.43% / 7.09%, the same numbers as `.phone .screen`.
+- **Theme switches in one step:** `data-theme` flips inside one 280ms view
+  transition with element transitions off (`.theme-switching`).
+- **The phone clips** are rendered, not filmed: `node
+  scripts/render-activity-clips.mjs …` in `~/Projects-work/clara-rider-playground`
+  (dev server up), output to `~/Downloads/portfolio-clips/`.
+- **Testing the laptop headless** needs `--use-angle=metal --enable-gpu
+  --ignore-gpu-blocklist`: without a GPU, Chrome draws WebGL on the CPU at a
+  few fps, fades crawl and gestures go missing, which looks like bugs that
+  aren't there.
 
 Astro builds one page, the 404 (`src/pages/404.astro`). It is standalone: it
 links `/closeup.css` (absolute, so deep URLs get the styles), copies the

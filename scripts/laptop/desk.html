@@ -1,0 +1,70 @@
+<!doctype html>
+<!-- What the About laptop's screen shows: how Clara works, two windows deep.
+     Cursor at the back with Claude Code in its terminal editing the iOS app,
+     and Figma in front. The Figma and Cursor windows are cropped from
+     desk-figma.html and desk-cursor.html. Captured at the 16" display's size
+     by scripts/desk.mjs. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1728px; height: 1117px; overflow: hidden; }
+  body {
+    font: 13px/1 -apple-system, 'SF Pro Text', system-ui, sans-serif;
+    background: url('inputs/screen.jpg') center / cover;
+    position: relative;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .menubar {
+    /* as tall as the notch, as on a notched MacBook, and in from the edges:
+       the lid's bezel crops the screen image's outer few pixels */
+    position: absolute; inset: 0 0 auto; height: 50px; padding: 10px 44px 0 40px; z-index: 9;
+    display: flex; align-items: center; gap: 22px; color: #fff;
+    background: rgb(20 40 70 / 0.18); backdrop-filter: blur(30px) saturate(1.4);
+    font-size: 13.5px; text-shadow: 0 0 6px rgb(0 0 0 / 0.15);
+  }
+  .menubar b { font-weight: 700; }
+  .menubar .right { margin-left: auto; display: flex; align-items: center; gap: 18px; }
+  .menubar svg { display: block; }
+
+  /* A window cut out of its source page: the page drawn at `--k`, shifted so
+     the window's corner sits at this box's corner. */
+  .crop {
+    position: absolute; overflow: hidden; border-radius: 11px;
+    box-shadow: 0 0 0 0.5px rgb(0 0 0 / 0.45), 0 26px 70px rgb(0 0 0 / 0.32), 0 6px 18px rgb(0 0 0 / 0.18);
+  }
+  .crop iframe {
+    position: absolute; left: 0; top: 0; width: 1728px; height: 1117px; border: 0;
+    transform-origin: 0 0;
+    transform: scale(var(--k)) translate(calc(var(--x) * -1px), calc(var(--y) * -1px));
+  }
+  /* Figma: its window is 1490 × 960 at (120, 70) in desk-figma.html */
+  .figma { left: 48px; top: 76px; width: calc(1490px * 0.76); height: calc(960px * 0.76); --k: 0.76; --x: 120; --y: 70; }
+  /* Cursor: 1210 × 1012 at (56, 58) in desk-cursor.html */
+  .cursor { left: 560px; top: 176px; width: calc(1210px * 0.9); height: calc(1012px * 0.9); --k: 0.9; --x: 56; --y: 58; }
+
+
+  .pointer { position: absolute; z-index: 10; }
+</style>
+</head>
+<body>
+  <div class="menubar">
+    <svg width="15" height="17" viewBox="0 0 15 17"><circle cx="7.5" cy="9.5" r="6.2" fill="#fff"/></svg>
+    <b>Figma</b><span>File</span><span>Edit</span><span>View</span><span>Object</span><span>Text</span><span>Arrange</span><span>Window</span><span>Help</span>
+    <div class="right">
+      <svg width="24" height="12" viewBox="0 0 24 12"><rect x=".5" y=".5" width="20" height="11" rx="3" fill="none" stroke="#fff" opacity=".9"/><rect x="2.5" y="2.5" width="7" height="7" rx="1.5" fill="#fff"/><rect x="21.5" y="4" width="1.6" height="4" rx=".8" fill="#fff" opacity=".9"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 11.5 1 4a10.6 10.6 0 0 1 15 0z" fill="#fff"/></svg>
+      <svg width="15" height="15" viewBox="0 0 15 15"><circle cx="6.3" cy="6.3" r="4.8" fill="none" stroke="#fff" stroke-width="1.6"/><path d="m10 10 4 4" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <span>Tue 27 Oct&nbsp;&nbsp;16:58</span>
+    </div>
+  </div>
+
+  <div class="crop cursor"><iframe src="desk-cursor.html" scrolling="no"></iframe></div>
+  <div class="crop figma"><iframe src="desk-figma.html" scrolling="no"></iframe></div>
+
+
+
+</body>
+</html>
