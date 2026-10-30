@@ -17,10 +17,13 @@ import { mount as mountLamp, FLOOR_LAMP } from './play-lamp.js';
 const EMAIL = 'claracao99@gmail.com';
 // Work shows only the year, the end year of a range: "Dec 2025 – Aug 2026" → "2026".
 const years = (when) => (when.match(/\d{4}/g) ?? [when]).pop();
+// A project has a page when it has sections: the content decides, no flag to
+// forget. The link on Work, #work/<slug> and Next all ask this.
+const hasPage = (p) => (p.sections?.length ?? 0) > 0;
 const STOPS = [
   // Work's meta line is the project page's facts, in the same order (Role,
   // Company, When), so the two never disagree; When shortens to its year(s).
-  ...PROJECTS.map((p) => ({ ...p, role: p.facts.map(([k, v]) => (k === 'When' ? years(v) : v)).join(', '), kind: p.kind ?? 'phone', link: p.soon ? null : p.kind === 'display' ? 'Watch video' : 'View project' })),
+  ...PROJECTS.map((p) => ({ ...p, soon: !hasPage(p), role: p.facts.map(([k, v]) => (k === 'When' ? years(v) : v)).join(', '), kind: p.kind ?? 'phone', link: hasPage(p) ? (p.kind === 'display' ? 'Watch video' : 'View project') : null })),
   ...PLAY.map((p) => ({ ...p, kind: 'play', link: p.url && !p.soon ? 'Open project' : null })),
 ];
 const WORK = PROJECTS.length;
@@ -289,9 +292,12 @@ function media(m) {
 const chapters = (list) => list.map(([t, name]) => `<li><button type="button" data-t="${t}"><span>${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}</span>${name}</button></li>`).join('');
 
 function caseHTML(p, i) {
-  // Next skips the projects with no page yet.
-  const pages = PROJECTS.filter((q) => !q.soon);
+  // Next: the following project with a page, in PROJECTS order, wrapping
+  // round to the first; none when this is the only page.
+  const pages = PROJECTS.filter(hasPage);
   const after = pages[(pages.indexOf(p) + 1) % pages.length];
+  const next = after && after !== p
+    ? `<nav class="cp__next" aria-label="Next project"><span class="g">Next</span><a href="#work/${after.slug}">${after.title}</a></nav>` : '';
   const kind = p.kind ?? 'phone';
   const blocks = p.sections.map((s) => {
     if (s.media) return `<figure class="cp__media${s.media.bleed ? ' is-bleed' : ' is-single'}">${media(s.media)}<figcaption>${s.media.alt}</figcaption></figure>`;
@@ -363,7 +369,7 @@ function caseHTML(p, i) {
       <nav class="cp__index" aria-label="On this page"><ol>${index}</ol></nav>
       <div class="cp__main">
         ${blocks}
-        <nav class="cp__next" aria-label="Next project"><span class="g">Next</span><a href="#work/${after.slug}">${after.title}</a></nav>
+        ${next}
       </div>
     </div>`;
 }
@@ -450,7 +456,7 @@ addEventListener('click', (e) => {
 
 function openCase(slug) {
   const i = PROJECTS.findIndex((p) => p.slug === slug);
-  if (i < 0 || PROJECTS[i].soon) return show('work');
+  if (i < 0 || !hasPage(PROJECTS[i])) return show('work');
   const p = PROJECTS[i];
   // Coming from the work, the object is shared: note where it stands.
   const from = body.dataset.view === 'work' && here() === i ? objects[i].getBoundingClientRect() : null;

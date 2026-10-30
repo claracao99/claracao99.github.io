@@ -2,8 +2,11 @@
 // Order is by strength: the one with the clearest result first. Airport
 // pickup is second though its page is still to come; Airport drop-off waits
 // for its write-up. The video plays on a Studio Display.
-// `soon`: on the work with no project page, or in Play with no site yet (no
-// link, the cursor says "Coming soon"); `still`: the screen is the poster alone, no clip.
+// A project has a page when its `sections` has anything in it; with none it
+// is "Coming soon" on Work (no link, no page, left out of Next). Filling in
+// the sections is all it takes to publish one: nothing else to switch.
+// `soon`: in Play only, a side project with no site yet; `still`: the screen
+// is the poster alone, no clip.
 
 const M = 'assets/closeup/media/';
 
@@ -74,10 +77,8 @@ export const PROJECTS = [
     ],
   },
   {
-    // Coming soon: a still of the playground's "Airport pickup — London, map
-    // first" Home, and no project page yet.
+    // A still of the playground's "Airport pickup — London, map first" Home.
     slug: 'airport-pickup',
-    soon: true,
     still: true,
     title: 'Airport pickup',
     tagline: 'From arrivals to the car',
