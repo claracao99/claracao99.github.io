@@ -1,7 +1,7 @@
 // The projects, from the portfolio's write-ups (portfolio/src/content/work).
-// Order is by strength: the one with the clearest result first (Airport
-// pickup second, though its page is still to come). Airport
-// drop-off waits for its write-up. The video plays on a Studio Display.
+// Order is by strength: the one with the clearest result first. Airport
+// pickup is second though its page is still to come; Airport drop-off waits
+// for its write-up. The video plays on a Studio Display.
 // `soon`: on the work with no project page (no link, the cursor says "Coming
 // soon"); `still`: the screen is the poster alone, no clip.
 
