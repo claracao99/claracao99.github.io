@@ -1,6 +1,8 @@
 // The projects, from the portfolio's write-ups (portfolio/src/content/work).
 // Order is by strength: the one with the clearest result first. Airport
 // drop-off waits for its write-up. The video plays on a Studio Display.
+// `soon`: on the work with no project page (no link, the cursor says "Coming
+// soon"); `still`: the screen is the poster alone, no clip.
 
 const M = 'assets/closeup/media/';
 
@@ -136,6 +138,21 @@ export const PROJECTS = [
         ],
       } },
     ],
+  },
+  {
+    // Coming soon: a still of the playground's "Airport pickup — London, map
+    // first" Home, and no project page yet.
+    slug: 'airport-pickup',
+    soon: true,
+    still: true,
+    title: 'Airport pickup',
+    tagline: 'From arrivals to the car',
+    summary: 'Finding your driver at the airport: a map and photos of every step, from arrivals to the pickup point.',
+    role: 'Lead designer, Bolt, 2026',
+    clip: 'assets/closeup/airport-pickup',
+    facts: [['Role', 'Lead designer'], ['Company', 'Bolt'], ['When', 'Aug 2026']],
+    figure: null,
+    sections: [],
   },
 ];
 

@@ -281,6 +281,11 @@ button {
   cursor: pointer;
 }
 
+/* No project page yet: nothing to click. */
+.strip .phone.is-soon {
+  cursor: default;
+}
+
 .phone img.device,
 .phone .screen,
 .phone .island {

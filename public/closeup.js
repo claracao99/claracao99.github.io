@@ -19,7 +19,7 @@ const years = (when) => (when.match(/\d{4}/g) ?? [when]).pop();
 const STOPS = [
   // Work's meta line is the project page's facts, in the same order (Role,
   // Company, When), so the two never disagree; When shortens to its year(s).
-  ...PROJECTS.map((p) => ({ ...p, role: p.facts.map(([k, v]) => (k === 'When' ? years(v) : v)).join(', '), kind: p.kind ?? 'phone', link: p.kind === 'display' ? 'Watch the video' : 'View project' })),
+  ...PROJECTS.map((p) => ({ ...p, role: p.facts.map(([k, v]) => (k === 'When' ? years(v) : v)).join(', '), kind: p.kind ?? 'phone', link: p.soon ? null : p.kind === 'display' ? 'Watch the video' : 'View project' })),
   ...PLAY.map((p) => ({ ...p, kind: 'play', link: p.url ? 'Open' : null })),
 ];
 const WORK = PROJECTS.length;
@@ -58,13 +58,16 @@ const objectHTML = (s, opts) => (s.kind === 'display' ? displayHTML(s.clip, { ..
 const strip = $('.strip');
 const runway = $('.runway');
 const objects = STOPS.map((s, i) => {
-  const el = document.createElement(s.kind !== 'play' ? 'a' : 'div');
-  el.className = `object ${s.kind}`;
-  if (s.kind !== 'play') {
+  const el = document.createElement(s.kind !== 'play' && !s.soon ? 'a' : 'div');
+  el.className = `object ${s.kind}${s.soon ? ' is-soon' : ''}`;
+  if (s.soon) {
+    // No page yet: nothing to open, only the cursor's "Coming soon".
+    el.innerHTML = `<span class="lean">${objectHTML(s, { still: s.still })}</span>`;
+  } else if (s.kind !== 'play') {
     el.href = `#work/${s.slug}`;
     el.tabIndex = -1;
     el.setAttribute('aria-label', `Open ${s.title}`);
-    el.innerHTML = `<span class="lean">${objectHTML(s)}</span>`;
+    el.innerHTML = `<span class="lean">${objectHTML(s, { still: s.still })}</span>`;
   } else {
     el.style.setProperty('--r', s.ratio);
     el.style.setProperty('--s', s.scale);
@@ -242,7 +245,9 @@ function media(m) {
 const chapters = (list) => list.map(([t, name]) => `<li><button type="button" data-t="${t}"><span>${Math.floor(t / 60)}:${String(t % 60).padStart(2, '0')}</span>${name}</button></li>`).join('');
 
 function caseHTML(p, i) {
-  const after = PROJECTS[(i + 1) % PROJECTS.length];
+  // Next skips the projects with no page yet.
+  const pages = PROJECTS.filter((q) => !q.soon);
+  const after = pages[(pages.indexOf(p) + 1) % pages.length];
   const kind = p.kind ?? 'phone';
   const blocks = p.sections.map((s) => {
     if (s.media) return `<figure class="cp__media${s.media.bleed ? ' is-bleed' : ' is-single'}">${media(s.media)}<figcaption>${s.media.alt}</figcaption></figure>`;
@@ -378,7 +383,7 @@ if (matchMedia('(hover: hover)').matches) {
     // Over the About laptop it says how to turn it; not while it's held.
     const lap = body.dataset.view === 'about' && e.pointerType === 'mouse' && e.target === canvas && !canvas.dataset.drag;
     if (obj || lap) {
-      cursorLabel.textContent = lap ? 'Drag to turn around' : obj.classList.contains('display') ? 'Watch the video' : 'View project';
+      cursorLabel.textContent = lap ? 'Drag to turn around' : obj.classList.contains('is-soon') ? 'Coming soon' : obj.classList.contains('display') ? 'Watch the video' : 'View project';
       if (!cursorLabel.hasAttribute('data-on')) { lx = e.clientX + 16; ly = e.clientY + 16; }
       cursorLabel.setAttribute('data-on', '');
     } else cursorLabel.removeAttribute('data-on');
@@ -401,7 +406,7 @@ addEventListener('click', (e) => {
 
 function openCase(slug) {
   const i = PROJECTS.findIndex((p) => p.slug === slug);
-  if (i < 0) return show('work');
+  if (i < 0 || PROJECTS[i].soon) return show('work');
   const p = PROJECTS[i];
   // Coming from the work, the object is shared: note where it stands.
   const from = body.dataset.view === 'work' && here() === i ? objects[i].getBoundingClientRect() : null;
