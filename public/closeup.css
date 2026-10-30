@@ -514,7 +514,7 @@ html:not(.is-ready) .work :is(.strip, .info, .index) {
 /* No page yet: on touch the words say so where the link would be; with a
    pointer the cursor says it over the object instead. */
 .b-soon {
-  color: var(--grey);
+  color: var(--ink); /* like the links it stands in for */
 }
 
 @media (hover: hover) {
