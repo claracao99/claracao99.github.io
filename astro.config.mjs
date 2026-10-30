@@ -13,9 +13,4 @@ export default defineConfig({
   // Off: during the theme switch the glass pills' own layers paint over it,
   // and its bar sits in a shadow root the site's CSS can't lift.
   devToolbar: { enabled: false },
-  // Routes from the previous structure. Work now lives on the landing page, so
-  // old links still land.
-  redirects: {
-    '/work/': '/',
-  },
 });
