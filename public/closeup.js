@@ -20,8 +20,8 @@ const years = (when) => (when.match(/\d{4}/g) ?? [when]).pop();
 const STOPS = [
   // Work's meta line is the project page's facts, in the same order (Role,
   // Company, When), so the two never disagree; When shortens to its year(s).
-  ...PROJECTS.map((p) => ({ ...p, role: p.facts.map(([k, v]) => (k === 'When' ? years(v) : v)).join(', '), kind: p.kind ?? 'phone', link: p.soon ? null : p.kind === 'display' ? 'Watch the video' : 'View project' })),
-  ...PLAY.map((p) => ({ ...p, kind: 'play', link: p.url && !p.soon ? 'Open' : null })),
+  ...PROJECTS.map((p) => ({ ...p, role: p.facts.map(([k, v]) => (k === 'When' ? years(v) : v)).join(', '), kind: p.kind ?? 'phone', link: p.soon ? null : p.kind === 'display' ? 'Watch video' : 'View project' })),
+  ...PLAY.map((p) => ({ ...p, kind: 'play', link: p.url && !p.soon ? 'Open project' : null })),
 ];
 const WORK = PROJECTS.length;
 const ALL = STOPS.length; // Play counts too: 01–06
@@ -427,7 +427,7 @@ if (matchMedia('(hover: hover)').matches) {
     // Over the About laptop it says how to turn it; not while it's held.
     const lap = body.dataset.view === 'about' && e.pointerType === 'mouse' && e.target === canvas && !canvas.dataset.drag;
     if (obj || lap) {
-      cursorLabel.textContent = lap ? 'Drag to turn around' : obj.classList.contains('is-soon') ? 'Coming soon' : obj.classList.contains('play') ? 'Open project' : obj.classList.contains('display') ? 'Watch the video' : 'View project';
+      cursorLabel.textContent = lap ? 'Drag to turn around' : obj.classList.contains('is-soon') ? 'Coming soon' : obj.classList.contains('play') ? 'Open project' : obj.classList.contains('display') ? 'Watch video' : 'View project';
       if (!cursorLabel.hasAttribute('data-on')) { lx = e.clientX + 16; ly = e.clientY + 16; }
       cursorLabel.setAttribute('data-on', '');
     } else cursorLabel.removeAttribute('data-on');
@@ -441,11 +441,11 @@ if (matchMedia('(hover: hover)').matches) {
 // The home row's phone leans too, gently, while the work is showing.
 lean(() => (body.dataset.view === 'work' ? $('.lean', objects[Math.round(scrollY / stopH())] ?? document.body) : null), { reach: 1.1, px: 10, deg: 6 });
 
-// "Watch the video" (the cursor over the video, or the link) means play it.
+// "Watch video" (the cursor over the video, or the link) means play it.
 let watchNext = false, autoStart = null;
 addEventListener('click', (e) => {
   const a = e.target.closest?.('.strip .object.display, .work .b-link a');
-  watchNext = !!a && (a.classList.contains('display') || /Watch the video/.test(a.textContent));
+  watchNext = !!a && (a.classList.contains('display') || /Watch video/.test(a.textContent));
 }, true);
 
 function openCase(slug) {
@@ -490,7 +490,7 @@ function openCase(slug) {
     };
     $('.video__play', player).addEventListener('click', () => start());
     $$('[data-t]', player).forEach((b) => b.addEventListener('click', () => start(Number(b.dataset.t))));
-    // Opened by "Watch the video": it starts by itself once the page is in.
+    // Opened by "Watch video": it starts by itself once the page is in.
     // The click still counts as the gesture that allows sound; a browser that
     // won't allow it plays muted, with the controls there to unmute.
     if (watchNext) {
