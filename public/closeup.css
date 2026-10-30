@@ -1520,8 +1520,10 @@ body[data-nav-hidden] .bar {
   z-index: 8;
   padding: 6px 12px;
   border-radius: 2px;
-  background: var(--ink);
-  color: var(--bg);
+  /* Black in both themes: it sits on the object (a light phone screen, the
+     silver laptop), not on the page. */
+  background: #000;
+  color: #fff;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
@@ -1744,8 +1746,8 @@ body[data-nav-hidden] .bar {
 .cp__back > span {
   display: block;
   padding: 6px 12px;
-  background: var(--ink);
-  color: var(--bg);
+  background: #000; /* on the light screen, like the cursor label */
+  color: #fff;
 }
 
 .case.is-arriving .cp__back,
