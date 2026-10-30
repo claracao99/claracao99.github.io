@@ -351,6 +351,11 @@ button {
   display: block;
 }
 
+/* a side project with a site: the object opens it */
+.strip a.play {
+  cursor: pointer;
+}
+
 .info {
   position: fixed;
   left: var(--edge);
@@ -780,7 +785,7 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
 }
 
 /* Hovering the phone says what a click does. */
-.work:has(.strip .object:not(.play):hover) .block > span:not([inert]) .b-link a {
+.work:has(.strip :is(.object:not(.play), a.play):hover) .block > span:not([inert]) .b-link a {
   background-size: 100% 1px;
 }
 

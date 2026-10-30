@@ -164,9 +164,10 @@ export const PLAY = [
   {
     slug: 'character-house',
     title: 'Character House',
-    summary: 'A room of furniture made from Chinese characters. Pull the lamp’s 灯 cord.',
+    summary: 'Furniture made of Chinese characters. Pull the lamp’s 灯 cord.',
     role: 'Personal project, 2026',
     img: 'assets/closeup/lamp.png', ratio: 428 / 1708, scale: 0.86,
+    url: 'https://characterhouse.claracao.work/',
   },
   {
     slug: 'rest-in-pieces',

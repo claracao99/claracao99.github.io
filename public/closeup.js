@@ -58,7 +58,8 @@ const objectHTML = (s, opts) => (s.kind === 'display' ? displayHTML(s.clip, { ..
 const strip = $('.strip');
 const runway = $('.runway');
 const objects = STOPS.map((s, i) => {
-  const el = document.createElement(s.kind !== 'play' && !s.soon ? 'a' : 'div');
+  // Projects open their page; a side project with a site opens that, in a new tab.
+  const el = document.createElement((s.kind !== 'play' && !s.soon) || (s.kind === 'play' && s.url) ? 'a' : 'div');
   el.className = `object ${s.kind}${s.soon ? ' is-soon' : ''}`;
   if (s.soon) {
     // No page yet: nothing to open, only the cursor's "Coming soon".
@@ -71,6 +72,13 @@ const objects = STOPS.map((s, i) => {
   } else {
     el.style.setProperty('--r', s.ratio);
     el.style.setProperty('--s', s.scale);
+    if (s.url) {
+      el.href = s.url;
+      el.target = '_blank';
+      el.rel = 'noopener';
+      el.tabIndex = -1; // the link under the words is the one in the tab order
+      el.setAttribute('aria-label', `Open ${s.title}`);
+    }
     el.innerHTML = `<span class="lean"><img src="${s.img}" alt=""></span>`;
   }
   strip.append(el);
@@ -368,7 +376,7 @@ function miniParallax(el) {
   if (el) parallaxStop = lean(() => el, { reach: 1.6, px: 14, deg: 12 });
 }
 
-// Over a phone on the work, the cursor says what a click does.
+// Over a phone on the work (or a side project with a site), the cursor says what a click does.
 const cursorLabel = $('.cursor-label');
 if (matchMedia('(hover: hover)').matches) {
   let cx = 0, cy = 0, lx = 0, ly = 0, raf = 0;
@@ -379,11 +387,11 @@ if (matchMedia('(hover: hover)').matches) {
     raf = Math.abs(cx - lx) + Math.abs(cy - ly) > 0.2 ? requestAnimationFrame(follow) : 0;
   };
   addEventListener('pointermove', (e) => {
-    const obj = body.dataset.view === 'work' && e.pointerType === 'mouse' ? e.target.closest?.('.strip .object:not(.play)') : null;
+    const obj = body.dataset.view === 'work' && e.pointerType === 'mouse' ? e.target.closest?.('.strip .object:not(.play), .strip a.play') : null;
     // Over the About laptop it says how to turn it; not while it's held.
     const lap = body.dataset.view === 'about' && e.pointerType === 'mouse' && e.target === canvas && !canvas.dataset.drag;
     if (obj || lap) {
-      cursorLabel.textContent = lap ? 'Drag to turn around' : obj.classList.contains('is-soon') ? 'Coming soon' : obj.classList.contains('display') ? 'Watch the video' : 'View project';
+      cursorLabel.textContent = lap ? 'Drag to turn around' : obj.classList.contains('play') ? 'Open project' : obj.classList.contains('is-soon') ? 'Coming soon' : obj.classList.contains('display') ? 'Watch the video' : 'View project';
       if (!cursorLabel.hasAttribute('data-on')) { lx = e.clientX + 16; ly = e.clientY + 16; }
       cursorLabel.setAttribute('data-on', '');
     } else cursorLabel.removeAttribute('data-on');
