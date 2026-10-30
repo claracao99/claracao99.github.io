@@ -238,6 +238,9 @@ button {
 .runway section {
   height: 100svh;
   scroll-snap-align: start;
+  /* a hard flick still stops at the next project: without it, iOS momentum
+     carried past two or three */
+  scroll-snap-stop: always;
 }
 
 .links {
