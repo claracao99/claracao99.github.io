@@ -42,6 +42,11 @@ Close-up gotchas:
   (Firefox). A change to how anything moves goes in both places;
   `rollAt()`/`rate()` are shared. To check them against each other, delete
   `window.ScrollTimeline` in an init script and compare element positions.
+- **On phones (≤960) a stop is one piece.** Its words move with its phone,
+  a screen apart from the next (`slide()`), like any page under the finger:
+  no roll, no fade, no clip (Clara, 2026-11-01: she disliked the phone being
+  cut off under the words, and a fading version). Desktop keeps the
+  per-line roll.
 - **Mouse wheels step, trackpads scroll.** On Work a wheel notch glides one
   stop (`go()`, 700ms on `--ease`, snap off while gliding). Which device is
   turning is guessed from the deltas at the start of each gesture

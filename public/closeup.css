@@ -787,10 +787,10 @@ body:not([data-view='work']) .work :is(.info, .index, .links) {
     --H: 54svh;
   }
 
-  /* Objects leave and arrive through a cut under the words' row, halfway
-     into the 24 above the phone, so a moving one never passes over them. */
-  .strip {
-    clip-path: inset(calc(var(--words-bottom, 38svh) + 12px) 0 0);
+  /* A stop's words travel with its phone, a screen apart (closeup.js,
+     slide), so nothing clips either of them. */
+  .info .mask {
+    overflow: visible;
   }
 }
 
@@ -1507,7 +1507,9 @@ body[data-nav-hidden] .bar {
 
 @media (prefers-reduced-motion: reduce) {
   .cp__row,
-  .cp__media {
+  .cp__media,
+  .cp__row.is-late,
+  .cp__media.is-late {
     opacity: 1;
     translate: none;
   }

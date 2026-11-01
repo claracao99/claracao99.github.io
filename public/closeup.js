@@ -207,9 +207,8 @@ function size() {
   const mid = cut + (innerHeight - cut) / 2 - Math.round((innerHeight - cut) * 0.04);
   root.style.setProperty('--info-top', `${Math.round(mid - H / 2)}px`);
   root.style.setProperty('--index-top', `${Math.round(mid - index.offsetHeight / 2)}px`);
-  // On a phone the words and the objects keep to two bands: the words roll
-  // inside their row, as tall as the wordiest project, and the objects stay
-  // under it (the strip cuts there), so a moving one never crosses the words.
+  // On a phone a stop's phone stands under its words' row, as tall as the
+  // wordiest project, so every stop's phone starts at the same height.
   root.style.setProperty('--words-bottom', `${Math.round($('.info').getBoundingClientRect().top + H)}px`);
   at = -1;
   scrub();
@@ -219,13 +218,18 @@ function size() {
 // bottom (k is its place in the block). At the stop it's 0, a stop away ±1.
 const rate = (key, k) => (REDUCE ? 1 : 1 + (key === 'block' ? k + 1 : 0) * 0.12);
 const rollAt = (i, p, m) => Math.max(-1, Math.min(1, (i - p) * m));
+// On a phone a stop is one piece: its words move with its phone, a screen
+// apart from the next, like any page under the finger. Nothing rolls, fades
+// or gets cut.
+const PHONE = matchMedia('(max-width: 960px)');
+const slide = (i, p, h) => (i - p) * GAP * h;
 
 // The column and the words follow the scroll on the compositor where the
 // browser can (Chrome, Safari 26.4+): they're animations on a scroll
 // timeline, so on a phone they move with the finger instead of a frame or
 // two behind it, as they did when the script moved them after each scroll
-// event. The keyframes are the same function render() uses, stops() and all,
-// written out at its corners; they're rebuilt whenever the sizes change.
+// event. The keyframes are the same functions render() uses, stops() and
+// all, written out at their corners; they're rebuilt whenever sizes change.
 const TIMELINE = typeof ScrollTimeline === 'function';
 let scrubs = [];
 function scrub() {
@@ -240,40 +244,61 @@ function scrub() {
   const offset = (p) => Math.min(1, (stretched && p > last - 1 ? knee + (p - (last - 1)) * (end - knee) : p * h) / end);
   const frames = (f, corners) => [...new Set([0, pEnd, stretched ? last - 1 : 0, ...corners])]
     .filter((p) => p >= 0 && p <= pEnd).sort((a, b) => a - b)
-    .map((p) => ({ offset: offset(p), transform: `translateY(${f(p)}px)` }));
-  const jobs = objects.map((el, i) => [el, frames((p) => (i - p) * GAP * h, [])]);
+    .map((p) => ({ offset: offset(p), ...f(p) }));
+  const move = (y) => ({ transform: `translateY(${y}px)` });
+  const jobs = objects.map((el, i) => [el, frames((p) => move(slide(i, p, h)), [])]);
   rows.forEach(({ key, el, lines }) => {
     const rh = el.offsetHeight + 8;
     lines.forEach((line, i) => {
       const parts = key === 'block' ? [...line.children] : [line];
+      if (PHONE.matches) {
+        jobs.push([line, frames((p) => move(slide(i, p, h)), [])]);
+        return;
+      }
       parts.forEach((part, k) => {
         const m = rate(key, k);
-        jobs.push([part, frames((p) => rollAt(i, p, m) * rh, [i - 1 / m, i + 1 / m])]);
+        jobs.push([part, frames((p) => move(rollAt(i, p, m) * rh), [i - 1 / m, i + 1 / m])]);
       });
     });
   });
   const timeline = new ScrollTimeline({ source: root, axis: 'block' });
   for (const a of scrubs) a.cancel();
-  scrubs = jobs.map(([el, keyframes]) => {
-    el.style.transform = '';
-    return el.animate(keyframes, { timeline, fill: 'both' });
-  });
+  clearMotion();
+  scrubs = jobs.map(([el, keyframes]) => el.animate(keyframes, { timeline, fill: 'both' }));
 }
+// Leaves no inline motion behind, for when the layout changes between
+// the phone's slide and the roll.
+function clearMotion() {
+  for (const { lines } of rows) for (const line of lines) {
+    line.style.transform = '';
+    for (const part of line.children) part.style.transform = '';
+  }
+}
+let phoneWas = PHONE.matches;
 
 let at = -1;
 function render() {
   const h = stopH();
   const p = stops();
-  if (!TIMELINE) objects.forEach((el, i) => { el.style.transform = `translateY(${(i - p) * GAP * h}px)`; });
+  if (!TIMELINE) {
+    objects.forEach((el, i) => { el.style.transform = `translateY(${slide(i, p, h)}px)`; });
+    if (PHONE.matches !== phoneWas) { phoneWas = PHONE.matches; clearMotion(); }
+  }
   rows.forEach(({ key, el, lines }) => {
     const rh = el.offsetHeight + 8;
     lines.forEach((line, i) => {
       const parts = key === 'block' ? [...line.children] : [line];
-      if (!TIMELINE) parts.forEach((part, k) => { part.style.transform = `translateY(${rollAt(i, p, rate(key, k)) * rh}px)`; });
-      // Out of its window, a line is hidden too. With the timeline moving it,
-      // this waits a little longer (a full stop away), so a line that has
-      // started rolling in is never still hidden.
-      const out = TIMELINE ? Math.abs(i - p) >= 1 : Math.abs(rollAt(i, p, Math.min(...parts.map((_, k) => rate(key, k))))) >= 1;
+      let out;
+      if (PHONE.matches) {
+        if (!TIMELINE) line.style.transform = `translateY(${slide(i, p, h)}px)`;
+        out = Math.abs(i - p) >= 1; // off the screen
+      } else {
+        if (!TIMELINE) parts.forEach((part, k) => { part.style.transform = `translateY(${rollAt(i, p, rate(key, k)) * rh}px)`; });
+        // Out of its window, a line is hidden too. With the timeline moving
+        // it, this waits a little longer (a full stop away), so a line that
+        // has started rolling in is never still hidden.
+        out = TIMELINE ? Math.abs(i - p) >= 1 : Math.abs(rollAt(i, p, Math.min(...parts.map((_, k) => rate(key, k))))) >= 1;
+      }
       line.style.visibility = out ? 'hidden' : '';
       line.inert = Math.abs(i - p) > 0.5;
     });
@@ -835,8 +860,8 @@ addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && view === 'case') { leaveCase(); return; }
   if (e.key === 'Escape' && view !== 'work') { location.hash = 'work'; return; }
   if (view !== 'work') return;
-  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); go(here() + 1); }
-  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(here() - 1); }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); go((glideTo ?? here()) + 1); }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go((glideTo ?? here()) - 1); }
 });
 
 // ── The nav while reading: it slides away scrolling down a case or the
