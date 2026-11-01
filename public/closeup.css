@@ -1018,6 +1018,29 @@ body[data-nav-hidden] .bar {
   margin-top: -22px;
 }
 
+/* In a narrower window an object on Work shrinks to stay 48px clear of the
+   words column (and so of the index, which is narrower), as About's lid
+   does; at full width nothing changes. --room is the widest it can be, centred. */
+@media (min-width: 961px) {
+  .strip {
+    --room: calc(100vw - 2 * (var(--edge) + var(--col) + 48px));
+  }
+
+  .strip .display {
+    --w: min(600px, var(--room));
+  }
+
+  .strip .phone {
+    --h: min(640px, calc((100svh - var(--cut)) * 0.86), calc(var(--room) * 3000 / 1462));
+  }
+
+  /* Play is sized off the phone's height, so it shrinks with it and keeps
+     its balance against the phones. */
+  .strip .play {
+    --H: min(640px, calc((100svh - var(--cut)) * 0.86), calc(var(--room) * 3000 / 1462));
+  }
+}
+
 .display .screen {
   position: absolute;
   inset: 0;

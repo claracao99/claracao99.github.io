@@ -71,6 +71,10 @@ Close-up gotchas:
 - **The About lid** is `--lid` (registered with `@property` so `laptop3d.js`
   reads resolved px): 620px, or less to stay 48px clear of the columns.
   About stacks under 1100px, earlier than the rest of the site.
+- **Work's objects keep 48px from the words column** the same way (`--room`
+  on `.strip`, desktop only): the 600px frame (video, Prototype library) and
+  the phone shrink only when the window is too narrow, and Play shrinks with
+  the phone's height so its balance holds.
 - **Testing the laptop headless** needs `--use-angle=metal --enable-gpu
   --ignore-gpu-blocklist`: without a GPU, Chrome draws WebGL on the CPU at a
   few fps, fades crawl and gestures go missing, which looks like bugs that
