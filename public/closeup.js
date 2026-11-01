@@ -212,26 +212,69 @@ function size() {
   // under it (the strip cuts there), so a moving one never crosses the words.
   root.style.setProperty('--words-bottom', `${Math.round($('.info').getBoundingClientRect().top + H)}px`);
   at = -1;
+  scrub();
+}
+
+// How far each part of a line rolls: a beat after the one above it, top to
+// bottom (k is its place in the block). At the stop it's 0, a stop away ±1.
+const rate = (key, k) => (REDUCE ? 1 : 1 + (key === 'block' ? k + 1 : 0) * 0.12);
+const rollAt = (i, p, m) => Math.max(-1, Math.min(1, (i - p) * m));
+
+// The column and the words follow the scroll on the compositor where the
+// browser can (Chrome, Safari 26.4+): they're animations on a scroll
+// timeline, so on a phone they move with the finger instead of a frame or
+// two behind it, as they did when the script moved them after each scroll
+// event. The keyframes are the same function render() uses, stops() and all,
+// written out at its corners; they're rebuilt whenever the sizes change.
+const TIMELINE = typeof ScrollTimeline === 'function';
+let scrubs = [];
+function scrub() {
+  if (!TIMELINE) return;
+  const h = stopH(), last = STOPS.length - 1;
+  const end = root.scrollHeight - innerHeight;
+  if (end <= 0) return;
+  const knee = (last - 1) * h;
+  const stretched = end < last * h; // see stops()
+  const pEnd = stretched ? last : end / h;
+  // where in the scroll (0–1) the work is at stop p: stops(), inverted
+  const offset = (p) => Math.min(1, (stretched && p > last - 1 ? knee + (p - (last - 1)) * (end - knee) : p * h) / end);
+  const frames = (f, corners) => [...new Set([0, pEnd, stretched ? last - 1 : 0, ...corners])]
+    .filter((p) => p >= 0 && p <= pEnd).sort((a, b) => a - b)
+    .map((p) => ({ offset: offset(p), transform: `translateY(${f(p)}px)` }));
+  const jobs = objects.map((el, i) => [el, frames((p) => (i - p) * GAP * h, [])]);
+  rows.forEach(({ key, el, lines }) => {
+    const rh = el.offsetHeight + 8;
+    lines.forEach((line, i) => {
+      const parts = key === 'block' ? [...line.children] : [line];
+      parts.forEach((part, k) => {
+        const m = rate(key, k);
+        jobs.push([part, frames((p) => rollAt(i, p, m) * rh, [i - 1 / m, i + 1 / m])]);
+      });
+    });
+  });
+  const timeline = new ScrollTimeline({ source: root, axis: 'block' });
+  for (const a of scrubs) a.cancel();
+  scrubs = jobs.map(([el, keyframes]) => {
+    el.style.transform = '';
+    return el.animate(keyframes, { timeline, fill: 'both' });
+  });
 }
 
 let at = -1;
 function render() {
   const h = stopH();
   const p = stops();
-  objects.forEach((el, i) => { el.style.transform = `translateY(${(i - p) * GAP * h}px)`; });
-  // Each line rolls a beat after the one above it, top to bottom.
+  if (!TIMELINE) objects.forEach((el, i) => { el.style.transform = `translateY(${(i - p) * GAP * h}px)`; });
   rows.forEach(({ key, el, lines }) => {
     const rh = el.offsetHeight + 8;
-    const roll = (node, k, i) => {
-      const d = Math.max(-1, Math.min(1, (i - p) * (REDUCE ? 1 : 1 + k * 0.12)));
-      node.style.transform = `translateY(${d * rh}px)`;
-      return d;
-    };
     lines.forEach((line, i) => {
       const parts = key === 'block' ? [...line.children] : [line];
-      const ds = parts.map((part, k) => roll(part, key === 'block' ? k + 1 : 0, i));
-      const d = Math.min(...ds.map(Math.abs));
-      line.style.visibility = d >= 1 ? 'hidden' : '';
+      if (!TIMELINE) parts.forEach((part, k) => { part.style.transform = `translateY(${rollAt(i, p, rate(key, k)) * rh}px)`; });
+      // Out of its window, a line is hidden too. With the timeline moving it,
+      // this waits a little longer (a full stop away), so a line that has
+      // started rolling in is never still hidden.
+      const out = TIMELINE ? Math.abs(i - p) >= 1 : Math.abs(rollAt(i, p, Math.min(...parts.map((_, k) => rate(key, k))))) >= 1;
+      line.style.visibility = out ? 'hidden' : '';
       line.inert = Math.abs(i - p) > 0.5;
     });
   });
@@ -269,11 +312,78 @@ addEventListener('scroll', () => {
 }, { passive: true });
 addEventListener('resize', () => { size(); render(); });
 
+// Moving to a stop glides on the site's ease (it starts at once and settles
+// slowly), the same for a wheel notch, an arrow key and the index. Snapping
+// is off while it glides, or the browser would pull each frame to a stop.
+const ease = (() => {
+  // cubic-bezier(0.2, 0, 0, 1), --ease
+  const [x1, y1, x2, y2] = [0.2, 0, 0, 1];
+  const bez = (t, a, b) => 3 * a * t * (1 - t) ** 2 + 3 * b * t * t * (1 - t) + t ** 3;
+  return (x) => {
+    let lo = 0, hi = 1;
+    for (let n = 0; n < 24; n++) { const t = (lo + hi) / 2; if (bez(t, x1, x2) < x) lo = t; else hi = t; }
+    return bez((lo + hi) / 2, y1, y2);
+  };
+})();
+let glideRaf = 0;
+let glideTo = null; // the stop it's gliding to
+function stopGlide() {
+  cancelAnimationFrame(glideRaf);
+  glideRaf = 0;
+  glideTo = null;
+  root.classList.remove('gliding');
+}
 function go(i, smooth = true) {
-  const top = Math.max(0, Math.min(STOPS.length - 1, i)) * stopH();
-  scrollTo({ top, behavior: smooth && !REDUCE ? 'smooth' : 'instant' });
+  const to = Math.max(0, Math.min(STOPS.length - 1, i));
+  const top = to * stopH();
+  stopGlide();
+  const from = scrollY;
+  if (!smooth || REDUCE || Math.abs(top - from) < 1) { scrollTo({ top, behavior: 'instant' }); return; }
+  // a stop in 700ms; a long jump from the index takes a little longer
+  const ms = 700 + Math.min(300, (Math.abs(top - from) / stopH() - 1) * 100);
+  const t0 = performance.now();
+  glideTo = to;
+  root.classList.add('gliding');
+  const step = (now) => {
+    const t = Math.min(1, (now - t0) / ms);
+    scrollTo({ top: from + (top - from) * ease(t), behavior: 'instant' });
+    if (t < 1) glideRaf = requestAnimationFrame(step);
+    else stopGlide();
+  };
+  glideRaf = requestAnimationFrame(step);
 }
 const here = () => Math.round(stops());
+
+// A mouse wheel moves one project a notch. With the snap points alone each
+// notch scrolled a little, then the browser dragged the page on to the stop
+// (or back), a lurch that never felt like it followed the wheel. Trackpads
+// keep the native scroll: the words roll under the fingers and snap on
+// release. What's turning is decided at the start of each gesture (after a
+// quarter second of quiet), from the deltas, since a wheel event doesn't say:
+// lines (Firefox), whole notches of 120 (Safari, Chrome on Windows/Linux),
+// or Chrome on a Mac's 4.000244-style line steps.
+const notched = (e) => e.deltaMode !== 0
+  || (Math.abs(e.deltaY) >= 4 && !Number.isInteger(e.deltaY) && Math.abs(e.deltaY - Math.round(e.deltaY)) < 0.01)
+  || (!!e.wheelDeltaY && e.wheelDeltaY % 120 === 0 && (Math.abs(e.deltaY) >= 50 || e.wheelDeltaY !== -3 * e.deltaY));
+let wheelLast = -Infinity, wheelMouse = false, wheelStep = -Infinity;
+addEventListener('wheel', (e) => {
+  if (body.dataset.view !== 'work' || e.ctrlKey || hold !== null) return;
+  if (e.timeStamp - wheelLast > 250) wheelMouse = notched(e);
+  wheelLast = e.timeStamp;
+  if (!wheelMouse) {
+    // fingers on the trackpad take over from a glide
+    if (glideRaf) stopGlide();
+    return;
+  }
+  e.preventDefault();
+  if (!e.deltaY || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+  // A fast spin is one move; keep turning and it carries on, a stop at a time.
+  if (e.timeStamp - wheelStep < 450) return;
+  wheelStep = e.timeStamp;
+  go((glideTo ?? here()) + Math.sign(e.deltaY));
+}, { passive: false });
+// A finger on the screen takes over from a glide too.
+addEventListener('touchstart', () => { if (glideRaf) stopGlide(); }, { passive: true });
 
 // ── Case ──────────────────────────────────────────────────────────────────────
 
@@ -498,10 +608,13 @@ function openCase(slug) {
   const first = blocks.filter((el) => el.getBoundingClientRect().top < fold);
   first.forEach((el, n) => el.style.setProperty('--delay', `${80 + (3 + p.facts.length + n) * 60}ms`));
   revealObserver?.disconnect();
+  // The rest starts rising the moment its top edge comes in (it waited for
+  // 10% of the window before, so on a phone it trailed the finger) and on a
+  // quicker, ease-out curve (is-late).
   revealObserver = new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { e.target.classList.add('is-in'); revealObserver.unobserve(e.target); }
-  }, { root: casePane, rootMargin: '0px 0px -10% 0px' });
-  blocks.filter((el) => !first.includes(el)).forEach((el) => revealObserver.observe(el));
+  }, { root: casePane });
+  blocks.filter((el) => !first.includes(el)).forEach((el) => { el.classList.add('is-late'); revealObserver.observe(el); });
   // Demos: playable pieces of the product.
   for (const el of $$('[data-demo]', casePane)) if (el.dataset.demo === 'activity-filter') mountFilterDemo(el);
   const player = $('.cp__video', casePane);

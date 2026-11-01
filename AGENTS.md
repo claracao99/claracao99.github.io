@@ -34,6 +34,20 @@ Close-up gotchas:
   lets Safari rest anywhere inside it, past the stop. To test it, Chrome at
   402×754 with `.runway section { height: 714px }` is the bar-hidden
   geometry; the Simulator's Safari won't keep its bar hidden at the end.
+- **Work's motion runs on a scroll timeline.** The phones and the words are
+  WAAPI animations on a `ScrollTimeline` (`scrub()` in `closeup.js`), so they
+  move with the finger, not a frame behind it. Their keyframes are
+  `render()`'s own function, `stops()` included, written out at its corners.
+  `render()` moves them by hand only where there's no `ScrollTimeline`
+  (Firefox). A change to how anything moves goes in both places;
+  `rollAt()`/`rate()` are shared. To check them against each other, delete
+  `window.ScrollTimeline` in an init script and compare element positions.
+- **Mouse wheels step, trackpads scroll.** On Work a wheel notch glides one
+  stop (`go()`, 700ms on `--ease`, snap off while gliding). Which device is
+  turning is guessed from the deltas at the start of each gesture
+  (`notched()`), since a wheel event doesn't say. Headless Chrome reports
+  every synthetic wheel event as a 120 notch, so trackpads can't be tested
+  there; check them by hand.
 - **Before/after has dark twins.** Each `compare` image has a `-dark.webp`
   beside it: the same screen in `device-dark.webp`, swapped by theme. The
   screen sits at (66, 54), 1329×2891 of the 1462×3000 frame, radius

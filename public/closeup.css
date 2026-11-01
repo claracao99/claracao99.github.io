@@ -65,7 +65,8 @@ html {
   transition: background-color 400ms var(--ease);
 }
 
-html.hold {
+html.hold,
+html.gliding {
   scroll-snap-type: none;
 }
 
@@ -1431,6 +1432,15 @@ body[data-nav-hidden] .bar {
   opacity: 0;
   translate: 0 24px;
   transition: opacity 760ms var(--ease-io) var(--delay, 0ms), translate 760ms var(--ease-io) var(--delay, 0ms);
+}
+
+/* Reached by scrolling, a block rises less and sooner: 16px on the site's
+   ease, which starts at once, so it keeps up with a phone's flick. */
+.cp__row.is-late,
+.cp__media.is-late {
+  translate: 0 16px;
+  transition-duration: 560ms;
+  transition-timing-function: var(--ease);
 }
 
 .cp__row.is-in,
