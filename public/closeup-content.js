@@ -134,6 +134,22 @@ export const PROJECTS = [
     ],
   },
   {
+    // A still of the library's landing page, showing only the prototypes
+    // already public here (the rest are unreleased Bolt work).
+    slug: 'prototype-library',
+    ground: 'mist',
+    kind: 'display',
+    still: true,
+    title: 'Prototype library',
+    tagline: 'Rider prototypes in real code',
+    summary: 'Prototypes in real code. A library of 12 rider prototypes on Clay, Bolt’s design system, used across teams for reviews and usability studies.',
+    role: 'Lead designer, Bolt, 2026',
+    clip: M + 'prototype-library',
+    facts: [['Role', 'Lead designer'], ['Company', 'Bolt'], ['When', 'Jul 2026 – now']],
+    figure: null,
+    sections: [],
+  },
+  {
     slug: 'design-workflow-ai',
     ground: 'mist',
     kind: 'display',
